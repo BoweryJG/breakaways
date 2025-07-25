@@ -2,7 +2,7 @@
 // Reveals the Moon as an artificial control satellite monitoring and influencing Earth
 
 let moonScene, moonCamera, moonRenderer, moonControls;
-let moon, earth, controlGrid, lunarBases, tidalField;
+let moon, moonEarth, controlGrid, lunarBases, tidalField;
 let moonSystem = {
     structures: [],
     beams: [],
@@ -154,10 +154,10 @@ function createEarthSystem() {
         transparent: true
     });
     
-    earth = new THREE.Mesh(earthGeometry, earthMaterial);
-    earth.receiveShadow = true;
-    earth.castShadow = true;
-    earthGroup.add(earth);
+    moonEarth = new THREE.Mesh(earthGeometry, earthMaterial);
+    moonEarth.receiveShadow = true;
+    moonEarth.castShadow = true;
+    earthGroup.add(moonEarth);
     
     // Continental grid overlay
     const gridGeometry = new THREE.SphereGeometry(EARTH_RADIUS + 1, 36, 18);
@@ -994,8 +994,8 @@ function animateMoon() {
     moonSystem.moonGroup.rotation.y = -moonAngle;
     
     // Rotate Earth
-    if (earth) {
-        earth.rotation.y += 0.002;
+    if (moonEarth) {
+        moonEarth.rotation.y += 0.002;
     }
     
     // Update atmosphere shader

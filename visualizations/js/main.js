@@ -325,7 +325,7 @@ function capitalize(str) {
 window.appState = state;
 
 // Initialize sound system
-import breakawaySound from './sound-system.js';
+// Sound system is loaded via script tag in index.html
 
 // Sound integration
 async function initializeSoundSystem() {
