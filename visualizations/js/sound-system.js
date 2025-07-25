@@ -1005,4 +1005,4 @@ document.addEventListener('click', attemptInit);
 document.addEventListener('keydown', attemptInit);
 
 // Export for module usage
-export default window.breakawaySound;
+// export default window.breakawaySound;

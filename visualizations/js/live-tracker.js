@@ -1561,3 +1561,14 @@ style.textContent = `
 `;
 
 document.head.appendChild(style);
+
+// Initialize function for main.js
+function initLiveTracker() {
+    if (!window.liveTracker) {
+        window.liveTracker = new LiveTracker();
+    }
+    window.liveTracker.init();
+}
+
+// Export for use
+window.initLiveTracker = initLiveTracker;

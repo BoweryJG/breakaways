@@ -62,17 +62,31 @@ function switchView(viewName) {
     state.currentView = viewName;
     
     // Initialize specific visualization if needed
-    if (typeof window[`init${capitalize(viewName)}`] === 'function') {
-        window[`init${capitalize(viewName)}`]();
-    }
+    const initFunctions = {
+        'grid-map': 'initGridMap',
+        'timeline': 'initTimeline',
+        'population-genetics': 'initPopulationGenetics',
+        'underground': 'initEarth3d',
+        'electromagnetic': 'initElectromagnetic',
+        'moon': 'initMoonControl',
+        'convergence': 'initMasterConvergence',
+        'evidence': 'initEvidence',
+        'antarctica': 'initAntarcticRevelation',
+        'live': 'initLiveTracker'
+    };
     
-    // Special handling for 3D Earth visualization
-    if (viewName === 'underground' && typeof window.initEarth3d === 'function') {
-        // Clean up previous instance if exists
-        if (typeof window.cleanupEarth3d === 'function') {
+    const initFunc = initFunctions[viewName];
+    if (initFunc && typeof window[initFunc] === 'function') {
+        // Clean up previous 3D scenes if needed
+        if (viewName === 'underground' && typeof window.cleanupEarth3d === 'function') {
             window.cleanupEarth3d();
+        } else if (viewName === 'moon' && typeof window.cleanupMoonControl === 'function') {
+            window.cleanupMoonControl();
+        } else if (viewName === 'convergence' && typeof window.cleanupMasterConvergence === 'function') {
+            window.cleanupMasterConvergence();
         }
-        window.initEarth3d();
+        
+        window[initFunc]();
     }
     
     // Clean up EM Symphony when leaving that view
@@ -329,24 +343,29 @@ window.appState = state;
 
 // Sound integration
 async function initializeSoundSystem() {
-    await breakawaySound.initialize();
+    if (!window.breakawaySound) return;
+    await window.breakawaySound.initialize();
     
     // Play ambient background
-    breakawaySound.startAmbientLayer('deepSpace');
-    breakawaySound.setCategoryVolume('ambient', 0.3);
+    window.breakawaySound.startAmbientLayer('deepSpace');
+    window.breakawaySound.setCategoryVolume('ambient', 0.3);
     
     // Start Schumann resonance
-    breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
-    breakawaySound.setCategoryVolume('sacred', 0.4);
+    window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+    window.breakawaySound.setCategoryVolume('sacred', 0.4);
 }
 
 // Sound effects for UI interactions
 function playNavigationSound() {
-    breakawaySound.playEventSound('activation', { duration: 0.2 });
+    if (window.breakawaySound) {
+        window.breakawaySound.playEventSound('activation', { duration: 0.2 });
+    }
 }
 
 function playAlertSound(level = 1) {
-    breakawaySound.playAlert(level);
+    if (window.breakawaySound) {
+        window.breakawaySound.playAlert(level);
+    }
 }
 
 // Integrate sound with existing functions
@@ -356,19 +375,21 @@ window.switchView = function(viewName) {
     originalSwitchView(viewName);
     
     // View-specific sounds
-    switch(viewName) {
-        case 'electromagnetic':
-            breakawaySound.startAmbientLayer('quantumFlux');
-            break;
-        case 'underground':
-            breakawaySound.startAmbientLayer('earthHum');
-            break;
-        case 'antarctic':
-            breakawaySound.startAmbientLayer('crystalResonance');
-            break;
-        case 'convergence':
-            breakawaySound.playBinauralBeat('gamma');
-            break;
+    if (window.breakawaySound) {
+        switch(viewName) {
+            case 'electromagnetic':
+                window.breakawaySound.startAmbientLayer('quantumFlux');
+                break;
+            case 'underground':
+                window.breakawaySound.startAmbientLayer('earthHum');
+                break;
+            case 'antarctic':
+                window.breakawaySound.startAmbientLayer('crystalResonance');
+                break;
+            case 'convergence':
+                window.breakawaySound.playBinauralBeat('gamma');
+                break;
+        }
     }
 };
 
@@ -394,5 +415,4 @@ document.addEventListener('click', async () => {
     }
 }, { once: true });
 
-// Export sound system for use in other modules
-window.breakawaySound = breakawaySound;
+// Sound system is already available as window.breakawaySound from sound-system.js
