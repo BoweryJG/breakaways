@@ -754,7 +754,7 @@ class BreakawaySound {
     
     // Play alert sound with urgency level
     playAlert(urgencyLevel = 1) {
-        if (!this.isInitialized) return; // Alerts play even if muted
+        if (!this.isInitialized || this.isMuted) return; // Respect mute setting
         
         const configs = [
             { freq: 440, pulses: 1, duration: 0.5 },  // Level 1 - Low

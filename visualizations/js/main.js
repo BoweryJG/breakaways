@@ -433,9 +433,15 @@ window.startLiveUpdates = function() {
     originalStartLiveUpdates();
     
     // Override Schumann update to include sound
+    let lastAlertTime = 0;
     setInterval(() => {
-        if (state.schumann > 10) {
-            playAlertSound(2);
+        if (state.schumann > 10 && soundEnabled) {
+            const now = Date.now();
+            // Only play alert once per minute to avoid annoying beeping
+            if (now - lastAlertTime > 60000) {
+                playAlertSound(2);
+                lastAlertTime = now;
+            }
         }
     }, 5000);
 };
