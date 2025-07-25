@@ -6,7 +6,21 @@
     <title>The Breakaway Civilization - Visual Evidence Dashboard</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/FilmPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/FXAAShader.js"></script>
+    <!-- Leaflet for Antarctic Revelation map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 </head>
 <body>
     <div id="loading-screen">
@@ -31,6 +45,7 @@
         <button class="nav-btn" data-view="grid-map">Global Energy Grid</button>
         <button class="nav-btn" data-view="timeline">Galactic Cycles</button>
         <button class="nav-btn" data-view="bloodlines">Bloodline Activation</button>
+        <button class="nav-btn" data-view="population-genetics">Population Genetics</button>
         <button class="nav-btn" data-view="underground">Hidden Architecture</button>
         <button class="nav-btn" data-view="electromagnetic">EM Symphony</button>
         <button class="nav-btn" data-view="moon">Lunar Control</button>
@@ -146,18 +161,46 @@
             </div>
         </section>
 
+        <!-- Population Genetics Distribution -->
+        <section id="population-genetics" class="viz-section">
+            <h2>Population Genetics & Ancient Migrations</h2>
+            <div class="genetics-controls">
+                <h4>View Controls</h4>
+                <label><input type="checkbox" class="genetics-layer" data-layer="migrations" checked> Migration Paths</label>
+                <label><input type="checkbox" class="genetics-layer" data-layer="diversity" checked> Genetic Diversity</label>
+                <label><input type="checkbox" class="genetics-layer" data-layer="rh-negative" checked> RH Negative Distribution</label>
+                <label><input type="checkbox" class="genetics-layer" data-layer="haplogroups" checked> Haplogroups</label>
+                <label><input type="checkbox" class="genetics-layer" data-layer="ancient" checked> Ancient Connections</label>
+            </div>
+            <div id="population-genetics-container"></div>
+            <div class="genetics-info">
+                <div class="info-column">
+                    <h4>Key Findings</h4>
+                    <ul>
+                        <li>RH negative blood highest in Basque region (35%)</li>
+                        <li>Ancient migration patterns follow ley lines</li>
+                        <li>Genetic bottlenecks at 12,000 year intervals</li>
+                        <li>Haplogroup distributions match megalithic sites</li>
+                        <li>African populations show highest genetic diversity</li>
+                    </ul>
+                </div>
+                <div class="info-column">
+                    <h4>Anomalous Patterns</h4>
+                    <ul>
+                        <li>RH negative concentration in isolated populations</li>
+                        <li>Unexplained genetic similarities across oceans</li>
+                        <li>Ancient DNA showing advanced traits</li>
+                        <li>Genetic markers activating since 2012</li>
+                        <li>Population clusters at energy grid nodes</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- Earth's Hidden Architecture -->
         <section id="underground" class="viz-section">
             <h2>Earth's Hidden Architecture</h2>
-            <div id="earth-cutaway-container"></div>
-            <div class="depth-controls">
-                <label>Depth Layer: <input type="range" id="depth-slider" min="0" max="10" value="0"></label>
-                <span id="depth-label">Surface</span>
-            </div>
-            <div class="facility-list">
-                <h4>Major Underground Facilities</h4>
-                <div id="facility-grid"></div>
-            </div>
+            <div id="earth-3d-container"></div>
         </section>
 
         <!-- Electromagnetic Symphony -->
@@ -201,27 +244,17 @@
         </section>
 
         <!-- Master Convergence -->
+        <!-- Master Convergence 3D Visualization -->
         <section id="convergence" class="viz-section">
-            <h2>The Grand Convergence</h2>
-            <div id="convergence-3d"></div>
-            <div class="convergence-controls">
-                <button class="system-toggle" data-system="all">All Systems</button>
-                <button class="system-toggle" data-system="energy">Energy Grid</button>
-                <button class="system-toggle" data-system="genetics">Genetic Activation</button>
-                <button class="system-toggle" data-system="craft">Craft Activity</button>
-                <button class="system-toggle" data-system="underground">Underground Network</button>
-            </div>
+            <h2>Master Convergence System</h2>
+            <div id="master-convergence-container" style="width: 100%; height: 800px; position: relative;"></div>
         </section>
 
         <!-- Evidence Matrix -->
         <section id="evidence" class="viz-section">
             <h2>Evidence Correlation Matrix</h2>
-            <div id="correlation-matrix"></div>
-            <div class="probability-calc">
-                <h4>Statistical Analysis</h4>
-                <p>Probability of random correlation: <span class="probability">1 in 10^47</span></p>
-                <p class="conclusion">Mathematical impossibility of coincidence</p>
-            </div>
+            <p class="section-description">Interactive matrix revealing the hidden connections between paranormal phenomena. Each correlation is backed by documented evidence from multiple sources.</p>
+            <div id="evidence-container" class="evidence-matrix-container"></div>
         </section>
 
         <!-- Antarctic Revelation -->
@@ -243,33 +276,7 @@
 
         <!-- Live Awakening Tracker -->
         <section id="live" class="viz-section">
-            <h2>Live Global Awakening Tracker</h2>
-            <div id="live-map"></div>
-            <div class="live-feeds">
-                <div class="feed" id="genetic-feed">
-                    <h4>Genetic Activations</h4>
-                    <div class="feed-content"></div>
-                </div>
-                <div class="feed" id="monument-feed">
-                    <h4>Monument Activity</h4>
-                    <div class="feed-content"></div>
-                </div>
-                <div class="feed" id="sighting-feed">
-                    <h4>UAP Sightings</h4>
-                    <div class="feed-content"></div>
-                </div>
-                <div class="feed" id="seismic-feed">
-                    <h4>Grid Node Seismic</h4>
-                    <div class="feed-content"></div>
-                </div>
-            </div>
-            <div class="acceleration-meter">
-                <h4>Event Acceleration</h4>
-                <div class="meter">
-                    <div class="meter-fill" style="width: 87%"></div>
-                </div>
-                <p>Current Rate: <span class="rate">Exponential</span></p>
-            </div>
+            <div id="live-tracker"></div>
         </section>
     </main>
 
@@ -280,5 +287,14 @@
 
     <script src="js/main.js"></script>
     <script src="js/visualizations.js"></script>
+    <script src="js/population-genetics.js"></script>
+    <script src="js/galactic-spiral.js"></script>
+    <script src="js/earth-3d.js"></script>
+    <script src="js/em-symphony.js"></script>
+    <script src="js/moon-control.js"></script>
+    <script src="js/master-convergence.js"></script>
+    <script src="js/evidence-matrix.js"></script>
+    <script src="js/antarctic-revelation.js"></script>
+    <script src="js/live-tracker.js"></script>
 </body>
 </html>

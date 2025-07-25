@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakaway Sound System Test</title>
+    <style>
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --accent-color: #00ffcc;
+            --warning-color: #ff6b6b;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --grid-color: #2a2a2a;
+            --glow-color: #00ffcc;
+            --pulse-color: #ff00ff;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1, h2 {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .section {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        button.active {
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .volume-control label {
+            min-width: 120px;
+            color: var(--text-secondary);
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            background: var(--grid-color);
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: var(--accent-color);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+        
+        .visualization {
+            width: 100%;
+            height: 200px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--grid-color);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #status {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .ambient-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        
+        .category-title {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .playing-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--pulse-color);
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Breakaway Sound System Test Interface</h1>
+        
+        <div class="section">
+            <h2>Master Controls</h2>
+            <div class="volume-control">
+                <label>Master Volume:</label>
+                <input type="range" id="masterVolume" min="0" max="100" value="70">
+                <span id="masterVolumeValue">70%</span>
+            </div>
+            <button id="muteBtn">Mute All</button>
+            <button id="stopAllBtn">Stop All Sounds</button>
+            <div id="status">Click any button to initialize the sound system</div>
+        </div>
+        
+        <div class="section">
+            <h2>Sacred Frequencies</h2>
+            <div class="category-title">Solfeggio Scale</div>
+            <div class="controls">
+                <button onclick="playSacred('solfeggio.ut')">396 Hz - Liberation</button>
+                <button onclick="playSacred('solfeggio.re')">417 Hz - Change</button>
+                <button onclick="playSacred('solfeggio.mi')">528 Hz - DNA Repair</button>
+                <button onclick="playSacred('solfeggio.fa')">639 Hz - Relationships</button>
+                <button onclick="playSacred('solfeggio.sol')">741 Hz - Intuition</button>
+                <button onclick="playSacred('solfeggio.la')">852 Hz - Spiritual Order</button>
+                <button onclick="playSacred('solfeggio.si')">963 Hz - Divine Connection</button>
+            </div>
+            
+            <div class="category-title">Planetary Frequencies</div>
+            <div class="controls">
+                <button onclick="playSacred('planetary.earth')">Earth Year</button>
+                <button onclick="playSacred('planetary.moon')">Moon Cycle</button>
+                <button onclick="playSacred('planetary.sun')">Sun Tone</button>
+                <button onclick="playSacred('om')">Om (136.1 Hz)</button>
+            </div>
+            
+            <div class="volume-control">
+                <label>Sacred Volume:</label>
+                <input type="range" id="sacredVolume" min="0" max="100" value="60">
+                <span id="sacredVolumeValue">60%</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Binaural Beats</h2>
+            <div class="controls">
+                <button onclick="playBinaural('delta')">Delta - Deep Sleep</button>
+                <button onclick="playBinaural('theta')">Theta - Meditation</button>
+                <button onclick="playBinaural('alpha')">Alpha - Relaxation</button>
+                <button onclick="playBinaural('beta')">Beta - Focus</button>
+                <button onclick="playBinaural('gamma')">Gamma - Higher Consciousness</button>
+            </div>
+            <div class="volume-control">
+                <label>Binaural Volume:</label>
+                <input type="range" id="binauralVolume" min="0" max="100" value="50">
+                <span id="binauralVolumeValue">50%</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Schumann Resonance</h2>
+            <div class="controls">
+                <button onclick="playSchumann(false)">Fundamental Only</button>
+                <button onclick="playSchumann(true)">With Harmonics</button>
+                <button onclick="playSchumann(true, {rate: 0.1, depth: 0.5})">Modulated</button>
+                <button onclick="stopSchumann()">Stop Schumann</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Event Sounds</h2>
+            <div class="controls">
+                <button onclick="playEvent('activation')">Activation</button>
+                <button onclick="playEvent('alert')">Alert</button>
+                <button onclick="playEvent('warning')">Warning</button>
+                <button onclick="playEvent('discovery')">Discovery</button>
+                <button onclick="playEvent('connection')">Connection</button>
+                <button onclick="playEvent('anomaly')">Anomaly</button>
+                <button onclick="playEvent('portal')">Portal</button>
+                <button onclick="playEvent('crystalline')">Crystalline</button>
+            </div>
+            <div class="volume-control">
+                <label>Events Volume:</label>
+                <input type="range" id="eventsVolume" min="0" max="100" value="80">
+                <span id="eventsVolumeValue">80%</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Ambient Soundscapes</h2>
+            <div class="ambient-controls">
+                <button onclick="toggleAmbient('deepSpace')">Deep Space</button>
+                <button onclick="toggleAmbient('earthHum')">Earth Hum</button>
+                <button onclick="toggleAmbient('cosmicWind')">Cosmic Wind</button>
+                <button onclick="toggleAmbient('crystalResonance')">Crystal Resonance</button>
+                <button onclick="toggleAmbient('ancientEchoes')">Ancient Echoes</button>
+                <button onclick="toggleAmbient('quantumFlux')">Quantum Flux</button>
+            </div>
+            <div class="volume-control">
+                <label>Ambient Volume:</label>
+                <input type="range" id="ambientVolume" min="0" max="100" value="40">
+                <span id="ambientVolumeValue">40%</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Healing Sequences</h2>
+            <div class="controls">
+                <button onclick="playHealing('chakra')">Chakra Alignment</button>
+                <button onclick="playHealing('dna')">DNA Activation</button>
+                <button onclick="playHealing('calm')">Calming Sequence</button>
+                <button onclick="playHealing('energy')">Energy Boost</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Alert Levels</h2>
+            <div class="controls">
+                <button onclick="playAlertLevel(1)">Level 1 - Low</button>
+                <button onclick="playAlertLevel(2)">Level 2 - Medium</button>
+                <button onclick="playAlertLevel(3)">Level 3 - High</button>
+                <button onclick="playAlertLevel(4)">Level 4 - Critical</button>
+            </div>
+            <div class="volume-control">
+                <label>Alerts Volume:</label>
+                <input type="range" id="alertsVolume" min="0" max="100" value="90">
+                <span id="alertsVolumeValue">90%</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Sound Visualization</h2>
+            <canvas id="visualizer" class="visualization"></canvas>
+        </div>
+    </div>
+    
+    <script type="module">
+        import breakawaySound from './js/sound-system.js';
+        
+        let activeSounds = new Map();
+        let visualizerActive = false;
+        let visualizerContext;
+        
+        // Initialize visualizer
+        const canvas = document.getElementById('visualizer');
+        visualizerContext = canvas.getContext('2d');
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        
+        // Sacred frequency player
+        window.playSacred = async (freq) => {
+            await breakawaySound.initialize();
+            const id = breakawaySound.playSacredFrequency(freq, 5);
+            updateStatus(`Playing sacred frequency: ${freq}`);
+        };
+        
+        // Binaural beat player
+        window.playBinaural = async (type) => {
+            await breakawaySound.initialize();
+            const existing = activeSounds.get(`binaural_${type}`);
+            if (existing) {
+                breakawaySound.stopSound(existing);
+                activeSounds.delete(`binaural_${type}`);
+                updateStatus(`Stopped ${type} binaural beat`);
+            } else {
+                const id = breakawaySound.playBinauralBeat(type);
+                activeSounds.set(`binaural_${type}`, id);
+                updateStatus(`Playing ${type} binaural beat (use headphones for best effect)`);
+            }
+        };
+        
+        // Schumann resonance player
+        window.playSchumann = async (harmonics, modulation) => {
+            await breakawaySound.initialize();
+            breakawaySound.playSchumannResonance(harmonics, modulation);
+            updateStatus('Playing Schumann resonance');
+        };
+        
+        window.stopSchumann = () => {
+            breakawaySound.stopSound('schumann_resonance');
+            updateStatus('Stopped Schumann resonance');
+        };
+        
+        // Event sound player
+        window.playEvent = async (type) => {
+            await breakawaySound.initialize();
+            breakawaySound.playEventSound(type);
+            updateStatus(`Playing event sound: ${type}`);
+        };
+        
+        // Ambient toggle
+        window.toggleAmbient = async (layer) => {
+            await breakawaySound.initialize();
+            const button = event.target;
+            
+            if (breakawaySound.ambientLayers[layer].active) {
+                breakawaySound.stopAmbientLayer(layer);
+                button.classList.remove('active');
+                updateStatus(`Stopped ${layer} ambient layer`);
+            } else {
+                breakawaySound.startAmbientLayer(layer);
+                button.classList.add('active');
+                updateStatus(`Started ${layer} ambient layer`);
+            }
+        };
+        
+        // Healing sequence player
+        window.playHealing = async (sequence) => {
+            await breakawaySound.initialize();
+            breakawaySound.playHealingSequence(sequence, 20);
+            updateStatus(`Playing ${sequence} healing sequence`);
+        };
+        
+        // Alert level player
+        window.playAlertLevel = async (level) => {
+            await breakawaySound.initialize();
+            breakawaySound.playAlert(level);
+            updateStatus(`Playing alert level ${level}`);
+        };
+        
+        // Update status
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        // Volume controls
+        document.getElementById('masterVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setMasterVolume(value);
+            document.getElementById('masterVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        document.getElementById('sacredVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setCategoryVolume('sacred', value);
+            document.getElementById('sacredVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        document.getElementById('binauralVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setCategoryVolume('binaural', value);
+            document.getElementById('binauralVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        document.getElementById('eventsVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setCategoryVolume('events', value);
+            document.getElementById('eventsVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        document.getElementById('ambientVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setCategoryVolume('ambient', value);
+            document.getElementById('ambientVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        document.getElementById('alertsVolume').addEventListener('input', (e) => {
+            const value = e.target.value / 100;
+            breakawaySound.setCategoryVolume('alerts', value);
+            document.getElementById('alertsVolumeValue').textContent = `${e.target.value}%`;
+        });
+        
+        // Mute button
+        document.getElementById('muteBtn').addEventListener('click', async () => {
+            await breakawaySound.initialize();
+            const isMuted = breakawaySound.toggleMute();
+            document.getElementById('muteBtn').textContent = isMuted ? 'Unmute All' : 'Mute All';
+            updateStatus(isMuted ? 'Sound muted' : 'Sound unmuted');
+        });
+        
+        // Stop all button
+        document.getElementById('stopAllBtn').addEventListener('click', () => {
+            breakawaySound.stopAll();
+            activeSounds.clear();
+            document.querySelectorAll('button.active').forEach(btn => btn.classList.remove('active'));
+            updateStatus('All sounds stopped');
+        });
+        
+        // Visualizer
+        function drawVisualizer() {
+            if (!visualizerActive || !breakawaySound.isInitialized) return;
+            
+            requestAnimationFrame(drawVisualizer);
+            
+            const data = breakawaySound.getVisualizationData();
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas with fade effect
+            visualizerContext.fillStyle = 'rgba(10, 10, 10, 0.1)';
+            visualizerContext.fillRect(0, 0, width, height);
+            
+            // Draw frequency bars
+            const barWidth = width / data.frequencies.length * 4;
+            const barSpacing = 2;
+            
+            for (let i = 0; i < data.frequencies.length / 4; i++) {
+                const value = data.frequencies[i];
+                const normalizedValue = (value + 140) / 140; // Normalize dB values
+                const barHeight = normalizedValue * height * 0.8;
+                
+                const hue = (i / (data.frequencies.length / 4)) * 360;
+                visualizerContext.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                
+                visualizerContext.fillRect(
+                    i * (barWidth + barSpacing),
+                    height - barHeight,
+                    barWidth,
+                    barHeight
+                );
+            }
+            
+            // Draw waveform
+            visualizerContext.strokeStyle = '#00ffcc';
+            visualizerContext.lineWidth = 2;
+            visualizerContext.beginPath();
+            
+            const sliceWidth = width / data.waveform.length;
+            let x = 0;
+            
+            for (let i = 0; i < data.waveform.length; i++) {
+                const v = data.waveform[i];
+                const y = (v + 1) / 2 * height;
+                
+                if (i === 0) {
+                    visualizerContext.moveTo(x, y);
+                } else {
+                    visualizerContext.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            visualizerContext.stroke();
+            
+            // Display energy level
+            visualizerContext.fillStyle = '#00ffcc';
+            visualizerContext.font = '14px Courier New';
+            visualizerContext.fillText(`Energy: ${(data.energy * 100).toFixed(1)}%`, 10, 20);
+            visualizerContext.fillText(`Dominant: ${data.dominantFrequency.toFixed(1)} Hz`, 10, 40);
+        }
+        
+        // Start visualizer
+        visualizerActive = true;
+        drawVisualizer();
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        });
+    </script>
+</body>
+</html>

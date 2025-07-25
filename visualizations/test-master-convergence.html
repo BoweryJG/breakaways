@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Convergence Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: 'Courier New', monospace;
+            color: #00ffcc;
+            overflow: hidden;
+        }
+        #master-convergence-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            text-shadow: 0 0 20px #00ffcc;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/FilmPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/FXAAShader.js"></script>
+</head>
+<body>
+    <h1>MASTER CONVERGENCE SYSTEM</h1>
+    <div id="master-convergence-container"></div>
+    
+    <script src="js/master-convergence.js"></script>
+    <script>
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.initMasterConvergence === 'function') {
+                window.initMasterConvergence();
+            } else {
+                console.error('Master Convergence initialization function not found');
+            }
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (typeof window.cleanupMasterConvergence === 'function') {
+                window.cleanupMasterConvergence();
+            }
+        });
+    </script>
+</body>
+</html>

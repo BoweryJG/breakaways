@@ -65,6 +65,77 @@ function switchView(viewName) {
     if (typeof window[`init${capitalize(viewName)}`] === 'function') {
         window[`init${capitalize(viewName)}`]();
     }
+    
+    // Special handling for 3D Earth visualization
+    if (viewName === 'underground' && typeof window.initEarth3d === 'function') {
+        // Clean up previous instance if exists
+        if (typeof window.cleanupEarth3d === 'function') {
+            window.cleanupEarth3d();
+        }
+        window.initEarth3d();
+    }
+    
+    // Clean up EM Symphony when leaving that view
+    if (state.currentView === 'electromagnetic' && viewName !== 'electromagnetic') {
+        if (typeof window.cleanupEmSymphony === 'function') {
+            window.cleanupEmSymphony();
+        }
+    }
+    
+    // Special handling for Master Convergence visualization
+    if (viewName === 'convergence' && typeof window.initMasterConvergence === 'function') {
+        // Clean up previous instance if exists
+        if (typeof window.cleanupMasterConvergence === 'function') {
+            window.cleanupMasterConvergence();
+        }
+        window.initMasterConvergence();
+    }
+    
+    // Clean up Master Convergence when leaving that view
+    if (state.currentView === 'convergence' && viewName !== 'convergence') {
+        if (typeof window.cleanupMasterConvergence === 'function') {
+            window.cleanupMasterConvergence();
+        }
+    }
+    
+    // Clean up Evidence Matrix when leaving that view
+    if (state.currentView === 'evidence' && viewName !== 'evidence') {
+        if (typeof window.cleanupEvidenceMatrix === 'function') {
+            window.cleanupEvidenceMatrix();
+        }
+    }
+    
+    // Special handling for Antarctic Revelation visualization
+    if (viewName === 'antarctic' && typeof window.initAntarcticRevelation === 'function') {
+        // Clean up previous instance if exists
+        if (typeof window.cleanupAntarcticRevelation === 'function') {
+            window.cleanupAntarcticRevelation();
+        }
+        window.initAntarcticRevelation();
+    }
+    
+    // Clean up Antarctic Revelation when leaving that view
+    if (state.currentView === 'antarctic' && viewName !== 'antarctic') {
+        if (typeof window.cleanupAntarcticRevelation === 'function') {
+            window.cleanupAntarcticRevelation();
+        }
+    }
+    
+    // Special handling for Live Tracker visualization
+    if (viewName === 'live' && typeof window.initLiveTracker === 'function') {
+        // Clean up previous instance if exists
+        if (typeof window.cleanupLiveTracker === 'function') {
+            window.cleanupLiveTracker();
+        }
+        window.initLiveTracker();
+    }
+    
+    // Clean up Live Tracker when leaving that view
+    if (state.currentView === 'live' && viewName !== 'live') {
+        if (typeof window.cleanupLiveTracker === 'function') {
+            window.cleanupLiveTracker();
+        }
+    }
 }
 
 function hideLoadingScreen() {
@@ -244,8 +315,84 @@ function updateMapLayers() {
 
 // Utility functions
 function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    // Handle hyphenated views like 'population-genetics'
+    return str.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join('');
 }
 
 // Export for use in other modules
 window.appState = state;
+
+// Initialize sound system
+import breakawaySound from './sound-system.js';
+
+// Sound integration
+async function initializeSoundSystem() {
+    await breakawaySound.initialize();
+    
+    // Play ambient background
+    breakawaySound.startAmbientLayer('deepSpace');
+    breakawaySound.setCategoryVolume('ambient', 0.3);
+    
+    // Start Schumann resonance
+    breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+    breakawaySound.setCategoryVolume('sacred', 0.4);
+}
+
+// Sound effects for UI interactions
+function playNavigationSound() {
+    breakawaySound.playEventSound('activation', { duration: 0.2 });
+}
+
+function playAlertSound(level = 1) {
+    breakawaySound.playAlert(level);
+}
+
+// Integrate sound with existing functions
+const originalSwitchView = switchView;
+window.switchView = function(viewName) {
+    playNavigationSound();
+    originalSwitchView(viewName);
+    
+    // View-specific sounds
+    switch(viewName) {
+        case 'electromagnetic':
+            breakawaySound.startAmbientLayer('quantumFlux');
+            break;
+        case 'underground':
+            breakawaySound.startAmbientLayer('earthHum');
+            break;
+        case 'antarctic':
+            breakawaySound.startAmbientLayer('crystalResonance');
+            break;
+        case 'convergence':
+            breakawaySound.playBinauralBeat('gamma');
+            break;
+    }
+};
+
+// Sound for Schumann resonance updates
+const originalStartLiveUpdates = startLiveUpdates;
+window.startLiveUpdates = function() {
+    originalStartLiveUpdates();
+    
+    // Override Schumann update to include sound
+    setInterval(() => {
+        if (state.schumann > 10) {
+            playAlertSound(2);
+        }
+    }, 5000);
+};
+
+// Initialize sound on first user interaction
+let soundInitialized = false;
+document.addEventListener('click', async () => {
+    if (!soundInitialized) {
+        soundInitialized = true;
+        await initializeSoundSystem();
+    }
+}, { once: true });
+
+// Export sound system for use in other modules
+window.breakawaySound = breakawaySound;

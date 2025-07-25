@@ -286,6 +286,7 @@ h1 {
 #spiral-timeline-container,
 #bloodline-tree-container,
 #earth-cutaway-container,
+#earth-3d-container,
 #convergence-3d,
 #correlation-matrix,
 #antarctica-layers,
@@ -295,6 +296,88 @@ h1 {
     min-height: 500px;
     position: relative;
     overflow: hidden;
+}
+
+/* 3D Earth specific styles */
+#earth-3d-container {
+    min-height: 600px;
+    background: radial-gradient(circle at center, #0a1929 0%, #000000 100%);
+}
+
+#earth-3d-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.depth-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    z-index: 100;
+}
+
+.depth-controls h4 {
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.depth-controls label {
+    display: block;
+    margin: 5px 0;
+    color: var(--text-primary);
+    font-size: 0.85em;
+}
+
+.depth-controls input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+#earth-info-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    display: none;
+    max-width: 300px;
+    z-index: 100;
+}
+
+#earth-info-panel h4 {
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#earth-info-content {
+    color: var(--text-primary);
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+#earth-info-content strong {
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+#earth-info-content em {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-secondary);
+    font-size: 0.95em;
 }
 
 /* Info Panels */
@@ -485,4 +568,387 @@ footer p {
 @keyframes pulse-scale {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+}
+
+/* Population Genetics Visualization Styles */
+#population-genetics-container {
+    width: 100%;
+    height: 600px;
+    background: var(--primary-bg);
+    border: 1px solid var(--grid-color);
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.genetics-controls {
+    background: var(--secondary-bg);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.genetics-controls h4 {
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.genetics-controls label {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.genetics-controls input[type="checkbox"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.genetics-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--secondary-bg);
+    border-radius: 5px;
+}
+
+.info-column h4 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.info-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-column li {
+    padding: 5px 0;
+    color: var(--text-primary);
+    font-size: 0.9em;
+    border-bottom: 1px solid var(--grid-color);
+}
+
+.info-column li:last-child {
+    border-bottom: none;
+}
+
+/* Genetics visualization specific elements */
+.migration-paths path {
+    transition: stroke-width 0.3s ease;
+}
+
+.origin-point {
+    cursor: pointer;
+    transition: r 0.3s ease;
+}
+
+.diversity-hotspot {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.rh-marker {
+    cursor: pointer;
+    transition: r 0.3s ease;
+}
+
+.haplogroup-distribution path {
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.civilization-connection {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.migration-timeline {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.timeline-axis {
+    font-size: 12px;
+}
+
+.timeline-event {
+    cursor: pointer;
+    transition: r 0.3s ease;
+}
+
+.timeline-event:hover {
+    r: 5;
+}
+
+.time-period {
+    cursor: pointer;
+}
+
+.legend {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.genetics-tooltip {
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+/* Evidence Correlation Matrix Styles */
+.evidence-matrix-container {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    background: var(--secondary-bg);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+}
+
+.matrix-controls {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.matrix-controls h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.control-group {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group label {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.control-group input[type="range"] {
+    width: 200px;
+    height: 5px;
+    background: var(--grid-color);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: var(--accent-color);
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.control-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#threshold-value {
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.matrix-viz-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.matrix-cell {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.matrix-cell.selected .cell-bg {
+    fill: rgba(0, 255, 204, 0.1);
+    stroke: var(--accent-color);
+    stroke-width: 2;
+}
+
+.matrix-cell.dimmed {
+    opacity: 0.2;
+}
+
+.matrix-cell.highlighted {
+    opacity: 1;
+}
+
+.matrix-cell.highlighted .correlation-indicator {
+    filter: drop-shadow(0 0 5px var(--glow-color));
+}
+
+.correlation-indicator {
+    transition: all 0.3s ease;
+}
+
+.significance-marker {
+    pointer-events: none;
+}
+
+.temporal-indicator {
+    pointer-events: none;
+    opacity: 0.8;
+    animation: pulse 2s infinite;
+}
+
+.matrix-tooltip {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.matrix-details-panel {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 400px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+    z-index: 100;
+}
+
+.matrix-details-panel h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.matrix-details-panel h4 {
+    color: var(--accent-color);
+    margin: 15px 0 10px 0;
+    font-size: 1.1em;
+}
+
+.correlation-info p {
+    margin: 10px 0;
+    color: var(--text-primary);
+}
+
+.correlation-info strong {
+    color: var(--accent-color);
+}
+
+.evidence-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.evidence-list li {
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(0, 255, 204, 0.05);
+    border-left: 3px solid var(--accent-color);
+    font-size: 13px;
+}
+
+.evidence-type {
+    color: var(--pulse-color);
+    font-weight: bold;
+}
+
+.evidence-list a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.evidence-list a:hover {
+    text-decoration: underline;
+}
+
+.evidence-date {
+    color: var(--text-secondary);
+    font-size: 11px;
+    margin-left: 5px;
+}
+
+.temporal-chart svg {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.temporal-chart text {
+    fill: var(--text-secondary);
+    font-size: 10px;
+}
+
+.close-details {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.close-details:hover {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+}
+
+.matrix-legend {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+}
+
+.matrix-legend h4 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+.color-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.gradient-bar {
+    width: 200px;
+    height: 20px;
+    border-radius: 3px;
+}
+
+.symbol-legend div {
+    margin: 10px 0;
+    color: var(--text-primary);
+}
+
+.section-description {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-style: italic;
 }

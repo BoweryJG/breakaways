@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EM Symphony Test</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        #electromagnetic {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #00ffcc;">Electromagnetic Symphony Test</h1>
+    
+    <section id="electromagnetic" class="viz-section active">
+        <h2>The Electromagnetic Symphony</h2>
+    </section>
+
+    <script>
+        // Minimal state setup
+        const state = {
+            currentView: 'electromagnetic'
+        };
+        
+        // Load the EM Symphony script
+        const script = document.createElement('script');
+        script.src = 'js/em-symphony.js';
+        script.onload = function() {
+            // Initialize after script loads
+            if (typeof window.initElectromagnetic === 'function') {
+                window.initElectromagnetic();
+            }
+        };
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
