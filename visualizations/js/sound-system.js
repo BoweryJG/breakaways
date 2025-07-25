@@ -1006,9 +1006,9 @@ const attemptInit = async () => {
     }
 };
 
-// Add listeners for user interaction
-document.addEventListener('click', attemptInit);
-document.addEventListener('keydown', attemptInit);
+// DISABLED - These were causing sounds on every click!
+// document.addEventListener('click', attemptInit);
+// document.addEventListener('keydown', attemptInit);
 
 // Export for module usage
 // export default window.breakawaySound;

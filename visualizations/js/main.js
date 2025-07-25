@@ -375,17 +375,18 @@ async function toggleSound() {
     const soundToggle = document.getElementById('sound-toggle');
     if (!window.breakawaySound) return;
     
-    // Don't play click sound when toggling sound on/off
-    const wasEnabled = soundEnabled;
+    // Initialize if not already done
+    if (!window.breakawaySound.isInitialized) {
+        await window.breakawaySound.initialize();
+    }
+    
     soundEnabled = !soundEnabled;
     
     if (soundEnabled) {
-        // Start ambient sounds
+        soundToggle.innerHTML = '🔊 Sound On';
+        // Start ambient sounds with low volume
         window.breakawaySound.startAmbientLayer('deepSpace');
         window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
-        soundToggle.innerHTML = '🔊 Sound On';
-        // Play a gentle confirmation sound only when turning ON
-        window.breakawaySound.playTone(261.63, 0.1, 'sine', 'events'); // Middle C, very short
     } else {
         // Stop all sounds
         window.breakawaySound.stopAll();
