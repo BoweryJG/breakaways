@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     startLiveUpdates();
     hideLoadingScreen();
+    
+    // Set up sound toggle
+    const soundToggle = document.getElementById('sound-toggle');
+    if (soundToggle) {
+        soundToggle.addEventListener('click', toggleSound);
+    }
 });
 
 function initializeApp() {
@@ -323,8 +329,19 @@ function initializeMiniViz() {
 }
 
 function updateMapLayers() {
-    // This will be implemented with the full map visualization
-    console.log('Updating map layers:', state.layers);
+    // Update layer visibility using the function from visualizations.js
+    if (typeof updateLayerVisibility === 'function') {
+        updateLayerVisibility();
+    } else {
+        // Fallback: manually update visibility
+        Object.keys(state.layers).forEach(layer => {
+            const visibility = state.layers[layer] ? 'visible' : 'hidden';
+            const elements = document.querySelectorAll(`.${layer}-layer`);
+            elements.forEach(el => {
+                el.style.visibility = visibility;
+            });
+        });
+    }
 }
 
 // Utility functions
@@ -342,17 +359,34 @@ window.appState = state;
 // Sound system is loaded via script tag in index.html
 
 // Sound integration
+let soundEnabled = false;
+
 async function initializeSoundSystem() {
     if (!window.breakawaySound) return;
     await window.breakawaySound.initialize();
     
-    // Play ambient background
-    window.breakawaySound.startAmbientLayer('deepSpace');
+    // Don't auto-play sounds - let user control when sounds start
+    // User can enable sounds through controls if desired
     window.breakawaySound.setCategoryVolume('ambient', 0.3);
-    
-    // Start Schumann resonance
-    window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
     window.breakawaySound.setCategoryVolume('sacred', 0.4);
+}
+
+async function toggleSound() {
+    const soundToggle = document.getElementById('sound-toggle');
+    if (!window.breakawaySound) return;
+    
+    soundEnabled = !soundEnabled;
+    
+    if (soundEnabled) {
+        // Start ambient sounds
+        window.breakawaySound.startAmbientLayer('deepSpace');
+        window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+        soundToggle.innerHTML = '🔊 Sound On';
+    } else {
+        // Stop all sounds
+        window.breakawaySound.stopAll();
+        soundToggle.innerHTML = '🔇 Sound Off';
+    }
 }
 
 // Sound effects for UI interactions
