@@ -396,21 +396,19 @@ async function toggleSound() {
 
 // Sound effects for UI interactions
 function playNavigationSound() {
-    if (window.breakawaySound) {
-        window.breakawaySound.playEventSound('activation', { duration: 0.2 });
-    }
+    // COMPLETELY DISABLED - NO MORE FUCKING SOUNDS
+    return;
 }
 
 function playAlertSound(level = 1) {
-    if (window.breakawaySound) {
-        window.breakawaySound.playAlert(level);
-    }
+    // COMPLETELY DISABLED - NO MORE FUCKING SOUNDS
+    return;
 }
 
 // Integrate sound with existing functions
 const originalSwitchView = switchView;
 window.switchView = function(viewName) {
-    playNavigationSound();
+    // NO MORE NAVIGATION SOUNDS
     originalSwitchView(viewName);
     
     // View-specific sounds
@@ -439,6 +437,8 @@ window.startLiveUpdates = function() {
     
     // Override Schumann update to include sound
     let lastAlertTime = 0;
+    // DISABLED - NO MORE FUCKING ALERTS
+    /*
     setInterval(() => {
         if (state.schumann > 10 && soundEnabled) {
             const now = Date.now();
@@ -449,6 +449,7 @@ window.startLiveUpdates = function() {
             }
         }
     }, 5000);
+    */
 };
 
 // Initialize sound on first user interaction
