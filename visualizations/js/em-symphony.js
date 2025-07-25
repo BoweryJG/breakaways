@@ -583,7 +583,7 @@ function togglePlayPause() {
         // Start oscillators if they haven't been started yet
         Object.keys(emSymphonyState.oscillators).forEach(band => {
             const osc = emSymphonyState.oscillators[band];
-            if (osc && osc.context) {
+            if (osc) {
                 try {
                     osc.start();
                 } catch (e) {
@@ -592,13 +592,12 @@ function togglePlayPause() {
             }
         });
         
-        // Fade in all active frequencies with staggered start
-        Object.keys(emSymphonyState.gainNodes).forEach((band, index) => {
+        // Immediately play the frequencies that are checked
+        Object.keys(emSymphonyState.gainNodes).forEach(band => {
             const toggle = document.getElementById(`${band}-toggle`);
             if (toggle && toggle.checked) {
-                // Very slow fade to avoid clicks
-                const startTime = emSymphonyState.audioContext.currentTime + (index * 0.3);
-                emSymphonyState.gainNodes[band].gain.setTargetAtTime(0.1, startTime, 2.0);
+                // Set volume immediately so you can hear it
+                emSymphonyState.gainNodes[band].gain.value = 0.15;
             }
         });
         
