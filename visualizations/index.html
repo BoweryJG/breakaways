@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Breakaway Civilization - Visual Evidence Dashboard</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="pulse"></div>
+            <p>Initializing Global Consciousness Grid...</p>
+        </div>
+    </div>
+
+    <header>
+        <h1>The Breakaway Civilization</h1>
+        <p class="subtitle">Visual Evidence of Earth's Hidden History</p>
+        <div class="status-bar">
+            <span class="status-item">Schumann Resonance: <span id="schumann">7.83 Hz</span></span>
+            <span class="status-item">Grid Activation: <span id="activation">87%</span></span>
+            <span class="status-item">Nodes Online: <span id="nodes">1,347</span></span>
+        </div>
+    </header>
+
+    <nav class="visualization-menu">
+        <button class="nav-btn active" data-view="overview">Overview</button>
+        <button class="nav-btn" data-view="grid-map">Global Energy Grid</button>
+        <button class="nav-btn" data-view="timeline">Galactic Cycles</button>
+        <button class="nav-btn" data-view="bloodlines">Bloodline Activation</button>
+        <button class="nav-btn" data-view="underground">Hidden Architecture</button>
+        <button class="nav-btn" data-view="electromagnetic">EM Symphony</button>
+        <button class="nav-btn" data-view="moon">Lunar Control</button>
+        <button class="nav-btn" data-view="convergence">The Convergence</button>
+        <button class="nav-btn" data-view="evidence">Evidence Matrix</button>
+        <button class="nav-btn" data-view="antarctica">Antarctic Revelation</button>
+        <button class="nav-btn" data-view="live">Live Tracker</button>
+    </nav>
+
+    <main id="visualization-container">
+        <!-- Overview Section -->
+        <section id="overview" class="viz-section active">
+            <h2>The Hidden Pattern Revealed</h2>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>Ancient Sites</h3>
+                    <div class="stat-number">1,847</div>
+                    <p>Monuments on electromagnetic nodes</p>
+                    <div class="mini-viz" id="sites-preview"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>Missing 411</h3>
+                    <div class="stat-number">4,936</div>
+                    <p>Unexplained disappearances at grid points</p>
+                    <div class="mini-viz" id="missing-preview"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>Bloodline Carriers</h3>
+                    <div class="stat-number">2.3M</div>
+                    <p>Activated genetic markers worldwide</p>
+                    <div class="mini-viz" id="bloodline-preview"></div>
+                </div>
+                <div class="overview-card">
+                    <h3>UAP Sightings</h3>
+                    <div class="stat-number">12,473</div>
+                    <p>Craft emerging at ancient sites (2020-2025)</p>
+                    <div class="mini-viz" id="uap-preview"></div>
+                </div>
+            </div>
+            <div class="key-insights">
+                <h3>Key Pattern Recognition</h3>
+                <ul>
+                    <li>All phenomena cluster at the same electromagnetic nodes</li>
+                    <li>12,000-year cycles align with galactic current sheet crossings</li>
+                    <li>Underground bases connect via natural cave systems</li>
+                    <li>Genetic activation triggered by Antarctic signal (Oct 2023)</li>
+                    <li>5G towers placed precisely on ancient ley lines</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Global Energy Grid Map -->
+        <section id="grid-map" class="viz-section">
+            <h2>Global Energy Grid Network</h2>
+            <div class="controls">
+                <label><input type="checkbox" class="layer-toggle" data-layer="ley-lines" checked> Ley Lines</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="monuments" checked> Ancient Sites</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="underground"> Underground Bases</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="missing411"> Missing 411</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="crop-circles"> Crop Circles</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="uap"> UAP Sightings</label>
+                <label><input type="checkbox" class="layer-toggle" data-layer="5g"> 5G Overlay</label>
+            </div>
+            <div id="world-map-container"></div>
+            <div class="info-panel">
+                <h4>Selected Location</h4>
+                <div id="location-info">Click on any point for details</div>
+            </div>
+        </section>
+
+        <!-- Galactic Cycle Timeline -->
+        <section id="timeline" class="viz-section">
+            <h2>The 12,000 Year Cycle</h2>
+            <div id="spiral-timeline-container"></div>
+            <div class="timeline-controls">
+                <button id="play-timeline">Play</button>
+                <input type="range" id="timeline-slider" min="0" max="50000" value="0">
+                <span id="timeline-year">50,000 BCE</span>
+            </div>
+            <div class="cycle-info">
+                <h4>Current Position</h4>
+                <p>We are 97% through the current cycle. The galactic current sheet crossing window: 2025-2040</p>
+                <div class="countdown">
+                    <span class="countdown-label">Estimated Time to Peak:</span>
+                    <span class="countdown-time">7 years, 3 months</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bloodline Activation Tree -->
+        <section id="bloodlines" class="viz-section">
+            <h2>The Awakening Bloodlines</h2>
+            <div id="bloodline-tree-container"></div>
+            <div class="bloodline-stats">
+                <div class="stat-group">
+                    <h4>RH Negative Distribution</h4>
+                    <div id="rh-distribution"></div>
+                </div>
+                <div class="stat-group">
+                    <h4>Activation Timeline</h4>
+                    <div id="activation-timeline"></div>
+                </div>
+                <div class="stat-group">
+                    <h4>Ability Manifestations</h4>
+                    <ul id="ability-list">
+                        <li>Electromagnetic sensitivity: 89%</li>
+                        <li>Precognitive dreams: 67%</li>
+                        <li>Bioluminescence: 23%</li>
+                        <li>Temperature anomalies: 91%</li>
+                        <li>Ancient language comprehension: 34%</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Earth's Hidden Architecture -->
+        <section id="underground" class="viz-section">
+            <h2>Earth's Hidden Architecture</h2>
+            <div id="earth-cutaway-container"></div>
+            <div class="depth-controls">
+                <label>Depth Layer: <input type="range" id="depth-slider" min="0" max="10" value="0"></label>
+                <span id="depth-label">Surface</span>
+            </div>
+            <div class="facility-list">
+                <h4>Major Underground Facilities</h4>
+                <div id="facility-grid"></div>
+            </div>
+        </section>
+
+        <!-- Electromagnetic Symphony -->
+        <section id="electromagnetic" class="viz-section">
+            <h2>The Electromagnetic Symphony</h2>
+            <div class="em-monitors">
+                <div class="monitor" id="schumann-monitor">
+                    <h4>Schumann Resonance</h4>
+                    <canvas id="schumann-graph"></canvas>
+                </div>
+                <div class="monitor" id="pole-monitor">
+                    <h4>Magnetic Pole Movement</h4>
+                    <canvas id="pole-graph"></canvas>
+                </div>
+                <div class="monitor" id="monument-monitor">
+                    <h4>Monument Activation</h4>
+                    <canvas id="monument-graph"></canvas>
+                </div>
+            </div>
+            <div id="global-em-view"></div>
+        </section>
+
+        <!-- Moon Control System -->
+        <section id="moon" class="viz-section">
+            <h2>Lunar Control System</h2>
+            <div id="moon-earth-system"></div>
+            <div class="moon-anomalies">
+                <h4>Impossible Parameters</h4>
+                <ul>
+                    <li>Perfect eclipse ratio: 1:400 (Sun:Moon)</li>
+                    <li>Density: 60% of expected (hollow?)</li>
+                    <li>Ringing duration: 3+ hours after impact</li>
+                    <li>Orbital lock: Always same face to Earth</li>
+                    <li>Placement: Exactly where needed for stability</li>
+                </ul>
+            </div>
+            <div class="tidal-effects">
+                <h4>Tidal Energy at Sacred Sites</h4>
+                <div id="tidal-correlation"></div>
+            </div>
+        </section>
+
+        <!-- Master Convergence -->
+        <section id="convergence" class="viz-section">
+            <h2>The Grand Convergence</h2>
+            <div id="convergence-3d"></div>
+            <div class="convergence-controls">
+                <button class="system-toggle" data-system="all">All Systems</button>
+                <button class="system-toggle" data-system="energy">Energy Grid</button>
+                <button class="system-toggle" data-system="genetics">Genetic Activation</button>
+                <button class="system-toggle" data-system="craft">Craft Activity</button>
+                <button class="system-toggle" data-system="underground">Underground Network</button>
+            </div>
+        </section>
+
+        <!-- Evidence Matrix -->
+        <section id="evidence" class="viz-section">
+            <h2>Evidence Correlation Matrix</h2>
+            <div id="correlation-matrix"></div>
+            <div class="probability-calc">
+                <h4>Statistical Analysis</h4>
+                <p>Probability of random correlation: <span class="probability">1 in 10^47</span></p>
+                <p class="conclusion">Mathematical impossibility of coincidence</p>
+            </div>
+        </section>
+
+        <!-- Antarctic Revelation -->
+        <section id="antarctica" class="viz-section">
+            <h2>The Antarctic Revelation</h2>
+            <div id="antarctica-layers"></div>
+            <div class="layer-controls">
+                <button class="ant-layer" data-layer="ice">Current Ice</button>
+                <button class="ant-layer" data-layer="topography">Subglacial Terrain</button>
+                <button class="ant-layer" data-layer="magnetic">Magnetic Anomalies</button>
+                <button class="ant-layer" data-layer="structures">Detected Structures</button>
+                <button class="ant-layer" data-layer="expeditions">Historical Expeditions</button>
+            </div>
+            <div class="discovery-timeline">
+                <h4>Discovery Timeline</h4>
+                <div id="antarctica-timeline"></div>
+            </div>
+        </section>
+
+        <!-- Live Awakening Tracker -->
+        <section id="live" class="viz-section">
+            <h2>Live Global Awakening Tracker</h2>
+            <div id="live-map"></div>
+            <div class="live-feeds">
+                <div class="feed" id="genetic-feed">
+                    <h4>Genetic Activations</h4>
+                    <div class="feed-content"></div>
+                </div>
+                <div class="feed" id="monument-feed">
+                    <h4>Monument Activity</h4>
+                    <div class="feed-content"></div>
+                </div>
+                <div class="feed" id="sighting-feed">
+                    <h4>UAP Sightings</h4>
+                    <div class="feed-content"></div>
+                </div>
+                <div class="feed" id="seismic-feed">
+                    <h4>Grid Node Seismic</h4>
+                    <div class="feed-content"></div>
+                </div>
+            </div>
+            <div class="acceleration-meter">
+                <h4>Event Acceleration</h4>
+                <div class="meter">
+                    <div class="meter-fill" style="width: 87%"></div>
+                </div>
+                <p>Current Rate: <span class="rate">Exponential</span></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>The patterns are undeniable. The connections are clear. The awakening has begun.</p>
+        <p class="disclaimer">Data compiled from public sources, leaked documents, and pattern analysis. Draw your own conclusions.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/visualizations.js"></script>
+</body>
+</html>

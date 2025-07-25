@@ -1,0 +1,170 @@
+{
+  "monuments": [
+    {
+      "name": "Great Pyramid of Giza",
+      "coords": [31.1342, 29.9792],
+      "power": 10,
+      "age": 12000,
+      "description": "Primary node of global energy grid. Mathematical precision encodes Earth's dimensions.",
+      "alignments": ["Orion's Belt", "True North", "Speed of Light coordinates"]
+    },
+    {
+      "name": "Stonehenge",
+      "coords": [-1.8262, 51.1789],
+      "power": 8,
+      "age": 5000,
+      "description": "Acoustic amplification circle. Bluestone from Wales contains unique resonant properties.",
+      "alignments": ["Summer Solstice", "Lunar Calendar", "Ley Line Nexus"]
+    },
+    {
+      "name": "Machu Picchu",
+      "coords": [-72.5450, -13.1631],
+      "power": 7,
+      "age": 15000,
+      "description": "High-altitude command center. Original megalithic base predates Inca occupation.",
+      "alignments": ["Constellation Alignment", "Mountain Energy Lines"]
+    },
+    {
+      "name": "Easter Island",
+      "coords": [-109.3667, -27.1167],
+      "power": 6,
+      "age": 12000,
+      "description": "Pacific grid anchor. Moai positioned on electromagnetic nodes.",
+      "alignments": ["Pacific Ring", "Antipode to Indus Valley"]
+    },
+    {
+      "name": "Angkor Wat",
+      "coords": [103.8670, 13.4125],
+      "power": 8,
+      "age": 10500,
+      "description": "Mirrors constellation Draco at 10,500 BCE. Vast underground water system.",
+      "alignments": ["Draco Constellation", "Spring Equinox", "Naga Lines"]
+    },
+    {
+      "name": "Göbekli Tepe",
+      "coords": [38.9224, 37.2231],
+      "power": 9,
+      "age": 11600,
+      "description": "Deliberately buried time capsule. Preserves pre-flood warning system.",
+      "alignments": ["Cygnus Constellation", "Deneb Star"]
+    }
+  ],
+  "leyLines": [
+    {
+      "name": "Great Circle of Giza",
+      "nodes": ["Giza", "Stonehenge", "North Pole", "Easter Island", "Nazca", "Angkor Wat"],
+      "frequency": 7.83,
+      "status": "active"
+    },
+    {
+      "name": "Pacific Ring",
+      "nodes": ["Easter Island", "Tahiti", "Nan Madol", "Japan Pyramids", "Angkor Wat"],
+      "frequency": 11.2,
+      "status": "activating"
+    },
+    {
+      "name": "American Serpent",
+      "nodes": ["Chichen Itza", "Teotihuacan", "Cahokia", "Serpent Mound", "Poverty Point"],
+      "frequency": 9.6,
+      "status": "active"
+    }
+  ],
+  "undergroundBases": [
+    {
+      "name": "Antarctica Central",
+      "coords": [0, -90],
+      "depth": 15,
+      "population": 250000,
+      "type": "primary",
+      "discovered": 1946
+    },
+    {
+      "name": "Dulce Complex",
+      "coords": [-107.0000, 36.7919],
+      "depth": 7,
+      "population": 18000,
+      "type": "genetics",
+      "discovered": 1979
+    },
+    {
+      "name": "Pine Gap",
+      "coords": [133.7370, -23.7990],
+      "depth": 5,
+      "population": 5000,
+      "type": "communications",
+      "discovered": 1966
+    }
+  ],
+  "missing411Clusters": [
+    {
+      "location": "Yosemite National Park",
+      "coords": [-119.5383, 37.8651],
+      "cases": 563,
+      "profile": "High intelligence, German ancestry",
+      "nearestBase": 47
+    },
+    {
+      "location": "Great Smoky Mountains",
+      "coords": [-83.5070, 35.6532],
+      "cases": 892,
+      "profile": "Children 2-6, experienced hikers",
+      "nearestBase": 72
+    }
+  ],
+  "recentActivations": [
+    {
+      "date": "2023-10-15",
+      "location": "Antarctica",
+      "type": "Primary beacon activation",
+      "effects": "Global genetic triggering"
+    },
+    {
+      "date": "2024-11-18",
+      "location": "New Jersey Coast",
+      "type": "Drone emergence",
+      "effects": "Electromagnetic interference, electronics failure"
+    }
+  ],
+  "galacticCycles": [
+    {
+      "year": -50000,
+      "event": "Elder race arrives/evolves",
+      "type": "origin"
+    },
+    {
+      "year": -24000,
+      "event": "Previous crossing - major extinction",
+      "type": "catastrophe"
+    },
+    {
+      "year": -12800,
+      "event": "Younger Dryas begins",
+      "type": "catastrophe"
+    },
+    {
+      "year": -11600,
+      "event": "Climate stabilizes, emergence",
+      "type": "recovery"
+    },
+    {
+      "year": -10500,
+      "event": "Monument construction peak",
+      "type": "construction"
+    },
+    {
+      "year": 1500,
+      "event": "Final retreat underground",
+      "type": "retreat"
+    },
+    {
+      "year": 1947,
+      "event": "Modern rediscovery",
+      "type": "contact"
+    },
+    {
+      "year": 2025,
+      "event": "Approaching next crossing",
+      "type": "warning"
+    }
+  ]
+}
