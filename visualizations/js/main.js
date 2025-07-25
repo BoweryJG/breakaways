@@ -13,7 +13,7 @@ const state = {
         'missing411': false,
         'crop-circles': false,
         'uap': false,
-        '5g': false
+        'five-g': false
     }
 };
 

@@ -607,8 +607,8 @@ function showTooltip(event, data) {
     tooltip.html(`
         <strong>${data.source} ↔ ${data.target}</strong><br>
         Correlation: ${(data.value * 100).toFixed(1)}%<br>
-        Evidence Count: ${data.evidence.length}<br>
-        Quality: ${getQualityRating(data.quality)}
+        Evidence Count: ${data.evidence ? data.evidence.length : 0}<br>
+        Quality: ${getQualityRating(data.quality || 3)}
     `)
     .style('left', (event.pageX + 10) + 'px')
     .style('top', (event.pageY - 10) + 'px')

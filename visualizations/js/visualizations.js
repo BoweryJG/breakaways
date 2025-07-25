@@ -40,7 +40,7 @@ function initGridMap() {
     const missing411G = g.append('g').attr('class', 'missing411-layer');
     const cropCirclesG = g.append('g').attr('class', 'crop-circles-layer');
     const uapG = g.append('g').attr('class', 'uap-layer');
-    const fiveGG = g.append('g').attr('class', '5g-layer');
+    const fiveGG = g.append('g').attr('class', 'five-g-layer');
 
     // Load world map data
     d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(world => {

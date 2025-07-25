@@ -354,7 +354,13 @@ class BreakawaySound {
         }
         
         // Start all oscillators
-        oscillators.forEach(osc => osc.start());
+        oscillators.forEach(osc => {
+            try {
+                osc.start();
+            } catch (e) {
+                // Oscillator already started, ignore
+            }
+        });
         
         // Store references
         this.oscillators.set(id, oscillators);
