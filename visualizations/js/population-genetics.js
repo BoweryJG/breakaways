@@ -681,9 +681,12 @@ function setupLayerControls() {
 
 // Initialize when called
 function initPopulationGeneticsWithControls() {
-    initPopulationGenetics();
+    initPopulationGeneticsBase();
     setupLayerControls();
 }
+
+// Rename the base function to avoid naming conflict
+const initPopulationGeneticsBase = initPopulationGenetics;
 
 // Export function for use in main visualization system
 window.initPopulationGenetics = initPopulationGeneticsWithControls;

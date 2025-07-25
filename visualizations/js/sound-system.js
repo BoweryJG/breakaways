@@ -60,7 +60,7 @@ class BreakawaySound {
         
         // Event sound presets
         this.eventSounds = {
-            activation: { freq: 1200, duration: 0.3, type: 'sine' },
+            activation: { freq: 440, duration: 0.1, type: 'sine' }, // Reduced from 1200Hz to 440Hz, shorter duration
             alert: { freq: 800, duration: 0.5, type: 'square', pulses: 3 },
             warning: { freq: 440, duration: 1, type: 'sawtooth' },
             discovery: { freq: 1500, duration: 0.8, type: 'triangle' },
@@ -793,8 +793,8 @@ class BreakawaySound {
         const fadeOut = options.fadeOut || 0.01;
         
         gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.8, this.audioContext.currentTime + fadeIn);
-        gainNode.gain.setValueAtTime(0.8, this.audioContext.currentTime + duration - fadeOut);
+        gainNode.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + fadeIn); // Reduced from 0.8 to 0.2
+        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime + duration - fadeOut);
         gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + duration);
         
         oscillator.start();

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sacred Frequency Player</title>
+    <style>
+        body {
+            background: #0a1929;
+            color: #00ffcc;
+            font-family: monospace;
+            padding: 50px;
+        }
+        button {
+            background: #1a2535;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+        button:hover {
+            background: #00ffcc;
+            color: #0a1929;
+        }
+        .frequency-group {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #00ffcc33;
+        }
+        h2 {
+            color: #ff00ff;
+        }
+        input {
+            background: #1a2535;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 5px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sacred Frequency Player</h1>
+    
+    <div class="frequency-group">
+        <h2>Solfeggio Frequencies</h2>
+        <button onclick="playFrequency(396)">396 Hz - Liberation from Fear</button>
+        <button onclick="playFrequency(417)">417 Hz - Facilitating Change</button>
+        <button onclick="playFrequency(528)">528 Hz - DNA Repair</button>
+        <button onclick="playFrequency(639)">639 Hz - Relationships</button>
+        <button onclick="playFrequency(741)">741 Hz - Intuition</button>
+        <button onclick="playFrequency(852)">852 Hz - Spiritual Order</button>
+        <button onclick="playFrequency(963)">963 Hz - Divine Connection</button>
+    </div>
+
+    <div class="frequency-group">
+        <h2>Planetary Frequencies</h2>
+        <button onclick="playFrequency(194.18)">Earth (194.18 Hz)</button>
+        <button onclick="playFrequency(210.42)">Moon (210.42 Hz)</button>
+        <button onclick="playFrequency(126.22)">Sun (126.22 Hz)</button>
+        <button onclick="playFrequency(136.1)">Om (136.1 Hz)</button>
+        <button onclick="playFrequency(432)">A432 Natural Tuning</button>
+    </div>
+
+    <div class="frequency-group">
+        <h2>Binaural Beats</h2>
+        <button onclick="playBinaural(440, 444)">Theta Wave (4 Hz)</button>
+        <button onclick="playBinaural(440, 448)">Alpha Wave (8 Hz)</button>
+        <button onclick="playBinaural(440, 450)">Alpha-Beta (10 Hz)</button>
+        <button onclick="playBinaural(440, 454)">Beta Wave (14 Hz)</button>
+    </div>
+
+    <div class="frequency-group">
+        <h2>Custom Frequency</h2>
+        <input type="number" id="customFreq" value="440" min="20" max="20000">
+        <button onclick="playFrequency(document.getElementById('customFreq').value)">Play Custom</button>
+        <button onclick="stopAll()">Stop All</button>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillators = [];
+
+        function playFrequency(freq, duration = 5) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.value = freq;
+            gain.gain.value = 0.3;
+            
+            // Fade in
+            gain.gain.setValueAtTime(0, audioContext.currentTime);
+            gain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
+            
+            // Fade out
+            gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + duration);
+            
+            oscillators.push(osc);
+            
+            // Clean up
+            setTimeout(() => {
+                const index = oscillators.indexOf(osc);
+                if (index > -1) oscillators.splice(index, 1);
+            }, (duration + 1) * 1000);
+        }
+
+        function playBinaural(leftFreq, rightFreq, duration = 10) {
+            // Create stereo panner nodes
+            const merger = audioContext.createChannelMerger(2);
+            
+            // Left ear
+            const oscLeft = audioContext.createOscillator();
+            const gainLeft = audioContext.createGain();
+            oscLeft.frequency.value = leftFreq;
+            gainLeft.gain.value = 0.3;
+            oscLeft.connect(gainLeft);
+            gainLeft.connect(merger, 0, 0);
+            
+            // Right ear
+            const oscRight = audioContext.createOscillator();
+            const gainRight = audioContext.createGain();
+            oscRight.frequency.value = rightFreq;
+            gainRight.gain.value = 0.3;
+            oscRight.connect(gainRight);
+            gainRight.connect(merger, 0, 1);
+            
+            merger.connect(audioContext.destination);
+            
+            // Start oscillators
+            oscLeft.start();
+            oscRight.start();
+            
+            // Stop after duration
+            oscLeft.stop(audioContext.currentTime + duration);
+            oscRight.stop(audioContext.currentTime + duration);
+            
+            oscillators.push(oscLeft, oscRight);
+        }
+
+        function stopAll() {
+            oscillators.forEach(osc => {
+                try {
+                    osc.stop();
+                } catch(e) {}
+            });
+            oscillators.length = 0;
+        }
+    </script>
+</body>
+</html>

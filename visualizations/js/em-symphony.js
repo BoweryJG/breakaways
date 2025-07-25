@@ -500,7 +500,7 @@ function initializeAudio() {
     
     // Create master gain node
     const masterGain = emSymphonyState.audioContext.createGain();
-    masterGain.gain.value = 0.3;
+    masterGain.gain.value = 0.15; // Balanced volume for multiple frequencies
     masterGain.connect(emSymphonyState.audioContext.destination);
     
     // Create oscillators for each frequency band
@@ -525,19 +525,25 @@ function initializeAudio() {
         emSymphonyState.oscillators[band] = oscillator;
         emSymphonyState.gainNodes[band] = gainNode;
         
-        // Start oscillator
-        oscillator.start();
+        // DON'T start oscillator immediately - wait for play button
+        // oscillator.start();
     });
 }
 
 function setupControls() {
     // Play/Pause button
     const playPauseBtn = document.getElementById('em-play-pause');
-    playPauseBtn.addEventListener('click', togglePlayPause);
+    playPauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        togglePlayPause();
+    });
     
     // Reset button
     const resetBtn = document.getElementById('em-reset');
-    resetBtn.addEventListener('click', resetFrequencies);
+    resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        resetFrequencies();
+    });
     
     // Frequency toggles
     const toggles = ['schumann', 'alpha', 'beta', 'gamma'];
@@ -545,8 +551,8 @@ function setupControls() {
         const toggle = document.getElementById(`${band}-toggle`);
         toggle.addEventListener('change', (e) => {
             const gain = emSymphonyState.gainNodes[band];
-            if (gain) {
-                gain.gain.setTargetAtTime(e.target.checked ? 0.2 : 0, emSymphonyState.audioContext.currentTime, 0.1);
+            if (gain && emSymphonyState.isPlaying) {
+                gain.gain.setTargetAtTime(e.target.checked ? 0.1 : 0, emSymphonyState.audioContext.currentTime, 0.1);
             }
         });
     });
@@ -574,13 +580,28 @@ function togglePlayPause() {
             emSymphonyState.audioContext.resume();
         }
         
-        // Fade in all active frequencies
-        Object.keys(emSymphonyState.gainNodes).forEach(band => {
-            const toggle = document.getElementById(`${band}-toggle`);
-            if (toggle && toggle.checked) {
-                emSymphonyState.gainNodes[band].gain.setTargetAtTime(0.2, emSymphonyState.audioContext.currentTime, 0.1);
+        // Start oscillators if they haven't been started yet
+        Object.keys(emSymphonyState.oscillators).forEach(band => {
+            const osc = emSymphonyState.oscillators[band];
+            if (osc && osc.context) {
+                try {
+                    osc.start();
+                } catch (e) {
+                    // Already started, ignore
+                }
             }
         });
+        
+        // Fade in all active frequencies with staggered start
+        Object.keys(emSymphonyState.gainNodes).forEach((band, index) => {
+            const toggle = document.getElementById(`${band}-toggle`);
+            if (toggle && toggle.checked) {
+                // Very slow fade to avoid clicks
+                const startTime = emSymphonyState.audioContext.currentTime + (index * 0.3);
+                emSymphonyState.gainNodes[band].gain.setTargetAtTime(0.1, startTime, 2.0);
+            }
+        });
+        
     } else {
         playIcon.style.display = 'inline';
         pauseIcon.style.display = 'none';
