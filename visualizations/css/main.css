@@ -551,6 +551,13 @@ footer p {
     }
 }
 
+/* Ley line animation for activating lines */
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
 /* Special Effects */
 .glowing {
     animation: glow 2s ease-in-out infinite alternate;
