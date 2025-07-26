@@ -1,7 +1,7 @@
 // 3D Earth Hidden Architecture - Underground Networks & Hollow Earth Visualization
 
 let scene, camera, renderer, controls;
-let earth, atmosphere, tunnelSystem, energyFlows;
+let earth, atmosphere, tunnelSystem;
 let underground = {
     bases: [],
     tunnels: [],
@@ -199,8 +199,8 @@ function createUndergroundLayers() {
         { radius: 90, color: 0x006666, name: 'shallow', opacity: 0.3 },
         { radius: 70, color: 0x004466, name: 'deep', opacity: 0.4 },
         { radius: 50, color: 0x003366, name: 'mantle', opacity: 0.5 },
-        { radius: 30, color: 0x002244, name: 'core_outer', opacity: 0.6 },
-        { radius: 20, color: 0xff6600, name: 'core_inner', opacity: 0.8 }
+        { radius: 30, color: 0x002244, name: 'core', opacity: 0.6 },
+        { radius: 20, color: 0xff6600, name: 'core', opacity: 0.8 }
     ];
     
     layers.forEach(layer => {
@@ -540,6 +540,10 @@ function createDepthControls() {
 
 function toggleLayer(layer, visible) {
     switch(layer) {
+        case 'surface':
+            if (earth) earth.visible = visible;
+            if (atmosphere) atmosphere.visible = visible;
+            break;
         case 'tunnels':
             underground.tunnels.forEach(t => t.visible = visible);
             break;
@@ -548,6 +552,14 @@ function toggleLayer(layer, visible) {
             break;
         case 'hollow':
             underground.caverns.forEach(c => c.visible = visible);
+            break;
+        case 'core':
+            // Handle both core layers
+            scene.children.forEach(child => {
+                if (child.name === 'core') {
+                    child.visible = visible;
+                }
+            });
             break;
         default:
             const layerMesh = scene.getObjectByName(layer);
