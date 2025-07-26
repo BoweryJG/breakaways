@@ -72,6 +72,7 @@ function switchView(viewName) {
         'grid-map': 'initGridMap',
         'timeline': 'initTimeline',
         'bloodlines': 'initBloodlineTree',
+        'population-genetics': 'initPopulationGenetics',
         'underground': 'initEarth3d',
         'electromagnetic': 'initElectromagnetic',
         'moon': 'initMoonControl',
@@ -82,6 +83,9 @@ function switchView(viewName) {
     };
     
     const initFunc = initFunctions[viewName];
+    console.log(`Switching to view: ${viewName}, init function: ${initFunc}`);
+    console.log(`Function exists: ${typeof window[initFunc] === 'function'}`);
+    
     if (initFunc && typeof window[initFunc] === 'function') {
         // Clean up previous 3D scenes if needed
         if (viewName === 'underground' && typeof window.cleanupEarth3d === 'function') {
@@ -92,6 +96,10 @@ function switchView(viewName) {
             window.cleanupMasterConvergence();
         } else if (viewName === 'bloodlines' && typeof window.cleanupBloodlineTree === 'function') {
             window.cleanupBloodlineTree();
+        } else if (viewName === 'population-genetics' && typeof window.cleanupPopulationGenetics === 'function') {
+            window.cleanupPopulationGenetics();
+        } else if (viewName === 'evidence' && typeof window.cleanupEvidenceMatrix === 'function') {
+            window.cleanupEvidenceMatrix();
         }
         
         window[initFunc]();
