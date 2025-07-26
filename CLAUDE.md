@@ -26,8 +26,11 @@ Each visualization follows this pattern:
 - **Global Energy Grid** (`visualizations.js`) - D3.js world map with ley lines
 - **Galactic Cycles** (`galactic-spiral.js`) - D3.js spiral timeline
 - **Hidden Architecture** (`earth-3d.js`) - Three.js 3D Earth
-- **Moon Control** (`moon-control.js`) - Three.js orbital mechanics
-- **Master Convergence** (`master-convergence.js`) - Three.js holographic integration
+- **Bloodline Activation** (`bloodline-tree.js`) - Three.js energy field visualization
+- **Population Genetics** (`population-genetics-enhanced.js`) - Three.js 3D globe with genetic flows
+- **Moon Control** (`moon-control-enhanced.js`) - Three.js Moon-Earth gravitational system
+- **Master Convergence** (`master-convergence-enhanced.js`) - Three.js quantum consciousness mapping
+- **Evidence Matrix** (`evidence-matrix-enhanced.js`) - Three.js 3D correlation network
 - **Live Tracker** (`live-tracker.js`) - Real-time event simulation
 
 ## Common Development Tasks
@@ -105,6 +108,42 @@ setInterval(() => {
 - Null checks for optional features (window.breakawaySound)
 - D3.js data existence checks before rendering
 
+## Enhanced Visualizations (2025-01-26)
+
+The following visualizations have been dramatically enhanced with "category-defining and iconic interactive displays":
+
+### Population Genetics Enhanced
+- 3D rotating globe with particle-based genetic flows
+- Real-time migration paths following ancient routes
+- RH negative concentration hotspots with pulsing indicators
+- Genetic marker activations (FOXP2, DRD4-7R, CCR5-Δ32, etc.)
+- Custom WebGL shaders for atmospheric effects
+
+### Lunar Control Enhanced
+- Full Moon-Earth gravitational interaction system
+- Real-time tidal force visualization
+- Ancient lunar base locations with Earth connections
+- Lagrange points and orbital resonances
+- Gravitational field distortion effects
+- Hollow moon resonance indicators
+
+### Master Convergence Enhanced
+- Quantum consciousness field mapping
+- Multidimensional portal system with 12 active portals
+- Reality stability monitoring
+- Quantum entanglement visualization between locations
+- Time dilation effects near portals
+- Reality glitch indicators
+
+### Evidence Matrix Enhanced
+- 3D correlation network replacing 2D matrix
+- AI-powered pattern recognition clustering
+- Real-time data streaming between nodes
+- Holographic evidence displays
+- Temporal correlation analysis (past/present/future)
+- 14 enhanced categories with harmonic frequencies
+- Quantum correlation calculations
+
 ## Important Context
 
 ### Historical Edits (from earlier CLAUDE.md)
@@ -116,12 +155,18 @@ setInterval(() => {
 - Added sound toggle button to header
 - Modified sound system to not auto-play
 - Updated main.js to handle sound toggle functionality
+- **2025-01-26**: Dramatically enhanced four visualizations per user request:
+  - Population Genetics: 3D globe with genetic migration flows and RH negative hotspots
+  - Lunar Control: Moon-Earth interaction with gravitational fields and tidal forces
+  - Master Convergence: Quantum consciousness mapping with multidimensional portals
+  - Evidence Matrix: 3D correlation network with AI pattern recognition
 
 ### Known Issues Fixed
 - Variable naming conflicts (`earth` vs `moonEarth`)
 - ES6 module imports (removed, using script tags)
 - CSS class names starting with numbers
 - AudioScheduledSourceNode multiple start() calls
+- Bloodline shader error (missing uniforms `c` and `p`)
 
 ## Data Structure
 

@@ -10,6 +10,10 @@
     --grid-color: #2a2a2a;
     --glow-color: #00ffcc;
     --pulse-color: #ff00ff;
+    --northeast-color: #00aaff;
+    --vortex-color: #ff00ff;
+    --hudson-color: #9370db;
+    --appalachian-color: #228b22;
 }
 
 * {
@@ -958,4 +962,101 @@ footer p {
     color: var(--text-secondary);
     margin-bottom: 20px;
     font-style: italic;
+}
+
+/* World Map Enhancements */
+#world-map-container {
+    position: relative;
+}
+
+.zoom-controls {
+    background: rgba(26, 35, 50, 0.9);
+    border: 1px solid var(--accent-color);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.zoom-controls button {
+    background: var(--secondary-bg);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.zoom-controls button:hover {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.map-legend {
+    pointer-events: none;
+}
+
+.map-legend text {
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhanced Northeast Detail Styles */
+.ne-location {
+    transition: all 0.3s;
+}
+
+.ne-location.vortex {
+    animation: vortex-pulse 3s infinite;
+}
+
+@keyframes vortex-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+.hudson-channel {
+    animation: energy-flow 5s linear infinite;
+}
+
+.appalachian-spine {
+    animation: energy-flow 7s linear infinite;
+}
+
+@keyframes energy-flow {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -100; }
+}
+
+/* Energy flow animation */
+.energy-flow-layer path {
+    mix-blend-mode: screen;
+}
+
+/* Map tooltips */
+.map-tooltip {
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
+/* Regional ley lines */
+.regional-ley-line {
+    pointer-events: visibleStroke;
+    cursor: pointer;
+}
+
+.regional-ley-line:hover {
+    stroke-width: 3;
+    filter: drop-shadow(0 0 10px var(--accent-color));
+}
+
+/* Animation for dash patterns */
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
 }

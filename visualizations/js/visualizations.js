@@ -28,6 +28,92 @@ async function initGridMap() {
         .attr('width', width)
         .attr('height', height);
 
+    // Add zoom controls
+    const zoomControls = d3.select(container)
+        .append('div')
+        .attr('class', 'zoom-controls')
+        .style('position', 'absolute')
+        .style('top', '10px')
+        .style('right', '10px')
+        .style('z-index', '1000');
+
+    // Add region buttons
+    const regions = [
+        { name: 'Global', bounds: null },
+        { name: 'NE US', bounds: [[-85, 35], [-65, 47]] },
+        { name: 'Europe', bounds: [[-10, 35], [40, 65]] },
+        { name: 'Pacific', bounds: [[100, -50], [180, 20]] }
+    ];
+
+    regions.forEach(region => {
+        zoomControls.append('button')
+            .text(region.name)
+            .style('display', 'block')
+            .style('margin', '5px')
+            .style('padding', '5px 10px')
+            .style('background', '#1a2332')
+            .style('border', '1px solid #00ffcc')
+            .style('color', '#00ffcc')
+            .style('cursor', 'pointer')
+            .on('click', () => zoomToRegion(region.bounds));
+    });
+
+    // Add legend
+    const legend = svg.append('g')
+        .attr('class', 'map-legend')
+        .attr('transform', `translate(20, ${height - 150})`);
+
+    const legendItems = [
+        { color: '#00ffcc', label: 'Ancient Sites', shape: 'circle' },
+        { color: '#ffcc00', label: 'Ley Lines', shape: 'line' },
+        { color: '#ff6b6b', label: 'Underground Bases', shape: 'square' },
+        { color: '#ff00ff', label: 'UAP Sightings', shape: 'circle' },
+        { color: '#ff0000', label: '5G Towers', shape: 'rect' }
+    ];
+
+    legendItems.forEach((item, i) => {
+        const legendItem = legend.append('g')
+            .attr('transform', `translate(0, ${i * 25})`);
+
+        if (item.shape === 'circle') {
+            legendItem.append('circle')
+                .attr('cx', 10)
+                .attr('cy', 10)
+                .attr('r', 5)
+                .attr('fill', item.color);
+        } else if (item.shape === 'line') {
+            legendItem.append('line')
+                .attr('x1', 5)
+                .attr('y1', 10)
+                .attr('x2', 15)
+                .attr('y2', 10)
+                .attr('stroke', item.color)
+                .attr('stroke-width', 2);
+        } else if (item.shape === 'square') {
+            legendItem.append('rect')
+                .attr('x', 5)
+                .attr('y', 5)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('fill', item.color)
+                .attr('transform', 'rotate(45, 10, 10)');
+        } else if (item.shape === 'rect') {
+            legendItem.append('rect')
+                .attr('x', 8)
+                .attr('y', 5)
+                .attr('width', 4)
+                .attr('height', 10)
+                .attr('fill', item.color);
+        }
+
+        legendItem.append('text')
+            .attr('x', 25)
+            .attr('y', 14)
+            .text(item.label)
+            .style('fill', '#00ffcc')
+            .style('font-size', '12px');
+    });
+
     // Create projection
     const projection = d3.geoNaturalEarth1()
         .scale(width / 6.5)
@@ -37,24 +123,46 @@ async function initGridMap() {
 
     // Add zoom behavior
     const zoom = d3.zoom()
-        .scaleExtent([1, 8])
+        .scaleExtent([1, 20])
         .on('zoom', (event) => {
-            svg.selectAll('g').attr('transform', event.transform);
+            svg.selectAll('g.map-content').attr('transform', event.transform);
         });
 
     svg.call(zoom);
 
+    // Zoom to region function
+    function zoomToRegion(bounds) {
+        if (!bounds) {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+            );
+            return;
+        }
+
+        const [[x0, y0], [x1, y1]] = bounds.map(projection);
+        const scale = Math.min(width / (x1 - x0), height / (y1 - y0)) * 0.8;
+        const translate = [width / 2 - scale * (x0 + x1) / 2, height / 2 - scale * (y0 + y1) / 2];
+
+        svg.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
+        );
+    }
+
     // Create groups for layers
-    const g = svg.append('g');
+    const g = svg.append('g').attr('class', 'map-content');
     const oceanG = g.append('g').attr('class', 'ocean-layer');
     const landG = g.append('g').attr('class', 'land-layer');
     const leyLinesG = g.append('g').attr('class', 'ley-lines-layer');
+    const energyFlowG = g.append('g').attr('class', 'energy-flow-layer');
     const monumentsG = g.append('g').attr('class', 'monuments-layer');
     const undergroundG = g.append('g').attr('class', 'underground-layer');
     const missing411G = g.append('g').attr('class', 'missing411-layer');
     const cropCirclesG = g.append('g').attr('class', 'crop-circles-layer');
     const uapG = g.append('g').attr('class', 'uap-layer');
     const fiveGG = g.append('g').attr('class', 'five-g-layer');
+    const northeastG = g.append('g').attr('class', 'northeast-detail-layer');
 
     // Load world map data
     d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json').then(world => {
@@ -77,6 +185,9 @@ async function initGridMap() {
         // Add ley lines
         drawLeyLines(leyLinesG, projection);
         
+        // Add energy flow animations
+        drawEnergyFlow(energyFlowG, projection);
+        
         // Add monuments
         drawMonuments(monumentsG, projection);
         
@@ -86,6 +197,9 @@ async function initGridMap() {
         drawCropCircles(cropCirclesG, projection);
         drawUAPSightings(uapG, projection);
         draw5GTowers(fiveGG, projection);
+        
+        // Add enhanced northeastern US detail
+        drawNortheastDetail(northeastG, projection);
 
         // Update visibility based on state
         updateLayerVisibility();
@@ -569,6 +683,15 @@ function updateLayerVisibility() {
         const visibility = window.appState.layers[layer] ? 'visible' : 'hidden';
         d3.selectAll(`.${layer}-layer`).style('visibility', visibility);
     });
+    
+    // Always show energy flow and northeast detail layers if ley lines are visible
+    if (window.appState.layers['ley-lines']) {
+        d3.selectAll('.energy-flow-layer').style('visibility', 'visible');
+        d3.selectAll('.northeast-detail-layer').style('visibility', 'visible');
+    } else {
+        d3.selectAll('.energy-flow-layer').style('visibility', 'hidden');
+        d3.selectAll('.northeast-detail-layer').style('visibility', 'hidden');
+    }
 }
 
 function showTooltip(text, x, y) {
@@ -597,6 +720,327 @@ function showTooltip(text, x, y) {
 
 function hideTooltip() {
     d3.select('.map-tooltip').style('opacity', 0);
+}
+
+// Draw energy flow animations between connected nodes
+function drawEnergyFlow(g, projection) {
+    const energyPaths = [
+        {start: [31.1342, 29.9792], end: [-77.0369, 38.9072], power: 10}, // Giza to DC
+        {start: [-3.4360, 55.3781], end: [-71.0589, 42.3601], power: 8}, // Stonehenge to Boston
+        {start: [-71.0589, 42.3601], end: [-74.0060, 40.7128], power: 9}, // Boston to NYC
+        {start: [-74.0060, 40.7128], end: [-75.1652, 39.9526], power: 8}, // NYC to Philadelphia
+        {start: [-75.1652, 39.9526], end: [-77.0369, 38.9072], power: 9}, // Philadelphia to DC
+    ];
+
+    energyPaths.forEach((path, i) => {
+        const lineGenerator = d3.geoPath().projection(projection);
+        const greatCircle = {
+            type: "LineString",
+            coordinates: [path.start, path.end]
+        };
+
+        // Create gradient for energy flow
+        const gradient = g.append('defs')
+            .append('linearGradient')
+            .attr('id', `energy-gradient-${i}`)
+            .attr('gradientUnits', 'userSpaceOnUse');
+
+        gradient.append('stop')
+            .attr('offset', '0%')
+            .attr('stop-color', '#00ffcc')
+            .attr('stop-opacity', 0);
+
+        gradient.append('stop')
+            .attr('offset', '50%')
+            .attr('stop-color', '#00ffcc')
+            .attr('stop-opacity', 1);
+
+        gradient.append('stop')
+            .attr('offset', '100%')
+            .attr('stop-color', '#00ffcc')
+            .attr('stop-opacity', 0);
+
+        // Energy flow path
+        const flowPath = g.append('path')
+            .datum(greatCircle)
+            .attr('d', lineGenerator)
+            .attr('fill', 'none')
+            .attr('stroke', `url(#energy-gradient-${i})`)
+            .attr('stroke-width', path.power / 3)
+            .attr('opacity', 0.6)
+            .style('filter', 'drop-shadow(0 0 3px #00ffcc)');
+
+        // Animate the gradient
+        gradient.append('animateTransform')
+            .attr('attributeName', 'gradientTransform')
+            .attr('type', 'translate')
+            .attr('from', '-1 0')
+            .attr('to', '1 0')
+            .attr('dur', `${10 - path.power / 2}s`)
+            .attr('repeatCount', 'indefinite');
+
+        // Add energy particles
+        const particleGroup = g.append('g');
+        
+        for (let j = 0; j < 3; j++) {
+            const particle = particleGroup.append('circle')
+                .attr('r', 2)
+                .attr('fill', '#00ffcc')
+                .style('filter', 'drop-shadow(0 0 5px #00ffcc)');
+
+            const pathElement = flowPath.node();
+            const pathLength = pathElement.getTotalLength();
+
+            particle.append('animateMotion')
+                .attr('path', lineGenerator(greatCircle))
+                .attr('dur', `${15 - path.power}s`)
+                .attr('begin', `${j * 3}s`)
+                .attr('repeatCount', 'indefinite');
+        }
+    });
+}
+
+// Draw enhanced northeastern US detail
+function drawNortheastDetail(g, projection) {
+    // Major northeastern US locations
+    const neLocations = [
+        // Major cities
+        {name: "New York City", coords: [-74.0060, 40.7128], type: "city", power: 9, population: 8336817},
+        {name: "Boston", coords: [-71.0589, 42.3601], type: "city", power: 8, population: 692600},
+        {name: "Philadelphia", coords: [-75.1652, 39.9526], type: "city", power: 7, population: 1584064},
+        {name: "Washington DC", coords: [-77.0369, 38.9072], type: "city", power: 10, population: 705749},
+        {name: "Baltimore", coords: [-76.6122, 39.2904], type: "city", power: 6, population: 593490},
+        {name: "Pittsburgh", coords: [-79.9959, 40.4406], type: "city", power: 5, population: 302407},
+        
+        // Special energy sites
+        {name: "Harriman State Park", coords: [-74.1404, 41.2370], type: "vortex", power: 8, 
+         description: "Major ley line intersection, 89 Missing 411 cases, ancient stone structures"},
+        {name: "Bear Mountain", coords: [-73.9885, 41.3134], type: "vortex", power: 7,
+         description: "Energy vortex, solstice alignments, 47 disappearances"},
+        {name: "Mount Weather", coords: [-77.8889, 39.0626], type: "underground", depth: 4,
+         description: "FEMA continuity of government facility"},
+        {name: "Camp Hero/Montauk", coords: [-71.8674, 41.0637], type: "underground", depth: 5,
+         description: "Temporal experiments, Project Montauk site"},
+        {name: "West Point", coords: [-73.9556, 41.3915], type: "energy", power: 6,
+         description: "Hudson Valley energy channel intersection"},
+        {name: "Greenbrier Bunker", coords: [-80.3084, 37.7857], type: "underground", depth: 3,
+         description: "Congressional fallout shelter"},
+        {name: "Wright-Patterson AFB", coords: [-84.0483, 39.8261], type: "underground", depth: 4,
+         description: "UFO storage facility, Hangar 18"}
+    ];
+
+    // Hudson Valley energy channel
+    const hudsonChannel = [
+        [-73.7569, 42.6526], // Albany
+        [-73.9556, 41.3915], // West Point
+        [-74.1404, 41.2370], // Harriman
+        [-73.9885, 41.3134], // Bear Mountain
+        [-74.0060, 40.7128]  // NYC
+    ];
+
+    // Draw Hudson Valley energy channel
+    const channelPath = d3.line()
+        .x(d => projection(d)[0])
+        .y(d => projection(d)[1])
+        .curve(d3.curveBasis);
+
+    g.append('path')
+        .datum(hudsonChannel)
+        .attr('d', channelPath)
+        .attr('fill', 'none')
+        .attr('stroke', '#9370db')
+        .attr('stroke-width', 3)
+        .attr('opacity', 0.6)
+        .style('stroke-dasharray', '10,5')
+        .style('filter', 'drop-shadow(0 0 5px #9370db)')
+        .attr('class', 'hudson-channel');
+
+    // Add location markers
+    neLocations.forEach(loc => {
+        const [x, y] = projection(loc.coords);
+        
+        const locGroup = g.append('g')
+            .attr('transform', `translate(${x}, ${y})`)
+            .attr('class', `ne-location ${loc.type}`)
+            .style('cursor', 'pointer');
+
+        // Different markers for different types
+        if (loc.type === 'city') {
+            // City marker
+            locGroup.append('circle')
+                .attr('r', Math.sqrt(loc.power) * 2)
+                .attr('fill', '#00aaff')
+                .attr('stroke', '#00ffcc')
+                .attr('stroke-width', 1)
+                .attr('opacity', 0.8);
+                
+            // Add population indicator
+            locGroup.append('circle')
+                .attr('r', Math.sqrt(loc.population / 100000))
+                .attr('fill', 'none')
+                .attr('stroke', '#00aaff')
+                .attr('stroke-width', 0.5)
+                .attr('opacity', 0.5);
+                
+        } else if (loc.type === 'vortex') {
+            // Vortex marker - spiral pattern
+            const spiral = d3.lineRadial()
+                .angle(d => d * 2 * Math.PI)
+                .radius(d => d * loc.power / 2)
+                .curve(d3.curveBasis);
+                
+            locGroup.append('path')
+                .datum(d3.range(0, 3, 0.1))
+                .attr('d', spiral)
+                .attr('fill', 'none')
+                .attr('stroke', '#ff00ff')
+                .attr('stroke-width', 1.5)
+                .attr('opacity', 0.8)
+                .style('filter', 'drop-shadow(0 0 3px #ff00ff)');
+                
+            // Add rotation animation
+            locGroup.append('animateTransform')
+                .attr('attributeName', 'transform')
+                .attr('type', 'rotate')
+                .attr('from', `0 ${x} ${y}`)
+                .attr('to', `360 ${x} ${y}`)
+                .attr('dur', '20s')
+                .attr('repeatCount', 'indefinite');
+                
+        } else if (loc.type === 'underground') {
+            // Underground base marker
+            locGroup.append('rect')
+                .attr('x', -5)
+                .attr('y', -5)
+                .attr('width', 10)
+                .attr('height', 10)
+                .attr('fill', '#ff6b6b')
+                .attr('fill-opacity', 0.6)
+                .attr('stroke', '#ff0000')
+                .attr('stroke-width', 1)
+                .attr('transform', 'rotate(45)');
+                
+            // Depth rings
+            for (let i = 1; i <= loc.depth / 2; i++) {
+                locGroup.append('rect')
+                    .attr('x', -5 - (i * 3))
+                    .attr('y', -5 - (i * 3))
+                    .attr('width', 10 + (i * 6))
+                    .attr('height', 10 + (i * 6))
+                    .attr('fill', 'none')
+                    .attr('stroke', '#ff6b6b')
+                    .attr('stroke-width', 0.5)
+                    .attr('opacity', 0.4 - (i * 0.1))
+                    .attr('transform', 'rotate(45)');
+            }
+        } else if (loc.type === 'energy') {
+            // Energy node marker
+            locGroup.append('circle')
+                .attr('r', loc.power)
+                .attr('fill', '#ffcc00')
+                .attr('opacity', 0.6);
+                
+            // Pulsing ring
+            locGroup.append('circle')
+                .attr('r', loc.power)
+                .attr('fill', 'none')
+                .attr('stroke', '#ffcc00')
+                .attr('stroke-width', 2)
+                .attr('opacity', 0)
+                .append('animate')
+                .attr('attributeName', 'r')
+                .attr('from', loc.power)
+                .attr('to', loc.power * 3)
+                .attr('dur', '3s')
+                .attr('repeatCount', 'indefinite');
+        }
+
+        // Add label for important locations
+        if (loc.power >= 7 || loc.type === 'vortex') {
+            locGroup.append('text')
+                .attr('x', 10)
+                .attr('y', -5)
+                .text(loc.name)
+                .style('font-size', '10px')
+                .style('fill', '#00ffcc')
+                .style('text-shadow', '0 0 3px rgba(0, 0, 0, 0.8)');
+        }
+
+        // Enhanced tooltip
+        locGroup.on('click', function(event) {
+            event.stopPropagation();
+            const [pageX, pageY] = [event.pageX, event.pageY];
+            
+            const details = {
+                name: loc.name,
+                type: loc.type,
+                coords: loc.coords,
+                ...loc
+            };
+            
+            window.enhancedPopup.show(details, pageX, pageY);
+        })
+        .on('mouseover', function() {
+            d3.select(this).selectAll('*')
+                .attr('opacity', function() {
+                    return parseFloat(d3.select(this).attr('opacity') || 1) * 1.2;
+                });
+        })
+        .on('mouseout', function() {
+            d3.select(this).selectAll('*')
+                .attr('opacity', function() {
+                    return parseFloat(d3.select(this).attr('opacity') || 1) / 1.2;
+                });
+        });
+    });
+
+    // Add Appalachian energy spine
+    const appalachianSpine = [
+        [-82.5, 46.5], // Northern terminus
+        [-78.9, 43.2], // Adirondacks
+        [-74.5, 41.5], // Catskills
+        [-77.5, 39.7], // Pennsylvania
+        [-79.5, 38.5], // West Virginia
+        [-82.5, 36.5], // Tennessee
+        [-84.3, 34.0]  // Georgia
+    ];
+
+    g.append('path')
+        .datum(appalachianSpine)
+        .attr('d', channelPath)
+        .attr('fill', 'none')
+        .attr('stroke', '#228b22')
+        .attr('stroke-width', 2)
+        .attr('opacity', 0.5)
+        .style('stroke-dasharray', '5,3')
+        .style('filter', 'drop-shadow(0 0 3px #228b22)')
+        .attr('class', 'appalachian-spine');
+
+    // Add regional ley lines
+    const regionalLeyLines = [
+        {start: [-71.0589, 42.3601], end: [-74.0060, 40.7128], name: "Boston-NYC Line", frequency: 8.3},
+        {start: [-74.0060, 40.7128], end: [-75.1652, 39.9526], name: "NYC-Philadelphia Line", frequency: 8.7},
+        {start: [-75.1652, 39.9526], end: [-77.0369, 38.9072], name: "Philadelphia-DC Line", frequency: 9.1},
+        {start: [-74.1404, 41.2370], end: [-71.8674, 41.0637], name: "Harriman-Montauk Line", frequency: 11.5}
+    ];
+
+    regionalLeyLines.forEach(line => {
+        const lineGen = d3.geoPath().projection(projection);
+        const linePath = {
+            type: "LineString",
+            coordinates: [line.start, line.end]
+        };
+
+        g.append('path')
+            .datum(linePath)
+            .attr('d', lineGen)
+            .attr('fill', 'none')
+            .attr('stroke', '#00ffcc')
+            .attr('stroke-width', 1.5)
+            .attr('opacity', 0.5)
+            .style('stroke-dasharray', '3,2')
+            .attr('class', 'regional-ley-line');
+    });
 }
 
 function showLocationInfo(location) {
