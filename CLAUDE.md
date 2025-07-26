@@ -177,6 +177,51 @@ The project uses `/visualizations/data/grid-data.json` for coordinate data:
 - Missing 411 clusters
 - Galactic cycle events
 
+## Mobile Optimization (2025-01-26)
+
+The project now includes comprehensive mobile optimization:
+
+### Mobile-Specific Files
+- `/visualizations/css/mobile.css` - Responsive styles and mobile breakpoints
+- `/visualizations/js/mobile-optimization.js` - Mobile detection and optimization utilities
+
+### Key Mobile Features
+1. **Responsive Design**
+   - Breakpoints at 768px, 480px, and landscape orientations
+   - Touch-friendly button sizes (44px minimum)
+   - Horizontal scroll for navigation menu
+   - Simplified layouts on small screens
+
+2. **Performance Optimizations**
+   - Reduced particle counts (30% of desktop)
+   - Disabled antialiasing on mobile
+   - Lower pixel ratios for rendering
+   - Debounced resize events
+   - Simplified animations
+
+3. **Touch Support**
+   - Touch events for D3.js visualizations
+   - Touch-optimized Three.js controls
+   - Prevented double-tap zoom
+   - Swipe gestures for navigation
+
+4. **Adaptive Rendering**
+   - Dynamic shadow quality
+   - Conditional post-processing effects
+   - Reduced texture resolutions
+   - Performance monitoring
+
+### Usage in Visualizations
+```javascript
+// Check if mobile
+if (window.mobileUtils && window.mobileUtils.isMobile()) {
+    // Apply mobile optimizations
+    particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    window.mobileUtils.optimizeRenderer(renderer);
+    window.mobileUtils.addTouchControls(controls);
+}
+```
+
 ## Deployment
 
 - **GitHub**: https://github.com/BoweryJG/breakaways

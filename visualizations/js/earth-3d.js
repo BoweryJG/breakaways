@@ -54,25 +54,40 @@ function setupScene(container) {
     camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
     camera.position.set(0, 0, 500);
     
-    // Renderer
+    // Renderer with mobile optimization
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     renderer = new THREE.WebGLRenderer({ 
-        antialias: true,
+        antialias: !isMobile,
         alpha: true 
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    
+    // Mobile optimization
+    if (window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(renderer);
+    } else {
+        renderer.setPixelRatio(window.devicePixelRatio);
+    }
+    
+    renderer.shadowMap.enabled = !isMobile;
+    if (!isMobile) {
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    }
     container.appendChild(renderer.domElement);
     
-    // Controls
+    // Controls with mobile optimization
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 150;
     controls.maxDistance = 800;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.5;
+    controls.autoRotateSpeed = isMobile ? 0.3 : 0.5;
+    
+    // Add touch controls for mobile
+    if (window.mobileUtils) {
+        window.mobileUtils.addTouchControls(controls);
+    }
     
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x222222);
@@ -89,7 +104,12 @@ function setupScene(container) {
 
 function createStarfield() {
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 5000;
+    let starCount = 5000;
+    
+    // Reduce stars on mobile
+    if (window.mobileUtils && window.mobileUtils.isMobile()) {
+        starCount = window.mobileUtils.optimizeParticles(starCount);
+    }
     const positions = new Float32Array(starCount * 3);
     
     for (let i = 0; i < starCount * 3; i += 3) {
@@ -735,9 +755,18 @@ function cleanupEarth3d() {
 window.addEventListener('resize', () => {
     const container = document.getElementById('earth-3d-container');
     if (container && camera && renderer) {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, 600);
+        // Use debounced resize for mobile
+        if (window.mobileUtils && window.mobileUtils.isMobile()) {
+            window.mobileUtils.handleResize(() => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight || 600);
+            });
+        } else {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight || 600);
+        }
     }
 });
 

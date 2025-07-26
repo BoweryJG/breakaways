@@ -1,0 +1,295 @@
+/* Mobile Optimizations for Breakaway Civilization Dashboard */
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    header {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        font-size: 0.9em;
+    }
+    
+    /* Status bar */
+    .status-bar {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.8em;
+    }
+    
+    .status-item {
+        padding: 3px 8px;
+    }
+    
+    /* Navigation menu */
+    .visualization-menu {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        padding: 10px 5px;
+        margin: 0 -10px;
+    }
+    
+    .nav-btn {
+        font-size: 0.75em;
+        padding: 6px 10px;
+        margin: 0 3px;
+        display: inline-block;
+    }
+    
+    /* Visualization containers */
+    .viz-section {
+        padding: 15px 10px;
+    }
+    
+    #world-map-container,
+    #population-genetics-container,
+    #earth-3d-container,
+    #moon-control-container,
+    #master-convergence-container,
+    #evidence-container {
+        height: 400px !important;
+        margin: 10px 0;
+    }
+    
+    /* Overview grid */
+    .overview-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .overview-card {
+        padding: 15px;
+    }
+    
+    /* Controls */
+    .controls {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .controls label {
+        font-size: 0.8em;
+        margin: 3px;
+    }
+    
+    /* Zoom controls */
+    .zoom-controls {
+        top: 5px !important;
+        right: 5px !important;
+        transform: scale(0.8);
+    }
+    
+    /* Legend */
+    .map-legend {
+        transform: scale(0.7);
+        transform-origin: bottom left;
+    }
+    
+    /* Info panels */
+    .info-panel,
+    .cycle-info,
+    .bloodline-stats,
+    .moon-anomalies,
+    .tidal-effects,
+    .discovery-timeline {
+        padding: 10px;
+        font-size: 0.85em;
+    }
+    
+    /* Genetics info grid */
+    .genetics-info {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 10px;
+    }
+    
+    /* Timeline controls */
+    .timeline-controls {
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+    
+    #timeline-slider {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    /* Layer controls */
+    .layer-controls,
+    .ant-layer {
+        font-size: 0.8em;
+        padding: 5px 8px;
+    }
+    
+    /* Evidence matrix */
+    .matrix-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .matrix-filters {
+        flex-wrap: wrap;
+    }
+    
+    .matrix-filter {
+        font-size: 0.75em;
+        padding: 3px 6px;
+        margin: 2px;
+    }
+    
+    /* Footer */
+    footer {
+        padding: 15px 10px;
+        font-size: 0.8em;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.2em;
+    }
+    
+    .nav-btn {
+        font-size: 0.7em;
+        padding: 5px 8px;
+    }
+    
+    #world-map-container,
+    #population-genetics-container,
+    #earth-3d-container,
+    #moon-control-container,
+    #master-convergence-container,
+    #evidence-container {
+        height: 300px !important;
+    }
+    
+    .stat-number {
+        font-size: 1.5em;
+    }
+    
+    /* Hide less critical elements */
+    .map-legend,
+    .countdown {
+        display: none;
+    }
+    
+    /* Simplify monitors */
+    .em-monitors {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .nav-btn,
+    .layer-toggle,
+    .ant-layer,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Increase spacing for touch */
+    .controls label,
+    .matrix-filter {
+        margin: 5px;
+        padding: 8px 12px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .clickable-element:hover {
+        transform: none;
+        filter: none;
+    }
+}
+
+/* Landscape mobile */
+@media (max-width: 812px) and (orientation: landscape) {
+    header {
+        padding: 5px 10px;
+    }
+    
+    h1 {
+        font-size: 1.3em;
+        margin: 0;
+    }
+    
+    .subtitle {
+        display: none;
+    }
+    
+    .status-bar {
+        flex-direction: row;
+        font-size: 0.7em;
+    }
+    
+    #world-map-container,
+    #population-genetics-container,
+    #earth-3d-container,
+    #moon-control-container,
+    #master-convergence-container,
+    #evidence-container {
+        height: 250px !important;
+    }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+    /* Reduce animation complexity */
+    * {
+        animation-duration: 0s !important;
+        transition-duration: 0.1s !important;
+    }
+    
+    /* Disable complex effects */
+    .glow-effect,
+    .pulse-effect,
+    .energy-flow-layer {
+        display: none;
+    }
+    
+    /* Reduce particle counts via CSS */
+    .particle-system {
+        opacity: 0.5;
+    }
+}
+
+/* Scrollbar styling for mobile */
+@media (max-width: 768px) {
+    .visualization-menu::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .visualization-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .visualization-menu::-webkit-scrollbar-thumb {
+        background: var(--accent-color);
+        border-radius: 2px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .visualization-menu,
+    .controls,
+    .layer-toggle,
+    .zoom-controls,
+    #sound-toggle {
+        display: none;
+    }
+    
+    .viz-section {
+        page-break-inside: avoid;
+    }
+}

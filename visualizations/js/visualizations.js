@@ -280,6 +280,11 @@ function drawLeyLines(g, projection) {
                 .style('stroke-dasharray', '5,5')
                 .style('animation', 'dash 2s linear infinite');
         }
+        
+        // Add touch support for mobile
+        if (window.mobileUtils) {
+            window.mobileUtils.addTouchToD3Selection(leyPath);
+        }
     });
 }
 
