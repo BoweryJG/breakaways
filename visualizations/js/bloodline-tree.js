@@ -198,7 +198,7 @@ function createBloodlineTree() {
     createDNAHelixes();
     
     // Add energy field
-    createEnergyField();
+    createBloodlineEnergyField();
 }
 
 function createNode(nodeData, parentPosition) {
@@ -491,7 +491,7 @@ function createDNAHelixes() {
     }
 }
 
-function createEnergyField() {
+function createBloodlineEnergyField() {
     // Create ambient energy field particles
     const fieldParticles = 1000;
     const geometry = new THREE.BufferGeometry();
