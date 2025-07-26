@@ -63,6 +63,17 @@
     </div>
 
     <div class="frequency-group">
+        <h2>Schumann Resonance (Made Audible)</h2>
+        <p style="color: #888; font-size: 14px;">
+            Note: The actual Schumann resonance (7.83 Hz) is below human hearing range (20-20,000 Hz).
+            These are multiplied versions to make them audible.
+        </p>
+        <button onclick="playFrequency(78.3)">78.3 Hz (10x)</button>
+        <button onclick="playFrequency(156.6)">156.6 Hz (20x)</button>
+        <button onclick="playFrequency(783)">783 Hz (100x)</button>
+    </div>
+
+    <div class="frequency-group">
         <h2>Binaural Beats</h2>
         <button onclick="playBinaural(440, 444)">Theta Wave (4 Hz)</button>
         <button onclick="playBinaural(440, 448)">Alpha Wave (8 Hz)</button>
@@ -77,11 +88,33 @@
         <button onclick="stopAll()">Stop All</button>
     </div>
 
+    <div id="status" style="background: #1a2535; padding: 10px; margin: 20px 0; border-radius: 5px;">
+        Click any button to initialize audio...
+    </div>
+
     <script>
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioContext;
         const oscillators = [];
+        let initialized = false;
+
+        function initAudio() {
+            if (!initialized) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                initialized = true;
+                document.getElementById('status').innerHTML = '✅ Audio initialized! State: ' + audioContext.state;
+                
+                // Resume if suspended
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        document.getElementById('status').innerHTML = '✅ Audio resumed and ready!';
+                    });
+                }
+            }
+        }
 
         function playFrequency(freq, duration = 5) {
+            initAudio(); // Ensure audio is initialized
+            
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
             
@@ -111,6 +144,8 @@
         }
 
         function playBinaural(leftFreq, rightFreq, duration = 10) {
+            initAudio(); // Ensure audio is initialized
+            
             // Create stereo panner nodes
             const merger = audioContext.createChannelMerger(2);
             
