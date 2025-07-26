@@ -86,7 +86,11 @@ function switchView(viewName) {
     console.log(`Switching to view: ${viewName}, init function: ${initFunc}`);
     console.log(`Function exists: ${typeof window[initFunc] === 'function'}`);
     
+    // Debug: List all available init functions
+    console.log('Available functions:', Object.keys(window).filter(key => key.startsWith('init')));
+    
     if (initFunc && typeof window[initFunc] === 'function') {
+        console.log(`Calling ${initFunc}...`);
         // Clean up previous 3D scenes if needed
         if (viewName === 'underground' && typeof window.cleanupEarth3d === 'function') {
             window.cleanupEarth3d();
@@ -102,7 +106,29 @@ function switchView(viewName) {
             window.cleanupEvidenceMatrix();
         }
         
-        window[initFunc]();
+        try {
+            window[initFunc]();
+            console.log(`Successfully initialized ${initFunc}`);
+        } catch (error) {
+            console.error(`Error initializing ${initFunc}:`, error);
+            console.error('Stack trace:', error.stack);
+            
+            // Try debug mode as fallback
+            const debugFunc = initFunc + 'Debug';
+            if (window.debugMode && typeof window[debugFunc] === 'function') {
+                console.warn(`Falling back to debug mode for ${viewName}`);
+                window[debugFunc]();
+            }
+        }
+    } else {
+        console.warn(`No init function found for view: ${viewName}`);
+        
+        // Try debug mode
+        const debugFunc = 'init' + viewName.charAt(0).toUpperCase() + viewName.slice(1).replace(/-./g, x => x[1].toUpperCase()) + 'Debug';
+        if (window.debugMode && typeof window[debugFunc] === 'function') {
+            console.warn(`Using debug mode for ${viewName}`);
+            window[debugFunc]();
+        }
     }
     
     // Clean up EM Symphony when leaving that view
