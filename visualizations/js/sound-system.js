@@ -1054,6 +1054,35 @@ class BreakawaySound {
         });
     }
     
+    // Stop a specific ambient layer
+    stopAmbientLayer(layerName) {
+        const layer = this.ambientLayers[layerName];
+        if (!layer || !layer.active) return;
+        
+        const id = `ambient_${layerName}`;
+        layer.active = false;
+        
+        // Find and stop the sound
+        const activeSounds = this.getAllActiveSounds();
+        const ambientSound = activeSounds.find(s => s.id === id || s.name === layerName);
+        if (ambientSound) {
+            this.stopSound(ambientSound.id);
+        }
+    }
+    
+    // Stop a specific binaural beat
+    stopBinauralBeat(type) {
+        // Find and stop any active binaural beats of this type
+        const activeSounds = this.getAllActiveSounds();
+        const binauralSounds = activeSounds.filter(s => 
+            s.id && s.id.includes(`binaural_${type}`) && s.type === 'binaural'
+        );
+        
+        binauralSounds.forEach(sound => {
+            this.stopSound(sound.id);
+        });
+    }
+    
     // Volume control methods
     setMasterVolume(volume) {
         this.volumes.master = Math.max(0, Math.min(1, volume));

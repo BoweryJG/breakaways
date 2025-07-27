@@ -954,7 +954,8 @@ class SoundControlPanel {
                         
                         <!-- Core Frequency -->
                         <div class="sound-section">
-                            <h4>🌍 Core Frequency</h4>
+                            <h4>🌍 Core Frequency - Earth Resonance</h4>
+                            <p class="sound-section-description">The Schumann resonance is Earth's natural electromagnetic frequency at 7.83 Hz. Toggle to activate/deactivate.</p>
                             <div class="sound-grid" id="core-sounds">
                                 <!-- Populated dynamically -->
                             </div>
@@ -1342,6 +1343,14 @@ class SoundControlPanel {
                 padding-bottom: 10px;
             }
             
+            .sound-section-description {
+                color: var(--text-secondary);
+                font-size: 0.9em;
+                margin-bottom: 15px;
+                line-height: 1.5;
+                font-style: italic;
+            }
+            
             .sound-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -1424,6 +1433,23 @@ class SoundControlPanel {
                 font-size: 0.8em;
                 color: var(--accent-color);
                 text-align: center;
+            }
+            
+            .sound-status {
+                font-size: 0.85em;
+                font-weight: bold;
+                text-align: center;
+                margin-top: 8px;
+                padding: 4px 8px;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.5);
+                color: #666;
+            }
+            
+            .sound-card.active .sound-status {
+                background: rgba(0, 255, 204, 0.2);
+                color: var(--accent-color);
+                box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
             }
             
             .visualizer-section-full {
@@ -1654,8 +1680,7 @@ class SoundControlPanel {
             // Add active class to container
             this.panel.classList.add('sound-system-active');
             
-            // Start with Schumann resonance by default
-            this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+            // Don't auto-start any sounds - let user choose what to play
         } else {
             // Deactivate sound system
             playBtn.classList.remove('active');
@@ -1806,6 +1831,7 @@ class SoundControlPanel {
                 <div class="sound-card-icon">${soundInfo.icon}</div>
                 <div class="sound-card-name">${soundInfo.name}</div>
                 ${frequencyDisplay}
+                ${soundKey === 'schumann' ? '<div class="sound-status">' + (isActive ? 'ACTIVE' : 'INACTIVE') + '</div>' : ''}
             `;
         } else {
             // Original floating panel layout
@@ -1847,19 +1873,11 @@ class SoundControlPanel {
             if (soundKey === 'schumann') {
                 this.soundSystem.stopSchumannResonance();
             } else if (this.soundDescriptions[soundKey].category === 'ambient') {
-                // Find and stop the ambient layer
-                const activeSounds = this.soundSystem.getAllActiveSounds();
-                const ambientSound = activeSounds.find(s => s.name === soundKey);
-                if (ambientSound) {
-                    this.soundSystem.unregisterSound(ambientSound.id);
-                }
+                // Stop the ambient layer
+                this.soundSystem.stopAmbientLayer(soundKey);
             } else if (this.soundDescriptions[soundKey].category === 'binaural') {
                 // Stop binaural beat
-                const activeSounds = this.soundSystem.getAllActiveSounds();
-                const binauralSound = activeSounds.find(s => s.id && s.id.includes(`binaural_${soundKey}`));
-                if (binauralSound) {
-                    this.soundSystem.stopSound(binauralSound.id);
-                }
+                this.soundSystem.stopBinauralBeat(soundKey);
             }
         } else {
             // Start the sound
