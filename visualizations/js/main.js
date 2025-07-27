@@ -427,8 +427,8 @@ async function toggleSound() {
     
     if (soundEnabled) {
         soundToggle.innerHTML = '🔊 Sound On';
-        // Start ambient sounds with low volume
-        window.breakawaySound.startAmbientLayer('deepSpace');
+        // Only start Schumann resonance - the Earth's natural frequency
+        // Users can enable other sounds through the control panel
         window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
         
         // Show sound control panel
@@ -465,7 +465,9 @@ window.switchView = function(viewName) {
     // NO MORE NAVIGATION SOUNDS
     originalSwitchView(viewName);
     
-    // View-specific sounds
+    // View-specific sounds - DISABLED to prevent auto-playing
+    // Users can manually enable sounds through the control panel
+    /*
     if (window.breakawaySound) {
         switch(viewName) {
             case 'electromagnetic':
@@ -482,6 +484,7 @@ window.switchView = function(viewName) {
                 break;
         }
     }
+    */
 };
 
 // Sound for Schumann resonance updates

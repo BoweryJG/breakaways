@@ -351,6 +351,15 @@ class BreakawaySound {
         return id;
     }
     
+    // Stop Schumann resonance
+    stopSchumannResonance() {
+        const activeSounds = this.getAllActiveSounds();
+        const schumannSound = activeSounds.find(s => s.name === 'schumann');
+        if (schumannSound) {
+            this.stopSound(schumannSound.id);
+        }
+    }
+    
     // Generate binaural beats for consciousness alteration
     playBinauralBeat(type, duration = null) {
         if (!this.isInitialized || this.isMuted) return;
