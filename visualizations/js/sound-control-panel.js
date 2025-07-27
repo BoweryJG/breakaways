@@ -37,6 +37,12 @@ class SoundControlPanel {
             soundStopped: this.onSoundStopped.bind(this)
         };
         
+        // Store bound drag handlers for cleanup
+        this.dragHandlers = {
+            mouseMove: (e) => this.drag(e),
+            mouseUp: () => this.endDrag()
+        };
+        
         // Sound descriptions for user-friendly display
         this.soundDescriptions = {
             // Core frequencies
@@ -840,8 +846,8 @@ class SoundControlPanel {
         // Drag functionality
         const header = this.panel.querySelector('.sound-panel-header');
         header.addEventListener('mousedown', (e) => this.startDrag(e));
-        document.addEventListener('mousemove', (e) => this.drag(e));
-        document.addEventListener('mouseup', () => this.endDrag());
+        document.addEventListener('mousemove', this.dragHandlers.mouseMove);
+        document.addEventListener('mouseup', this.dragHandlers.mouseUp);
         
         // Panel controls
         document.getElementById('minimize-panel').addEventListener('click', () => this.toggleMinimize());
@@ -900,7 +906,7 @@ class SoundControlPanel {
     }
     
     drag(e) {
-        if (!this.isDragging) return;
+        if (!this.isDragging || !this.panel) return;
         this.position.x = e.clientX - this.dragOffset.x;
         this.position.y = e.clientY - this.dragOffset.y;
         this.panel.style.left = `${this.position.x}px`;
@@ -908,6 +914,7 @@ class SoundControlPanel {
     }
     
     endDrag() {
+        if (!this.panel) return;
         this.isDragging = false;
         this.panel.style.cursor = '';
     }
@@ -919,7 +926,11 @@ class SoundControlPanel {
     }
     
     close() {
-        // Unsubscribe from sound system events first
+        // Remove drag event listeners from document
+        document.removeEventListener('mousemove', this.dragHandlers.mouseMove);
+        document.removeEventListener('mouseup', this.dragHandlers.mouseUp);
+        
+        // Unsubscribe from sound system events
         if (this.soundSystem) {
             this.soundSystem.off('soundRegistered', this.eventHandlers.soundRegistered);
             this.soundSystem.off('soundUnregistered', this.eventHandlers.soundUnregistered);
@@ -949,11 +960,13 @@ class SoundControlPanel {
             masterVolume: null,
             categoryMixers: {},
             visualizer: null,
-            minimizeBtn: null
+            minimizeBtn: null,
+            categorySounds: {}
         };
         this.visualizerCanvas = null;
         this.visualizerCtx = null;
         this.initialized = false;
+        this.isDragging = false;
     }
     
     startUpdateLoop() {
