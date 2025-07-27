@@ -10,7 +10,7 @@ let underground = {
 };
 let animationId;
 let selectedRegion = null;
-let particleSystems = [];
+let earth3dParticleSystems = [];
 
 function initEarth3d() {
     const container = document.getElementById('earth-3d-container');
@@ -412,7 +412,7 @@ function createEnergyFlows() {
         const particleSystem = new THREE.Points(particles, particleMaterial);
         particleSystem.userData = { curve: curve, speed: 0.001 + Math.random() * 0.002 };
         scene.add(particleSystem);
-        particleSystems.push(particleSystem);
+        earth3dParticleSystems.push(particleSystem);
     });
 }
 
@@ -568,7 +568,7 @@ function toggleLayer(layer, visible) {
             underground.tunnels.forEach(t => t.visible = visible);
             break;
         case 'energy':
-            particleSystems.forEach(p => p.visible = visible);
+            earth3dParticleSystems.forEach(p => p.visible = visible);
             break;
         case 'hollow':
             underground.caverns.forEach(c => c.visible = visible);
@@ -697,7 +697,7 @@ function animate() {
     }
     
     // Animate particle flows
-    particleSystems.forEach(system => {
+    earth3dParticleSystems.forEach(system => {
         const positions = system.geometry.attributes.position.array;
         const curve = system.userData.curve;
         const speed = system.userData.speed;

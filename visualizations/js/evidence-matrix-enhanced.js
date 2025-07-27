@@ -7,7 +7,7 @@ let emScene, emCamera, emRenderer, emControls;
 let emRaycaster, emMouse;
 let correlationNetwork = [];
 let evidenceNodes = [];
-let connectionLines = [];
+let emConnectionLines = [];
 let dataStreams = [];
 let patternClusters = [];
 let quantumCorrelations = [];
@@ -340,10 +340,10 @@ function createEvidenceNode(category, position) {
 
 function updateCorrelationConnections() {
     // Clear existing connections
-    connectionLines.forEach(line => {
+    emConnectionLines.forEach(line => {
         emScene.remove(line);
     });
-    connectionLines = [];
+    emConnectionLines = [];
     
     // Create connections based on correlation strength
     for (let i = 0; i < evidenceNodes.length; i++) {
@@ -358,7 +358,7 @@ function updateCorrelationConnections() {
             
             if (correlation > EM_CONFIG.connectionThreshold) {
                 const connection = createConnection(node1, node2, correlation);
-                connectionLines.push(connection);
+                emConnectionLines.push(connection);
                 emScene.add(connection);
                 
                 // Store connection reference
@@ -402,7 +402,7 @@ function createDataStreams() {
     streamGroup.name = 'DataStreams';
     
     // Create particle streams between connected nodes
-    connectionLines.forEach(connection => {
+    emConnectionLines.forEach(connection => {
         const streamCount = Math.floor(connection.userData.strength * 10) + 5;
         const stream = createDataStream(connection.userData.curve, streamCount);
         streamGroup.add(stream);
@@ -1109,7 +1109,7 @@ function initializeEvidenceData() {
 
 function updateStats() {
     document.getElementById('active-nodes').textContent = evidenceNodes.filter(n => n.userData.activity > 0.5).length;
-    document.getElementById('connection-count').textContent = connectionLines.length;
+    document.getElementById('connection-count').textContent = emConnectionLines.length;
     document.getElementById('pattern-count').textContent = patternClusters.length;
     document.getElementById('data-flow').textContent = (Math.random() * 100).toFixed(1);
 }
@@ -1144,7 +1144,7 @@ function animateEvidenceMatrix() {
     });
     
     // Animate connections
-    connectionLines.forEach(connection => {
+    emConnectionLines.forEach(connection => {
         const pulse = Math.sin(emTime * 3 + connection.userData.pulsePhase) * 0.5 + 0.5;
         connection.material.opacity = connection.userData.strength * 0.3 + pulse * 0.3;
     });
@@ -1228,7 +1228,7 @@ function cleanupEvidenceMatrix() {
     // Clear arrays
     correlationNetwork = [];
     evidenceNodes = [];
-    connectionLines = [];
+    emConnectionLines = [];
     dataStreams = [];
     patternClusters = [];
     quantumCorrelations = [];
