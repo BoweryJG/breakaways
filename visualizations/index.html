@@ -72,12 +72,12 @@
             <span class="status-item">Schumann Resonance: <span id="schumann">7.83 Hz</span></span>
             <span class="status-item">Grid Activation: <span id="activation">87%</span></span>
             <span class="status-item">Nodes Online: <span id="nodes">1,347</span></span>
-            <button id="sound-toggle" class="status-item" style="background: transparent; border: 1px solid #00ffcc; padding: 2px 10px; cursor: pointer; color: #00ffcc;">🔇 Sound Off</button>
         </div>
     </header>
 
     <nav class="visualization-menu">
-        <button class="nav-btn active" data-view="overview">Overview</button>
+        <button class="nav-btn active" data-view="sound-control">🎵 Sound Control</button>
+        <button class="nav-btn" data-view="overview">Overview</button>
         <button class="nav-btn" data-view="grid-map">Global Energy Grid</button>
         <button class="nav-btn" data-view="timeline">Galactic Cycles</button>
         <button class="nav-btn" data-view="bloodlines">Bloodline Activation</button>
@@ -92,8 +92,16 @@
     </nav>
 
     <main id="visualization-container">
+        <!-- Sound Control Section -->
+        <section id="sound-control" class="viz-section active">
+            <h2>🎵 Breakaway Sound Control Center</h2>
+            <div id="sound-control-container">
+                <!-- Sound control panel will be rendered here -->
+            </div>
+        </section>
+
         <!-- Overview Section -->
-        <section id="overview" class="viz-section active">
+        <section id="overview" class="viz-section">
             <h2>The Hidden Pattern Revealed</h2>
             <div class="overview-grid">
                 <div class="overview-card">

@@ -2,7 +2,7 @@
 
 // Global state
 const state = {
-    currentView: 'overview',
+    currentView: 'sound-control',  // Start with sound control
     schumann: 7.83,
     activationLevel: 87,
     nodesOnline: 1347,
@@ -23,11 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startLiveUpdates();
     hideLoadingScreen();
     
-    // Set up sound toggle
-    const soundToggle = document.getElementById('sound-toggle');
-    if (soundToggle) {
-        soundToggle.addEventListener('click', toggleSound);
-    }
+    // Sound toggle removed - now handled by Sound Control page
 });
 
 function initializeApp() {
@@ -50,6 +46,9 @@ function initializeApp() {
 
     // Initialize mini visualizations
     initializeMiniViz();
+    
+    // Initialize sound control as the default view
+    switchView('sound-control');
 }
 
 function switchView(viewName) {
@@ -69,6 +68,7 @@ function switchView(viewName) {
     
     // Initialize specific visualization if needed
     const initFunctions = {
+        'sound-control': 'initSoundControl',
         'grid-map': 'initGridMap',
         'timeline': 'initTimeline',
         'bloodlines': 'initBloodlineTree',
@@ -414,39 +414,40 @@ async function initializeSoundSystem() {
     window.breakawaySound.setCategoryVolume('sacred', 0.4);
 }
 
-async function toggleSound() {
-    const soundToggle = document.getElementById('sound-toggle');
-    if (!window.breakawaySound) return;
-    
-    // Initialize if not already done
-    if (!window.breakawaySound.isInitialized) {
-        await window.breakawaySound.initialize();
-    }
-    
-    soundEnabled = !soundEnabled;
-    
-    if (soundEnabled) {
-        soundToggle.innerHTML = '🔊 Sound On';
-        // Only start Schumann resonance - the Earth's natural frequency
-        // Users can enable other sounds through the control panel
-        window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
-        
-        // Show sound control panel
-        if (!window.soundControlPanel) {
-            window.soundControlPanel = new window.SoundControlPanel();
-        }
-    } else {
-        // Stop all sounds
-        window.breakawaySound.stopAll();
-        soundToggle.innerHTML = '🔇 Sound Off';
-        
-        // Hide sound control panel
-        if (window.soundControlPanel && window.soundControlPanel.panel) {
-            window.soundControlPanel.close();
-            window.soundControlPanel = null;
-        }
-    }
-}
+// Old toggle function no longer needed - sound control is now a dedicated page
+// async function toggleSound() {
+//     const soundToggle = document.getElementById('sound-toggle');
+//     if (!window.breakawaySound) return;
+//     
+//     // Initialize if not already done
+//     if (!window.breakawaySound.isInitialized) {
+//         await window.breakawaySound.initialize();
+//     }
+//     
+//     soundEnabled = !soundEnabled;
+//     
+//     if (soundEnabled) {
+//         soundToggle.innerHTML = '🔊 Sound On';
+//         // Only start Schumann resonance - the Earth's natural frequency
+//         // Users can enable other sounds through the control panel
+//         window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+//         
+//         // Show sound control panel
+//         if (!window.soundControlPanel) {
+//             window.soundControlPanel = new window.SoundControlPanel();
+//         }
+//     } else {
+//         // Stop all sounds
+//         window.breakawaySound.stopAll();
+//         soundToggle.innerHTML = '🔇 Sound Off';
+//         
+//         // Hide sound control panel
+//         if (window.soundControlPanel && window.soundControlPanel.panel) {
+//             window.soundControlPanel.close();
+//             window.soundControlPanel = null;
+//         }
+//     }
+// }
 
 // Sound effects for UI interactions
 function playNavigationSound() {
@@ -519,3 +520,31 @@ document.addEventListener('click', async () => {
 }, { once: true });
 
 // Sound system is already available as window.breakawaySound from sound-system.js
+
+// Initialize Sound Control view
+function initSoundControl() {
+    console.log('Initializing Sound Control Center...');
+    
+    // Initialize sound system if not already done
+    if (!window.breakawaySound.isInitialized) {
+        initializeSoundSystem();
+    }
+    
+    // Create full-page sound control panel
+    const container = document.getElementById('sound-control-container');
+    if (!container) return;
+    
+    // Clear any existing content
+    container.innerHTML = '';
+    
+    // Create the sound control panel instance if it doesn't exist
+    if (!window.soundControlPanel) {
+        window.soundControlPanel = new SoundControlPanel();
+    }
+    
+    // Initialize in full-page mode
+    window.soundControlPanel.initFullPage(container);
+}
+
+// Export for use in switchView
+window.initSoundControl = initSoundControl;

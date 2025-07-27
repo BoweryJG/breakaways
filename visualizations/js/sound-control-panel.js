@@ -192,8 +192,8 @@ class SoundControlPanel {
             }
         };
         
-        // Initialize when created
-        this.init();
+        // Don't auto-initialize - wait for explicit init call
+        // this.init();
     }
     
     init() {
@@ -215,6 +215,38 @@ class SoundControlPanel {
             this.soundSystem.on('soundUpdated', this.eventHandlers.soundUpdated);
             this.soundSystem.on('soundStopped', this.eventHandlers.soundStopped);
         }
+    }
+    
+    // Initialize as full-page view
+    initFullPage(container) {
+        if (this.initialized) return;
+        this.initialized = true;
+        this.isFullPage = true;
+        
+        // Initialize sound system first
+        if (!this.soundSystem.isInitialized) {
+            this.soundSystem.initialize();
+        }
+        
+        // Create full-page panel structure
+        this.createFullPagePanel(container);
+        
+        // Set up event listeners
+        this.setupEventListeners();
+        
+        // Start update loop
+        this.startUpdateLoop();
+        
+        // Subscribe to sound system events
+        if (this.soundSystem) {
+            this.soundSystem.on('soundRegistered', this.eventHandlers.soundRegistered);
+            this.soundSystem.on('soundUnregistered', this.eventHandlers.soundUnregistered);
+            this.soundSystem.on('soundUpdated', this.eventHandlers.soundUpdated);
+            this.soundSystem.on('soundStopped', this.eventHandlers.soundStopped);
+        }
+        
+        // Start with Schumann resonance
+        this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
     }
     
     createPanel() {
@@ -842,59 +874,599 @@ class SoundControlPanel {
         document.head.appendChild(style);
     }
     
-    setupEventListeners() {
-        // Drag functionality
-        const header = this.panel.querySelector('.sound-panel-header');
-        header.addEventListener('mousedown', (e) => this.startDrag(e));
-        document.addEventListener('mousemove', this.dragHandlers.mouseMove);
-        document.addEventListener('mouseup', this.dragHandlers.mouseUp);
+    createFullPagePanel(container) {
+        // Create full-page layout
+        this.panel = container;
+        this.panel.className = 'sound-control-full-page';
+        this.panel.innerHTML = `
+            <div class="sound-control-hero">
+                <p class="hero-subtitle">Central Audio Command for the Breakaway Civilization Dashboard</p>
+            </div>
+            
+            <div class="sound-control-main">
+                <!-- Master Controls Section -->
+                <div class="master-section-full">
+                    <h3>Master Controls</h3>
+                    <div class="master-controls-grid">
+                        <div class="master-volume-container">
+                            <label>Master Volume</label>
+                            <input type="range" id="master-volume" min="0" max="100" value="70" class="volume-slider-large">
+                            <span id="master-volume-value" class="volume-display">70%</span>
+                        </div>
+                        <button id="mute-all" class="control-btn-large">
+                            <span class="btn-icon">🔇</span>
+                            <span class="btn-text">Mute All</span>
+                        </button>
+                        <button id="stop-all" class="control-btn-large danger">
+                            <span class="btn-icon">⏹</span>
+                            <span class="btn-text">Stop All</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Presets Section -->
+                <div class="presets-section-full">
+                    <h3>Quick Presets</h3>
+                    <div class="preset-grid">
+                        <div class="preset-card" data-preset="minimal">
+                            <div class="preset-icon-large">🌍</div>
+                            <h4>Minimal</h4>
+                            <p>Earth resonance only</p>
+                            <button class="preset-activate">Activate</button>
+                        </div>
+                        <div class="preset-card" data-preset="ambient">
+                            <div class="preset-icon-large">🌌</div>
+                            <h4>Ambient</h4>
+                            <p>Space atmosphere</p>
+                            <button class="preset-activate">Activate</button>
+                        </div>
+                        <div class="preset-card" data-preset="meditation">
+                            <div class="preset-icon-large">🧘</div>
+                            <h4>Meditation</h4>
+                            <p>Theta + crystals</p>
+                            <button class="preset-activate">Activate</button>
+                        </div>
+                        <div class="preset-card" data-preset="full">
+                            <div class="preset-icon-large">✨</div>
+                            <h4>Full Experience</h4>
+                            <p>All atmospheric</p>
+                            <button class="preset-activate">Activate</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sound Categories Grid -->
+                <div class="sound-categories-grid">
+                    <!-- Core Frequencies -->
+                    <div class="sound-category-card">
+                        <h3><span class="category-icon">🌍</span> Core Frequencies</h3>
+                        <div class="category-description">Essential Earth resonances</div>
+                        <div class="sound-grid" id="core-sounds">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Ambient Sounds -->
+                    <div class="sound-category-card">
+                        <h3><span class="category-icon">🎵</span> Background Ambience</h3>
+                        <div class="category-description">Atmospheric soundscapes</div>
+                        <div class="sound-grid" id="ambient-sounds">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Binaural Beats -->
+                    <div class="sound-category-card">
+                        <h3><span class="category-icon">🧠</span> Binaural Beats</h3>
+                        <div class="category-description">Brainwave entrainment</div>
+                        <div class="sound-grid" id="binaural-sounds">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Event Sounds -->
+                    <div class="sound-category-card">
+                        <h3><span class="category-icon">🔔</span> Event Sounds</h3>
+                        <div class="category-description">Auto-triggered alerts</div>
+                        <div class="sound-grid" id="event-sounds">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visualizer Section -->
+                <div class="visualizer-section-full">
+                    <h3>Live Frequency Spectrum</h3>
+                    <canvas id="sound-visualizer" width="1200" height="200"></canvas>
+                    <div class="spectrum-info">
+                        <span class="spectrum-label">0 Hz</span>
+                        <span class="spectrum-label">Schumann (7.83 Hz)</span>
+                        <span class="spectrum-label">Alpha (10 Hz)</span>
+                        <span class="spectrum-label">Beta (20 Hz)</span>
+                        <span class="spectrum-label">Gamma (40 Hz)</span>
+                        <span class="spectrum-label">100 Hz</span>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        // Panel controls
-        document.getElementById('minimize-panel').addEventListener('click', () => this.toggleMinimize());
-        document.getElementById('close-panel').addEventListener('click', () => this.close());
+        // Add full-page styles
+        this.addFullPageStyles();
         
-        // Master volume
-        this.elements.masterVolume.addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('master-volume-value').textContent = `${value}%`;
-            if (this.soundSystem) {
-                this.soundSystem.setMasterVolume(value / 100);
+        // Store references
+        this.elements.masterVolume = document.getElementById('master-volume');
+        this.visualizerCanvas = document.getElementById('sound-visualizer');
+        this.visualizerCtx = this.visualizerCanvas.getContext('2d');
+        
+        // Store category containers
+        this.elements.categorySounds = {
+            core: document.getElementById('core-sounds'),
+            ambient: document.getElementById('ambient-sounds'),
+            binaural: document.getElementById('binaural-sounds'),
+            events: document.getElementById('event-sounds')
+        };
+    }
+    
+    addFullPageStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .sound-control-full-page {
+                padding: 0;
+                background: var(--primary-bg);
+                min-height: 100vh;
             }
-        });
-        
-        // Mute all button
-        document.getElementById('mute-all').addEventListener('click', () => {
-            if (this.soundSystem) {
-                this.soundSystem.stopAll();
-                // Restart only Schumann if sound is enabled
-                if (window.soundEnabled) {
-                    this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+            
+            .sound-control-hero {
+                text-align: center;
+                padding: 20px;
+                background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(255, 0, 255, 0.1) 100%);
+                border-bottom: 2px solid var(--accent-color);
+                margin-bottom: 30px;
+            }
+            
+            .hero-subtitle {
+                color: var(--text-secondary);
+                font-size: 1.1em;
+                margin: 10px 0;
+            }
+            
+            .sound-control-main {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 20px 40px;
+            }
+            
+            .master-section-full {
+                background: rgba(0, 255, 204, 0.05);
+                border: 1px solid var(--accent-color);
+                border-radius: 10px;
+                padding: 30px;
+                margin-bottom: 40px;
+            }
+            
+            .master-section-full h3 {
+                color: var(--accent-color);
+                margin-bottom: 20px;
+                font-size: 1.5em;
+            }
+            
+            .master-controls-grid {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr;
+                gap: 30px;
+                align-items: center;
+            }
+            
+            .master-volume-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .volume-slider-large {
+                -webkit-appearance: none;
+                height: 10px;
+                background: #333;
+                outline: none;
+                border-radius: 5px;
+            }
+            
+            .volume-slider-large::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 24px;
+                height: 24px;
+                background: var(--accent-color);
+                cursor: pointer;
+                border-radius: 50%;
+            }
+            
+            .volume-display {
+                font-size: 1.5em;
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+            
+            .control-btn-large {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 20px;
+                background: transparent;
+                border: 2px solid var(--accent-color);
+                color: var(--accent-color);
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 1.1em;
+            }
+            
+            .control-btn-large:hover {
+                background: var(--accent-color);
+                color: var(--primary-bg);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(0, 255, 204, 0.4);
+            }
+            
+            .control-btn-large.danger {
+                border-color: #ff0066;
+                color: #ff0066;
+            }
+            
+            .control-btn-large.danger:hover {
+                background: #ff0066;
+                box-shadow: 0 5px 20px rgba(255, 0, 102, 0.4);
+            }
+            
+            .btn-icon {
+                font-size: 2em;
+            }
+            
+            .presets-section-full {
+                margin-bottom: 40px;
+            }
+            
+            .presets-section-full h3 {
+                color: var(--accent-color);
+                margin-bottom: 20px;
+                font-size: 1.5em;
+            }
+            
+            .preset-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+            
+            .preset-card {
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 25px;
+                text-align: center;
+                transition: all 0.3s;
+                cursor: pointer;
+            }
+            
+            .preset-card:hover {
+                background: rgba(0, 255, 204, 0.1);
+                border-color: var(--accent-color);
+                transform: translateY(-5px);
+            }
+            
+            .preset-card.active {
+                background: rgba(0, 255, 204, 0.2);
+                border-color: var(--accent-color);
+                box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+            }
+            
+            .preset-icon-large {
+                font-size: 3em;
+                margin-bottom: 15px;
+            }
+            
+            .preset-card h4 {
+                color: #fff;
+                margin-bottom: 10px;
+                font-size: 1.3em;
+            }
+            
+            .preset-card p {
+                color: var(--text-secondary);
+                font-size: 0.9em;
+                margin-bottom: 15px;
+            }
+            
+            .preset-activate {
+                background: transparent;
+                border: 1px solid var(--accent-color);
+                color: var(--accent-color);
+                padding: 8px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .preset-activate:hover {
+                background: var(--accent-color);
+                color: var(--primary-bg);
+            }
+            
+            .sound-categories-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+            
+            .sound-category-card {
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 25px;
+            }
+            
+            .sound-category-card h3 {
+                color: #fff;
+                margin-bottom: 10px;
+                font-size: 1.3em;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .category-description {
+                color: var(--text-secondary);
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+            
+            .sound-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .sound-card {
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                padding: 15px;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .sound-card:hover {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+            
+            .sound-card.active {
+                background: rgba(0, 255, 204, 0.15);
+                border-color: var(--accent-color);
+                box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+            }
+            
+            .sound-card.active::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: var(--accent-color);
+                animation: pulse 2s infinite;
+            }
+            
+            .sound-toggle-large {
+                width: 40px;
+                height: 40px;
+                border: 3px solid #666;
+                border-radius: 50%;
+                margin: 0 auto 10px;
+                position: relative;
+                transition: all 0.2s;
+            }
+            
+            .sound-card.active .sound-toggle-large {
+                border-color: var(--accent-color);
+                background: var(--accent-color);
+            }
+            
+            .sound-card.active .sound-toggle-large::after {
+                content: '✓';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: var(--primary-bg);
+                font-size: 1.5em;
+                font-weight: bold;
+            }
+            
+            .sound-card-icon {
+                font-size: 2em;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .sound-card-name {
+                font-weight: bold;
+                color: #fff;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+            
+            .sound-card-freq {
+                font-size: 0.8em;
+                color: var(--accent-color);
+                text-align: center;
+            }
+            
+            .visualizer-section-full {
+                background: #000;
+                border: 2px solid var(--accent-color);
+                border-radius: 10px;
+                padding: 30px;
+                text-align: center;
+            }
+            
+            .visualizer-section-full h3 {
+                color: var(--accent-color);
+                margin-bottom: 20px;
+                font-size: 1.5em;
+            }
+            
+            #sound-visualizer {
+                width: 100%;
+                max-width: 1200px;
+                height: 200px;
+                background: #000;
+                border: 1px solid #333;
+                border-radius: 5px;
+            }
+            
+            .spectrum-info {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 10px;
+                color: var(--text-secondary);
+                font-size: 0.9em;
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 1200px) {
+                .preset-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .sound-categories-grid {
+                    grid-template-columns: 1fr;
                 }
             }
-        });
-        
-        // Preset buttons
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const presetName = e.currentTarget.dataset.preset;
-                this.applyPreset(presetName);
+            
+            @media (max-width: 768px) {
+                .master-controls-grid {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                }
                 
-                // Update active state
-                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-            });
-        });
-        
-        // Collapsible category headers
-        document.querySelectorAll('.category-header.collapsible').forEach(header => {
-            header.addEventListener('click', (e) => {
-                const target = e.currentTarget.dataset.target;
-                const content = document.getElementById(target);
+                .preset-grid {
+                    grid-template-columns: 1fr;
+                }
                 
-                e.currentTarget.classList.toggle('collapsed');
-                content.classList.toggle('collapsed');
+                .sound-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    setupEventListeners() {
+        // Check if we're in full page mode
+        if (this.isFullPage) {
+            // Master volume
+            this.elements.masterVolume.addEventListener('input', (e) => {
+                const value = e.target.value;
+                document.getElementById('master-volume-value').textContent = `${value}%`;
+                if (this.soundSystem) {
+                    this.soundSystem.setMasterVolume(value / 100);
+                }
             });
-        });
+            
+            // Mute all button
+            const muteBtn = document.getElementById('mute-all');
+            if (muteBtn) {
+                muteBtn.addEventListener('click', () => {
+                    if (this.soundSystem) {
+                        const isMuted = this.soundSystem.toggleMute();
+                        muteBtn.querySelector('.btn-icon').textContent = isMuted ? '🔊' : '🔇';
+                        muteBtn.querySelector('.btn-text').textContent = isMuted ? 'Unmute All' : 'Mute All';
+                    }
+                });
+            }
+            
+            // Stop all button
+            const stopBtn = document.getElementById('stop-all');
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    if (this.soundSystem) {
+                        this.soundSystem.stopAll();
+                        this.updateActiveSounds();
+                    }
+                });
+            }
+            
+            // Preset cards
+            document.querySelectorAll('.preset-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const presetCard = e.currentTarget;
+                    const presetName = presetCard.dataset.preset;
+                    this.applyPreset(presetName);
+                    
+                    // Update active state
+                    document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+                    presetCard.classList.add('active');
+                });
+            });
+        } else {
+            // Original floating panel functionality
+            // Drag functionality
+            const header = this.panel.querySelector('.sound-panel-header');
+            header.addEventListener('mousedown', (e) => this.startDrag(e));
+            document.addEventListener('mousemove', this.dragHandlers.mouseMove);
+            document.addEventListener('mouseup', this.dragHandlers.mouseUp);
+            
+            // Panel controls
+            document.getElementById('minimize-panel').addEventListener('click', () => this.toggleMinimize());
+            document.getElementById('close-panel').addEventListener('click', () => this.close());
+            
+            // Master volume
+            this.elements.masterVolume.addEventListener('input', (e) => {
+                const value = e.target.value;
+                document.getElementById('master-volume-value').textContent = `${value}%`;
+                if (this.soundSystem) {
+                    this.soundSystem.setMasterVolume(value / 100);
+                }
+            });
+            
+            // Mute all button
+            document.getElementById('mute-all').addEventListener('click', () => {
+                if (this.soundSystem) {
+                    this.soundSystem.stopAll();
+                    // Restart only Schumann if sound is enabled
+                    if (window.soundEnabled) {
+                        this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+                    }
+                }
+            });
+            
+            // Preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const presetName = e.currentTarget.dataset.preset;
+                    this.applyPreset(presetName);
+                    
+                    // Update active state
+                    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                });
+            });
+            
+            // Collapsible category headers
+            document.querySelectorAll('.category-header.collapsible').forEach(header => {
+                header.addEventListener('click', (e) => {
+                    const target = e.currentTarget.dataset.target;
+                    const content = document.getElementById(target);
+                    
+                    e.currentTarget.classList.toggle('collapsed');
+                    content.classList.toggle('collapsed');
+                });
+            });
+        }
     }
     
     startDrag(e) {
@@ -1032,23 +1604,46 @@ class SoundControlPanel {
         };
         
         const soundElement = document.createElement('div');
-        soundElement.className = `sound-item-new ${isActive ? 'active' : ''} ${isEventSound ? 'event-sound' : ''}`;
-        soundElement.dataset.soundKey = soundKey;
         
-        let frequencyDisplay = '';
-        if (soundKey === 'schumann') {
-            frequencyDisplay = '<span class="sound-frequency">7.83 Hz</span>';
+        if (this.isFullPage) {
+            // Full-page card layout
+            soundElement.className = `sound-card ${isActive ? 'active' : ''} ${isEventSound ? 'event-sound' : ''}`;
+            soundElement.dataset.soundKey = soundKey;
+            
+            let frequencyDisplay = '';
+            if (soundKey === 'schumann') {
+                frequencyDisplay = '<div class="sound-card-freq">7.83 Hz</div>';
+            } else if (soundInfo.category === 'binaural' && this.soundSystem.binauralConfigs[soundKey]) {
+                const config = this.soundSystem.binauralConfigs[soundKey];
+                frequencyDisplay = `<div class="sound-card-freq">${config.beat} Hz beat</div>`;
+            }
+            
+            soundElement.innerHTML = `
+                <div class="sound-toggle-large"></div>
+                <div class="sound-card-icon">${soundInfo.icon}</div>
+                <div class="sound-card-name">${soundInfo.name}</div>
+                ${frequencyDisplay}
+            `;
+        } else {
+            // Original floating panel layout
+            soundElement.className = `sound-item-new ${isActive ? 'active' : ''} ${isEventSound ? 'event-sound' : ''}`;
+            soundElement.dataset.soundKey = soundKey;
+            
+            let frequencyDisplay = '';
+            if (soundKey === 'schumann') {
+                frequencyDisplay = '<span class="sound-frequency">7.83 Hz</span>';
+            }
+            
+            soundElement.innerHTML = `
+                <div class="sound-toggle"></div>
+                <span class="sound-icon">${soundInfo.icon}</span>
+                <div class="sound-info-new">
+                    <div class="sound-name-new">${soundInfo.name}</div>
+                    <div class="sound-description">${soundInfo.description}</div>
+                </div>
+                ${frequencyDisplay}
+            `;
         }
-        
-        soundElement.innerHTML = `
-            <div class="sound-toggle"></div>
-            <span class="sound-icon">${soundInfo.icon}</span>
-            <div class="sound-info-new">
-                <div class="sound-name-new">${soundInfo.name}</div>
-                <div class="sound-description">${soundInfo.description}</div>
-            </div>
-            ${frequencyDisplay}
-        `;
         
         if (!isEventSound) {
             soundElement.addEventListener('click', () => this.toggleSound(soundKey));

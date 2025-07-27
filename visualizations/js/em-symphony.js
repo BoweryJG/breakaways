@@ -93,23 +93,8 @@ function setupCanvases() {
                 <span class="pause-icon" style="display: none;">⏸</span>
             </button>
             <button id="em-reset" class="control-btn">Reset</button>
-            <div class="frequency-controls">
-                <label>
-                    <input type="checkbox" id="schumann-toggle" checked>
-                    Schumann (7.83 Hz)
-                </label>
-                <label>
-                    <input type="checkbox" id="alpha-toggle" checked>
-                    Alpha (8-13 Hz)
-                </label>
-                <label>
-                    <input type="checkbox" id="beta-toggle" checked>
-                    Beta (13-30 Hz)
-                </label>
-                <label>
-                    <input type="checkbox" id="gamma-toggle" checked>
-                    Gamma (30-100 Hz)
-                </label>
+            <div class="frequency-info">
+                <span style="color: var(--accent-color);">📍 Use the Sound Control Center to manage frequencies</span>
             </div>
         </div>
         
@@ -530,27 +515,7 @@ function setupControls() {
         resetFrequencies();
     });
     
-    // Frequency toggles
-    const toggles = ['schumann', 'alpha', 'beta', 'gamma'];
-    toggles.forEach(band => {
-        const toggle = document.getElementById(`${band}-toggle`);
-        toggle.addEventListener('change', (e) => {
-            const soundSystem = window.breakawaySound;
-            if (!soundSystem || !emSymphonyState.isPlaying) return;
-            
-            if (e.target.checked) {
-                // Start this frequency
-                startEMFrequency(band);
-            } else {
-                // Stop this frequency
-                const soundId = emSymphonyState.soundIds[band];
-                if (soundId) {
-                    soundSystem.stopSound(soundId);
-                    delete emSymphonyState.soundIds[band];
-                }
-            }
-        });
-    });
+    // Frequency toggles removed - sound control handled by Sound Control Center
     
     // Time range selector
     const timeRange = document.getElementById('time-range');
@@ -571,12 +536,9 @@ function togglePlayPause() {
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'inline';
         
-        // Start frequencies that are checked using global sound system
+        // Start all frequencies (user controls which ones play via Sound Control Center)
         Object.keys(emSymphonyState.frequencies).forEach(band => {
-            const toggle = document.getElementById(`${band}-toggle`);
-            if (toggle && toggle.checked) {
-                startEMFrequency(band);
-            }
+            startEMFrequency(band);
         });
         
     } else {
@@ -688,8 +650,9 @@ function startOscilloscope() {
         
         // Draw waveforms for each active frequency
         Object.keys(emSymphonyState.frequencies).forEach(band => {
-            const toggle = document.getElementById(`${band}-toggle`);
-            if (!toggle || !toggle.checked) return;
+            // Check if this frequency is active in the sound system
+            const soundId = emSymphonyState.soundIds[band];
+            if (!soundId) return;
             
             const freq = emSymphonyState.frequencies[band];
             ctx.strokeStyle = freq.color;
@@ -732,8 +695,9 @@ function startSpectrumAnalyzer() {
         const freqRange = 100; // 0-100 Hz
         
         Object.keys(emSymphonyState.frequencies).forEach(band => {
-            const toggle = document.getElementById(`${band}-toggle`);
-            if (!toggle || !toggle.checked) return;
+            // Check if this frequency is active in the sound system
+            const soundId = emSymphonyState.soundIds[band];
+            if (!soundId) return;
             
             const freq = emSymphonyState.frequencies[band];
             const x = (freq.current / freqRange) * width;
@@ -804,8 +768,9 @@ function startWaterfallDisplay() {
             
             // Check each frequency band
             Object.keys(emSymphonyState.frequencies).forEach(band => {
-                const toggle = document.getElementById(`${band}-toggle`);
-                if (!toggle || !toggle.checked) return;
+                // Check if this frequency is active in the sound system
+                const soundId = emSymphonyState.soundIds[band];
+                if (!soundId) return;
                 
                 const f = emSymphonyState.frequencies[band];
                 const distance = Math.abs(freq - f.current);
