@@ -19,9 +19,18 @@ const state = {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    startLiveUpdates();
+    // Hide loading screen immediately
     hideLoadingScreen();
+    
+    // Initialize after a short delay to ensure everything is loaded
+    setTimeout(() => {
+        try {
+            initializeApp();
+            startLiveUpdates();
+        } catch (error) {
+            console.error('Initialization error:', error);
+        }
+    }, 100);
     
     // Sound toggle removed - now handled by Sound Control page
 });
@@ -45,7 +54,12 @@ function initializeApp() {
     });
 
     // Initialize mini visualizations
-    initializeMiniViz();
+    try {
+        initializeMiniViz();
+    } catch (error) {
+        console.warn('Mini visualizations failed to initialize:', error);
+        // Continue anyway
+    }
     
     // Initialize overview as the default view
     switchView('overview');
@@ -223,13 +237,13 @@ function switchView(viewName) {
 }
 
 function hideLoadingScreen() {
-    setTimeout(() => {
-        const loadingScreen = document.getElementById('loading-screen');
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
             loadingScreen.style.display = 'none';
         }, 500);
-    }, 2000);
+    }
 }
 
 function startLiveUpdates() {
