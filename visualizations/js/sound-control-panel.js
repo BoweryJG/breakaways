@@ -29,6 +29,14 @@ class SoundControlPanel {
         // Update interval
         this.updateInterval = null;
         
+        // Store bound event handlers for proper cleanup
+        this.eventHandlers = {
+            soundRegistered: this.onSoundRegistered.bind(this),
+            soundUnregistered: this.onSoundUnregistered.bind(this),
+            soundUpdated: this.onSoundUpdated.bind(this),
+            soundStopped: this.onSoundStopped.bind(this)
+        };
+        
         // Initialize when created
         this.init();
     }
@@ -45,12 +53,12 @@ class SoundControlPanel {
         // Start update loop
         this.startUpdateLoop();
         
-        // Subscribe to sound system events
+        // Subscribe to sound system events using stored handlers
         if (this.soundSystem) {
-            this.soundSystem.on('soundRegistered', (event) => this.onSoundRegistered(event));
-            this.soundSystem.on('soundUnregistered', (event) => this.onSoundUnregistered(event));
-            this.soundSystem.on('soundUpdated', (event) => this.onSoundUpdated(event));
-            this.soundSystem.on('soundStopped', (event) => this.onSoundStopped(event));
+            this.soundSystem.on('soundRegistered', this.eventHandlers.soundRegistered);
+            this.soundSystem.on('soundUnregistered', this.eventHandlers.soundUnregistered);
+            this.soundSystem.on('soundUpdated', this.eventHandlers.soundUpdated);
+            this.soundSystem.on('soundStopped', this.eventHandlers.soundStopped);
         }
     }
     
@@ -479,13 +487,41 @@ class SoundControlPanel {
     }
     
     close() {
+        // Unsubscribe from sound system events first
+        if (this.soundSystem) {
+            this.soundSystem.off('soundRegistered', this.eventHandlers.soundRegistered);
+            this.soundSystem.off('soundUnregistered', this.eventHandlers.soundUnregistered);
+            this.soundSystem.off('soundUpdated', this.eventHandlers.soundUpdated);
+            this.soundSystem.off('soundStopped', this.eventHandlers.soundStopped);
+        }
+        
+        // Cancel animation frames and intervals
         if (this.animationFrame) {
             cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
         }
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
+            this.updateInterval = null;
         }
-        this.panel.remove();
+        
+        // Remove DOM elements
+        if (this.panel) {
+            this.panel.remove();
+            this.panel = null;
+        }
+        
+        // Clear references
+        this.elements = {
+            activeSoundsList: null,
+            masterVolume: null,
+            categoryMixers: {},
+            visualizer: null,
+            minimizeBtn: null
+        };
+        this.visualizerCanvas = null;
+        this.visualizerCtx = null;
+        this.initialized = false;
     }
     
     startUpdateLoop() {
@@ -503,10 +539,16 @@ class SoundControlPanel {
         
         const activeSounds = this.soundSystem.getAllActiveSounds();
         const soundCount = document.getElementById('sound-count');
+        
+        // Safety check - ensure DOM element exists
+        if (!soundCount) return;
+        
         soundCount.textContent = `(${activeSounds.length})`;
         
         if (activeSounds.length === 0) {
-            this.elements.activeSoundsList.innerHTML = '<div class="no-sounds">No active sounds</div>';
+            if (this.elements.activeSoundsList) {
+                this.elements.activeSoundsList.innerHTML = '<div class="no-sounds">No active sounds</div>';
+            }
             return;
         }
         
@@ -531,28 +573,32 @@ class SoundControlPanel {
             `;
         }).join('');
         
-        this.elements.activeSoundsList.innerHTML = soundsHTML;
+        if (this.elements.activeSoundsList) {
+            this.elements.activeSoundsList.innerHTML = soundsHTML;
+        }
         
         // Add event listeners to new elements
-        this.elements.activeSoundsList.querySelectorAll('.sound-volume').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const soundId = e.target.closest('.sound-item').dataset.soundId;
-                const value = e.target.value / 100;
-                // TODO: Implement individual sound volume control
+        if (this.elements.activeSoundsList) {
+            this.elements.activeSoundsList.querySelectorAll('.sound-volume').forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    const soundId = e.target.closest('.sound-item').dataset.soundId;
+                    const value = e.target.value / 100;
+                    // TODO: Implement individual sound volume control
+                });
             });
-        });
-        
-        this.elements.activeSoundsList.querySelectorAll('.sound-mute').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const soundId = e.target.dataset.soundId;
-                e.target.classList.toggle('muted');
-                // TODO: Implement individual sound mute
+            
+            this.elements.activeSoundsList.querySelectorAll('.sound-mute').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const soundId = e.target.dataset.soundId;
+                    e.target.classList.toggle('muted');
+                    // TODO: Implement individual sound mute
+                });
             });
-        });
+        }
     }
     
     animateVisualizer() {
-        if (!this.soundSystem || !this.soundSystem.analyser) {
+        if (!this.soundSystem || !this.soundSystem.analyser || !this.visualizerCtx || !this.visualizerCanvas) {
             this.animationFrame = requestAnimationFrame(() => this.animateVisualizer());
             return;
         }
