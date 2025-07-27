@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>The Breakaway Civilization - Visual Evidence Dashboard</title>
     
     <!-- Favicon -->
@@ -42,16 +44,16 @@
     <link rel="stylesheet" href="css/mobile.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson@3"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/FilmPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/LuminosityHighPassShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/FXAAShader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/EffectComposer.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/RenderPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/FilmPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/postprocessing/ShaderPass.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/CopyShader.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/shaders/FXAAShader.js" defer></script>
     <!-- Leaflet for Antarctic Revelation map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -76,8 +78,7 @@
     </header>
 
     <nav class="visualization-menu">
-        <button class="nav-btn active" data-view="sound-control">🎵 Sound Control</button>
-        <button class="nav-btn" data-view="overview">Overview</button>
+        <button class="nav-btn active" data-view="overview">Overview</button>
         <button class="nav-btn" data-view="grid-map">Global Energy Grid</button>
         <button class="nav-btn" data-view="timeline">Galactic Cycles</button>
         <button class="nav-btn" data-view="bloodlines">Bloodline Activation</button>
@@ -92,16 +93,8 @@
     </nav>
 
     <main id="visualization-container">
-        <!-- Sound Control Section -->
-        <section id="sound-control" class="viz-section active">
-            <h2>🎵 Breakaway Sound Control Center</h2>
-            <div id="sound-control-container">
-                <!-- Sound control panel will be rendered here -->
-            </div>
-        </section>
-
         <!-- Overview Section -->
-        <section id="overview" class="viz-section">
+        <section id="overview" class="viz-section active">
             <h2>The Hidden Pattern Revealed</h2>
             <div class="overview-grid">
                 <div class="overview-card">
@@ -250,6 +243,9 @@
         <!-- Electromagnetic Symphony -->
         <section id="electromagnetic" class="viz-section">
             <h2>The Electromagnetic Symphony</h2>
+            <div id="sound-control-container">
+                <!-- Sound control panel will be rendered here -->
+            </div>
             <div class="em-monitors">
                 <div class="monitor" id="schumann-monitor">
                     <h4>Schumann Resonance</h4>

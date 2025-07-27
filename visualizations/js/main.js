@@ -2,7 +2,7 @@
 
 // Global state
 const state = {
-    currentView: 'sound-control',  // Start with sound control
+    currentView: 'overview',  // Start with overview
     schumann: 7.83,
     activationLevel: 87,
     nodesOnline: 1347,
@@ -47,8 +47,8 @@ function initializeApp() {
     // Initialize mini visualizations
     initializeMiniViz();
     
-    // Initialize sound control as the default view
-    switchView('sound-control');
+    // Initialize overview as the default view
+    switchView('overview');
 }
 
 function switchView(viewName) {
@@ -68,7 +68,6 @@ function switchView(viewName) {
     
     // Initialize specific visualization if needed
     const initFunctions = {
-        'sound-control': 'initSoundControl',
         'grid-map': 'initGridMap',
         'timeline': 'initTimeline',
         'bloodlines': 'initBloodlineTree',
@@ -91,6 +90,26 @@ function switchView(viewName) {
     
     if (initFunc && typeof window[initFunc] === 'function') {
         console.log(`Calling ${initFunc}...`);
+        
+        // Check if Three.js is required and loaded for 3D visualizations
+        const requires3D = ['bloodlines', 'population-genetics', 'underground', 'moon', 'convergence', 'evidence'].includes(viewName);
+        if (requires3D && typeof THREE === 'undefined') {
+            console.log('Waiting for Three.js to load...');
+            // Wait for Three.js to load
+            const checkThree = setInterval(() => {
+                if (typeof THREE !== 'undefined') {
+                    clearInterval(checkThree);
+                    console.log('Three.js loaded, initializing visualization...');
+                    executeVisualization();
+                }
+            }, 100);
+            return;
+        }
+        
+        executeVisualization();
+    }
+    
+    function executeVisualization() {
         // Clean up previous 3D scenes if needed
         if (viewName === 'underground' && typeof window.cleanupEarth3d === 'function') {
             window.cleanupEarth3d();
@@ -198,6 +217,8 @@ function switchView(viewName) {
         if (typeof window.cleanupLiveTracker === 'function') {
             window.cleanupLiveTracker();
         }
+    }
+    } // End of executeVisualization function
     }
 }
 

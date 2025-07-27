@@ -78,10 +78,19 @@ function initElectromagnetic() {
 function setupCanvases() {
     const container = document.getElementById('electromagnetic');
     
-    // Clear existing content except the header
+    // Clear existing content except the header and sound control
     const header = container.querySelector('h2');
+    const soundControl = container.querySelector('#sound-control-container');
     container.innerHTML = '';
     container.appendChild(header);
+    
+    // Initialize sound control panel if not already initialized
+    if (soundControl) {
+        container.appendChild(soundControl);
+        if (typeof window.initSoundControl === 'function') {
+            window.initSoundControl();
+        }
+    }
     
     // Create main visualization container
     const mainViz = document.createElement('div');
