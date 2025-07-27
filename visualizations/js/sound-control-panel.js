@@ -245,8 +245,8 @@ class SoundControlPanel {
             this.soundSystem.on('soundStopped', this.eventHandlers.soundStopped);
         }
         
-        // Start with Schumann resonance
-        this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+        // Don't auto-start any sounds - wait for user to click play
+        this.soundSystemActive = false;
     }
     
     createPanel() {
@@ -884,22 +884,32 @@ class SoundControlPanel {
             </div>
             
             <div class="sound-control-main">
-                <!-- Master Controls Section -->
-                <div class="master-section-full">
+                <!-- Master Play Control -->
+                <div class="master-play-section">
+                    <button id="master-play-btn" class="master-play-button">
+                        <span class="play-icon">▶</span>
+                        <span class="pause-icon" style="display: none;">⏸</span>
+                        <span class="btn-label">START SOUND SYSTEM</span>
+                    </button>
+                    <p class="play-description">Click to activate the sound system and enable all controls</p>
+                </div>
+                
+                <!-- Master Controls Section (initially disabled) -->
+                <div class="master-section-full disabled" id="master-controls">
                     <h3>Master Controls</h3>
                     <div class="master-controls-grid">
                         <div class="master-volume-container">
                             <label>Master Volume</label>
-                            <input type="range" id="master-volume" min="0" max="100" value="70" class="volume-slider-large">
+                            <input type="range" id="master-volume" min="0" max="100" value="70" class="volume-slider-large" disabled>
                             <span id="master-volume-value" class="volume-display">70%</span>
                         </div>
-                        <button id="mute-all" class="control-btn-large">
+                        <button id="mute-all" class="control-btn-large" disabled>
                             <span class="btn-icon">🔇</span>
                             <span class="btn-text">Mute All</span>
                         </button>
-                        <button id="stop-all" class="control-btn-large danger">
-                            <span class="btn-icon">⏹</span>
-                            <span class="btn-text">Stop All</span>
+                        <button id="reset-defaults" class="control-btn-large" disabled>
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">Reset to Default</span>
                         </button>
                     </div>
                 </div>
@@ -936,40 +946,42 @@ class SoundControlPanel {
                 </div>
                 
                 <!-- Sound Categories Grid -->
-                <div class="sound-categories-grid">
-                    <!-- Core Frequencies -->
-                    <div class="sound-category-card">
-                        <h3><span class="category-icon">🌍</span> Core Frequencies</h3>
-                        <div class="category-description">Essential Earth resonances</div>
-                        <div class="sound-grid" id="core-sounds">
-                            <!-- Populated dynamically -->
+                <div class="sound-categories-grid disabled" id="sound-categories">
+                    <!-- All Sounds in One Interface -->
+                    <div class="all-sounds-card">
+                        <h3>🎵 Available Sounds</h3>
+                        <p class="category-help">Toggle individual sounds on/off. Active sounds will show with a glowing border.</p>
+                        
+                        <!-- Core Frequency -->
+                        <div class="sound-section">
+                            <h4>🌍 Core Frequency</h4>
+                            <div class="sound-grid" id="core-sounds">
+                                <!-- Populated dynamically -->
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Ambient Sounds -->
-                    <div class="sound-category-card">
-                        <h3><span class="category-icon">🎵</span> Background Ambience</h3>
-                        <div class="category-description">Atmospheric soundscapes</div>
-                        <div class="sound-grid" id="ambient-sounds">
-                            <!-- Populated dynamically -->
+                        
+                        <!-- Ambient Atmospheres -->
+                        <div class="sound-section">
+                            <h4>🌌 Ambient Atmospheres</h4>
+                            <div class="sound-grid" id="ambient-sounds">
+                                <!-- Populated dynamically -->
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Binaural Beats -->
-                    <div class="sound-category-card">
-                        <h3><span class="category-icon">🧠</span> Binaural Beats</h3>
-                        <div class="category-description">Brainwave entrainment</div>
-                        <div class="sound-grid" id="binaural-sounds">
-                            <!-- Populated dynamically -->
+                        
+                        <!-- Binaural Beats -->
+                        <div class="sound-section">
+                            <h4>🧠 Binaural Beats (Use Headphones)</h4>
+                            <div class="sound-grid" id="binaural-sounds">
+                                <!-- Populated dynamically -->
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Event Sounds -->
-                    <div class="sound-category-card">
-                        <h3><span class="category-icon">🔔</span> Event Sounds</h3>
-                        <div class="category-description">Auto-triggered alerts</div>
-                        <div class="sound-grid" id="event-sounds">
-                            <!-- Populated dynamically -->
+                        
+                        <!-- Event Sounds Info -->
+                        <div class="sound-section">
+                            <h4>🔔 Event Sounds (Auto-Triggered)</h4>
+                            <div class="sound-grid" id="event-sounds">
+                                <!-- Populated dynamically -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1034,6 +1046,104 @@ class SoundControlPanel {
                 max-width: 1400px;
                 margin: 0 auto;
                 padding: 0 20px 40px;
+            }
+            
+            /* Master Play Button */
+            .master-play-section {
+                text-align: center;
+                margin-bottom: 40px;
+                padding: 40px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 15px;
+                border: 2px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .master-play-button {
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background: radial-gradient(circle at center, rgba(0, 255, 204, 0.2), rgba(0, 255, 204, 0.05));
+                border: 3px solid var(--accent-color);
+                color: var(--accent-color);
+                cursor: pointer;
+                transition: all 0.3s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                margin: 0 auto;
+                font-size: 1.2em;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .master-play-button::before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                background: conic-gradient(from 180deg, transparent, var(--accent-color), transparent);
+                border-radius: 50%;
+                opacity: 0;
+                animation: rotate 2s linear infinite;
+                transition: opacity 0.3s;
+            }
+            
+            .master-play-button:hover::before {
+                opacity: 1;
+            }
+            
+            .master-play-button.active {
+                background: radial-gradient(circle at center, rgba(0, 255, 204, 0.4), rgba(0, 255, 204, 0.1));
+                animation: pulse 2s infinite;
+            }
+            
+            .master-play-button.active::before {
+                opacity: 1;
+            }
+            
+            .master-play-button .play-icon,
+            .master-play-button .pause-icon {
+                font-size: 3em;
+            }
+            
+            .master-play-button .btn-label {
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .play-description {
+                margin-top: 20px;
+                color: var(--text-secondary);
+                font-size: 1.1em;
+            }
+            
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            /* Disabled state for sections */
+            .disabled {
+                opacity: 0.4;
+                pointer-events: none;
+                filter: grayscale(0.5);
+            }
+            
+            .master-section-full.disabled,
+            .sound-categories-grid.disabled {
+                transition: all 0.5s;
+            }
+            
+            /* Active state removes disabled */
+            .sound-system-active .disabled {
+                opacity: 1;
+                pointer-events: auto;
+                filter: none;
             }
             
             .master-section-full {
@@ -1193,32 +1303,43 @@ class SoundControlPanel {
             }
             
             .sound-categories-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 30px;
                 margin-bottom: 40px;
             }
             
-            .sound-category-card {
+            .all-sounds-card {
                 background: rgba(255, 255, 255, 0.02);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 10px;
-                padding: 25px;
+                padding: 30px;
             }
             
-            .sound-category-card h3 {
-                color: #fff;
+            .all-sounds-card h3 {
+                color: var(--accent-color);
                 margin-bottom: 10px;
-                font-size: 1.3em;
-                display: flex;
-                align-items: center;
-                gap: 10px;
+                font-size: 1.5em;
+                text-align: center;
             }
             
-            .category-description {
+            .category-help {
+                text-align: center;
                 color: var(--text-secondary);
-                font-size: 0.9em;
-                margin-bottom: 20px;
+                margin-bottom: 30px;
+                font-size: 1.1em;
+            }
+            
+            .sound-section {
+                margin-bottom: 30px;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 8px;
+            }
+            
+            .sound-section h4 {
+                color: #fff;
+                margin-bottom: 15px;
+                font-size: 1.2em;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                padding-bottom: 10px;
             }
             
             .sound-grid {
@@ -1368,6 +1489,14 @@ class SoundControlPanel {
     setupEventListeners() {
         // Check if we're in full page mode
         if (this.isFullPage) {
+            // Master play button
+            const playBtn = document.getElementById('master-play-btn');
+            if (playBtn) {
+                playBtn.addEventListener('click', () => {
+                    this.toggleSoundSystem();
+                });
+            }
+            
             // Master volume
             this.elements.masterVolume.addEventListener('input', (e) => {
                 const value = e.target.value;
@@ -1389,12 +1518,14 @@ class SoundControlPanel {
                 });
             }
             
-            // Stop all button
-            const stopBtn = document.getElementById('stop-all');
-            if (stopBtn) {
-                stopBtn.addEventListener('click', () => {
+            // Reset defaults button
+            const resetBtn = document.getElementById('reset-defaults');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
                     if (this.soundSystem) {
                         this.soundSystem.stopAll();
+                        // Start only Schumann resonance as default
+                        this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
                         this.updateActiveSounds();
                     }
                 });
@@ -1495,6 +1626,58 @@ class SoundControlPanel {
         this.isMinimized = !this.isMinimized;
         this.panel.classList.toggle('minimized', this.isMinimized);
         this.elements.minimizeBtn.textContent = this.isMinimized ? '□' : '_';
+    }
+    
+    toggleSoundSystem() {
+        const playBtn = document.getElementById('master-play-btn');
+        const playIcon = playBtn.querySelector('.play-icon');
+        const pauseIcon = playBtn.querySelector('.pause-icon');
+        const btnLabel = playBtn.querySelector('.btn-label');
+        const playDesc = document.querySelector('.play-description');
+        
+        this.soundSystemActive = !this.soundSystemActive;
+        
+        if (this.soundSystemActive) {
+            // Activate sound system
+            playBtn.classList.add('active');
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            btnLabel.textContent = 'SOUND SYSTEM ACTIVE';
+            playDesc.textContent = 'Sound system is running. Toggle individual sounds below.';
+            
+            // Enable all controls
+            document.getElementById('master-controls').classList.remove('disabled');
+            document.getElementById('sound-categories').classList.remove('disabled');
+            document.querySelectorAll('.master-section-full button').forEach(btn => btn.disabled = false);
+            document.getElementById('master-volume').disabled = false;
+            
+            // Add active class to container
+            this.panel.classList.add('sound-system-active');
+            
+            // Start with Schumann resonance by default
+            this.soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+        } else {
+            // Deactivate sound system
+            playBtn.classList.remove('active');
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            btnLabel.textContent = 'START SOUND SYSTEM';
+            playDesc.textContent = 'Click to activate the sound system and enable all controls';
+            
+            // Disable all controls
+            document.getElementById('master-controls').classList.add('disabled');
+            document.getElementById('sound-categories').classList.add('disabled');
+            document.querySelectorAll('.master-section-full button').forEach(btn => btn.disabled = true);
+            document.getElementById('master-volume').disabled = true;
+            
+            // Remove active class
+            this.panel.classList.remove('sound-system-active');
+            
+            // Stop all sounds
+            this.soundSystem.stopAll();
+        }
+        
+        this.updateActiveSounds();
     }
     
     close() {
@@ -1673,9 +1856,9 @@ class SoundControlPanel {
             } else if (this.soundDescriptions[soundKey].category === 'binaural') {
                 // Stop binaural beat
                 const activeSounds = this.soundSystem.getAllActiveSounds();
-                const binauralSound = activeSounds.find(s => s.category === 'binaural');
+                const binauralSound = activeSounds.find(s => s.id && s.id.includes(`binaural_${soundKey}`));
                 if (binauralSound) {
-                    this.soundSystem.unregisterSound(binauralSound.id);
+                    this.soundSystem.stopSound(binauralSound.id);
                 }
             }
         } else {

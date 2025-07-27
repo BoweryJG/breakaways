@@ -412,6 +412,26 @@ class BreakawaySound {
         this.oscillators.set(id, [oscLeft, oscRight]);
         this.gainNodes.set(id, [gainLeft, gainRight]);
         
+        // Register in sound registry
+        this.registerSound({
+            id: id,
+            name: `Binaural Beat: ${type}`,
+            type: 'binaural',
+            category: 'binaural',
+            frequency: config.base,
+            source: 'sound-system',
+            duration: duration,
+            volume: 0.5,
+            metadata: {
+                beatType: type,
+                baseFrequency: config.base,
+                beatFrequency: config.beat,
+                purpose: config.purpose
+            },
+            oscillators: [oscLeft, oscRight],
+            gainNodes: [gainLeft, gainRight]
+        });
+        
         // Schedule stop if duration specified
         if (duration) {
             const fadeOutTime = Math.min(duration * 0.1, 2);
