@@ -492,42 +492,27 @@ function addCustomStyles() {
     document.head.appendChild(style);
 }
 
-function initializeAudio() {
-    // Initialize Web Audio API
-    emSymphonyState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    emSymphonyState.analyser = emSymphonyState.audioContext.createAnalyser();
-    emSymphonyState.analyser.fftSize = 2048;
+async function initializeAudio() {
+    // Use global sound system
+    const soundSystem = window.breakawaySound;
+    if (!soundSystem) {
+        console.error('Global sound system not available');
+        return;
+    }
     
-    // Create master gain node
-    const masterGain = emSymphonyState.audioContext.createGain();
-    masterGain.gain.value = 0.15; // Balanced volume for multiple frequencies
-    masterGain.connect(emSymphonyState.audioContext.destination);
+    // Initialize sound system if needed
+    if (!soundSystem.isInitialized) {
+        await soundSystem.initialize();
+    }
     
-    // Create oscillators for each frequency band
-    Object.keys(emSymphonyState.frequencies).forEach(band => {
-        const freq = emSymphonyState.frequencies[band];
-        
-        // Create oscillator
-        const oscillator = emSymphonyState.audioContext.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.value = freq.base;
-        
-        // Create gain node for this frequency
-        const gainNode = emSymphonyState.audioContext.createGain();
-        gainNode.gain.value = 0;
-        
-        // Connect oscillator -> gain -> master gain
-        oscillator.connect(gainNode);
-        gainNode.connect(masterGain);
-        gainNode.connect(emSymphonyState.analyser);
-        
-        // Store references
-        emSymphonyState.oscillators[band] = oscillator;
-        emSymphonyState.gainNodes[band] = gainNode;
-        
-        // DON'T start oscillator immediately - wait for play button
-        // oscillator.start();
-    });
+    // Use global audio context and analyser
+    emSymphonyState.audioContext = soundSystem.audioContext;
+    emSymphonyState.analyser = soundSystem.analyser;
+    
+    // Store sound IDs for each frequency band
+    emSymphonyState.soundIds = {};
+    
+    // Don't create oscillators yet - wait for play button
 }
 
 function setupControls() {
@@ -550,9 +535,19 @@ function setupControls() {
     toggles.forEach(band => {
         const toggle = document.getElementById(`${band}-toggle`);
         toggle.addEventListener('change', (e) => {
-            const gain = emSymphonyState.gainNodes[band];
-            if (gain && emSymphonyState.isPlaying) {
-                gain.gain.setTargetAtTime(e.target.checked ? 0.1 : 0, emSymphonyState.audioContext.currentTime, 0.1);
+            const soundSystem = window.breakawaySound;
+            if (!soundSystem || !emSymphonyState.isPlaying) return;
+            
+            if (e.target.checked) {
+                // Start this frequency
+                startEMFrequency(band);
+            } else {
+                // Stop this frequency
+                const soundId = emSymphonyState.soundIds[band];
+                if (soundId) {
+                    soundSystem.stopSound(soundId);
+                    delete emSymphonyState.soundIds[band];
+                }
             }
         });
     });
@@ -568,6 +563,7 @@ function togglePlayPause() {
     const btn = document.getElementById('em-play-pause');
     const playIcon = btn.querySelector('.play-icon');
     const pauseIcon = btn.querySelector('.pause-icon');
+    const soundSystem = window.breakawaySound;
     
     emSymphonyState.isPlaying = !emSymphonyState.isPlaying;
     
@@ -575,29 +571,11 @@ function togglePlayPause() {
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'inline';
         
-        // Resume audio context if suspended
-        if (emSymphonyState.audioContext.state === 'suspended') {
-            emSymphonyState.audioContext.resume();
-        }
-        
-        // Start oscillators if they haven't been started yet
-        Object.keys(emSymphonyState.oscillators).forEach(band => {
-            const osc = emSymphonyState.oscillators[band];
-            if (osc) {
-                try {
-                    osc.start();
-                } catch (e) {
-                    // Already started, ignore
-                }
-            }
-        });
-        
-        // Immediately play the frequencies that are checked
-        Object.keys(emSymphonyState.gainNodes).forEach(band => {
+        // Start frequencies that are checked using global sound system
+        Object.keys(emSymphonyState.frequencies).forEach(band => {
             const toggle = document.getElementById(`${band}-toggle`);
             if (toggle && toggle.checked) {
-                // Set volume immediately so you can hear it
-                emSymphonyState.gainNodes[band].gain.value = 0.15;
+                startEMFrequency(band);
             }
         });
         
@@ -605,10 +583,64 @@ function togglePlayPause() {
         playIcon.style.display = 'inline';
         pauseIcon.style.display = 'none';
         
-        // Fade out all frequencies
-        Object.values(emSymphonyState.gainNodes).forEach(gain => {
-            gain.gain.setTargetAtTime(0, emSymphonyState.audioContext.currentTime, 0.1);
+        // Stop all EM Symphony frequencies
+        Object.keys(emSymphonyState.soundIds).forEach(band => {
+            const soundId = emSymphonyState.soundIds[band];
+            if (soundId && soundSystem) {
+                soundSystem.stopSound(soundId);
+                delete emSymphonyState.soundIds[band];
+            }
         });
+    }
+}
+
+// Helper function to start a frequency using global sound system
+function startEMFrequency(band) {
+    const soundSystem = window.breakawaySound;
+    if (!soundSystem || !soundSystem.isInitialized) return;
+    
+    const freq = emSymphonyState.frequencies[band];
+    const oscillator = soundSystem.audioContext.createOscillator();
+    const gainNode = soundSystem.audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.value = freq.current;
+    gainNode.gain.value = 0.15;
+    
+    // Connect through page-specific mixer
+    oscillator.connect(gainNode);
+    
+    // Get or create page-specific mixer
+    let pageMixer = soundSystem.gainNodes.get('em-symphony');
+    if (!pageMixer) {
+        pageMixer = soundSystem.audioContext.createGain();
+        pageMixer.connect(soundSystem.masterGain);
+        soundSystem.gainNodes.set('em-symphony', pageMixer);
+    }
+    
+    gainNode.connect(pageMixer);
+    oscillator.start();
+    
+    // Register with sound system
+    const soundId = soundSystem.registerSound({
+        name: `EM ${band.charAt(0).toUpperCase() + band.slice(1)}`,
+        type: 'oscillator',
+        category: 'em-symphony',
+        frequency: freq.current,
+        source: 'em-symphony',
+        volume: 0.15,
+        metadata: {
+            band: band,
+            color: freq.color
+        }
+    });
+    
+    // Store references
+    emSymphonyState.soundIds[band] = soundId;
+    
+    // Store oscillator reference for frequency updates
+    if (!emSymphonyState.oscillators[band]) {
+        emSymphonyState.oscillators[band] = oscillator;
     }
 }
 
@@ -1020,12 +1052,20 @@ function startDataSimulation() {
             const variation = (Math.random() - 0.5) * 0.5;
             freq.current = freq.base + variation;
             
-            if (emSymphonyState.oscillators[band]) {
+            // Update oscillator frequency if it exists
+            if (emSymphonyState.oscillators[band] && emSymphonyState.audioContext) {
                 emSymphonyState.oscillators[band].frequency.setTargetAtTime(
                     freq.current, 
                     emSymphonyState.audioContext.currentTime, 
                     0.5
                 );
+                
+                // Update sound registry
+                const soundId = emSymphonyState.soundIds[band];
+                const soundSystem = window.breakawaySound;
+                if (soundId && soundSystem) {
+                    soundSystem.updateSound(soundId, { frequency: freq.current });
+                }
             }
         });
         
@@ -1126,19 +1166,18 @@ window.cleanupEmSymphony = function() {
         cancelAnimationFrame(frame);
     });
     
-    // Stop all oscillators
-    Object.values(emSymphonyState.oscillators).forEach(osc => {
-        try {
-            osc.stop();
-        } catch (e) {
-            // Already stopped
-        }
-    });
-    
-    // Close audio context
-    if (emSymphonyState.audioContext) {
-        emSymphonyState.audioContext.close();
+    // Stop all EM Symphony sounds using global sound system
+    const soundSystem = window.breakawaySound;
+    if (soundSystem) {
+        Object.keys(emSymphonyState.soundIds).forEach(band => {
+            const soundId = emSymphonyState.soundIds[band];
+            if (soundId) {
+                soundSystem.stopSound(soundId);
+            }
+        });
     }
+    
+    // Don't close audio context - it's managed by global sound system
     
     // Reset state
     emSymphonyState = {

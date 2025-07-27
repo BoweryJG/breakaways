@@ -107,6 +107,11 @@ class SoundControlPanel {
                             <input type="range" class="category-mixer" data-category="alerts" min="0" max="100" value="90">
                             <span class="mixer-value">90%</span>
                         </div>
+                        <div class="mixer-channel" data-category="em-symphony">
+                            <label>EM</label>
+                            <input type="range" class="category-mixer" data-category="em-symphony" min="0" max="100" value="70">
+                            <span class="mixer-value">70%</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -266,7 +271,7 @@ class SoundControlPanel {
             
             .mixer-grid {
                 display: grid;
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns: repeat(6, 1fr);
                 gap: 10px;
             }
             
