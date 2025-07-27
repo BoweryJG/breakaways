@@ -19,46 +19,9 @@ const state = {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Force hide loading screen after 5 seconds no matter what
-    setTimeout(() => {
-        hideLoadingScreen();
-    }, 5000);
-    
-    // Wait for D3.js to load with retries
-    let retries = 0;
-    const maxRetries = 20; // 10 seconds total
-    
-    function checkAndInit() {
-        if (window.d3LoadError) {
-            console.error('D3.js failed to load');
-            hideLoadingScreen();
-            showInitError('Failed to load D3.js library. Please check your internet connection.');
-            return;
-        }
-        
-        if (typeof d3 !== 'undefined' || window.d3Loaded) {
-            console.log('D3.js loaded, initializing app...');
-            try {
-                initializeApp();
-                startLiveUpdates();
-                hideLoadingScreen();
-            } catch (error) {
-                console.error('Initialization error:', error);
-                hideLoadingScreen();
-                showInitError('Failed to initialize application: ' + error.message);
-            }
-        } else if (retries < maxRetries) {
-            retries++;
-            console.log(`Waiting for D3.js... retry ${retries}/${maxRetries}`);
-            setTimeout(checkAndInit, 500);
-        } else {
-            console.error('D3.js loading timeout');
-            hideLoadingScreen();
-            showInitError('Failed to load required libraries. Please refresh the page.');
-        }
-    }
-    
-    checkAndInit();
+    initializeApp();
+    startLiveUpdates();
+    hideLoadingScreen();
     
     // Sound toggle removed - now handled by Sound Control page
 });
@@ -260,26 +223,13 @@ function switchView(viewName) {
 }
 
 function hideLoadingScreen() {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
+    setTimeout(() => {
+        const loadingScreen = document.getElementById('loading-screen');
         loadingScreen.style.opacity = '0';
         setTimeout(() => {
             loadingScreen.style.display = 'none';
         }, 500);
-    }
-}
-
-function showInitError(message) {
-    const container = document.getElementById('visualization-container');
-    if (container) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 50px; color: var(--warning-color);">
-                <h2>Initialization Error</h2>
-                <p>${message}</p>
-                <p>Please refresh the page to try again.</p>
-            </div>
-        `;
-    }
+    }, 2000);
 }
 
 function startLiveUpdates() {
@@ -311,12 +261,11 @@ function startLiveUpdates() {
 }
 
 function initializeMiniViz() {
-    try {
-        // Ancient Sites preview
-        const sitesPreview = d3.select('#sites-preview')
-            .append('svg')
-            .attr('width', '100%')
-            .attr('height', 100);
+    // Ancient Sites preview
+    const sitesPreview = d3.select('#sites-preview')
+        .append('svg')
+        .attr('width', '100%')
+        .attr('height', 100);
 
     // Create random dots representing sites
     const sites = Array.from({length: 50}, () => ({
@@ -441,10 +390,6 @@ function initializeMiniViz() {
             .on('end', animateUAPs);
     }
     animateUAPs();
-    } catch (error) {
-        console.warn('Mini visualizations initialization failed:', error);
-        // Continue anyway - these are just decorative
-    }
 }
 
 function updateMapLayers() {
