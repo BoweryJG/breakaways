@@ -430,10 +430,21 @@ async function toggleSound() {
         // Start ambient sounds with low volume
         window.breakawaySound.startAmbientLayer('deepSpace');
         window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+        
+        // Show sound control panel
+        if (!window.soundControlPanel) {
+            window.soundControlPanel = new window.SoundControlPanel();
+        }
     } else {
         // Stop all sounds
         window.breakawaySound.stopAll();
         soundToggle.innerHTML = '🔇 Sound Off';
+        
+        // Hide sound control panel
+        if (window.soundControlPanel && window.soundControlPanel.panel) {
+            window.soundControlPanel.close();
+            window.soundControlPanel = null;
+        }
     }
 }
 

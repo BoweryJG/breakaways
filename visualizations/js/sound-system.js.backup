@@ -17,14 +17,6 @@ class BreakawaySound {
         this.convolutions = new Map();
         this.scheduledSounds = new Map();
         
-        // Enhanced sound registry system
-        this.soundRegistry = new Map(); // All active sounds with metadata
-        this.soundIdCounter = 0;
-        
-        // Event bus for cross-component communication
-        this.eventListeners = new Map();
-        this.eventHistory = [];
-        
         // Sacred frequencies (Hz)
         this.sacredFrequencies = {
             om: 136.1,          // Om frequency
@@ -138,112 +130,9 @@ class BreakawaySound {
             this.isInitialized = true;
             console.log('BreakawaySound System initialized');
             
-            // Emit initialization event
-            this.emit('initialized', { timestamp: Date.now() });
-            
         } catch (error) {
             console.error('Failed to initialize audio system:', error);
         }
-    }
-    
-    // Event bus methods
-    on(eventName, callback) {
-        if (!this.eventListeners.has(eventName)) {
-            this.eventListeners.set(eventName, []);
-        }
-        this.eventListeners.get(eventName).push(callback);
-    }
-    
-    off(eventName, callback) {
-        if (!this.eventListeners.has(eventName)) return;
-        const listeners = this.eventListeners.get(eventName);
-        const index = listeners.indexOf(callback);
-        if (index > -1) {
-            listeners.splice(index, 1);
-        }
-    }
-    
-    emit(eventName, data) {
-        const eventData = {
-            event: eventName,
-            data: data,
-            timestamp: Date.now()
-        };
-        
-        // Store in history (keep last 100 events)
-        this.eventHistory.push(eventData);
-        if (this.eventHistory.length > 100) {
-            this.eventHistory.shift();
-        }
-        
-        // Call listeners
-        if (this.eventListeners.has(eventName)) {
-            this.eventListeners.get(eventName).forEach(callback => {
-                try {
-                    callback(eventData);
-                } catch (error) {
-                    console.error(`Error in event listener for ${eventName}:`, error);
-                }
-            });
-        }
-    }
-    
-    // Sound registry methods
-    registerSound(soundData) {
-        const id = soundData.id || `sound_${++this.soundIdCounter}`;
-        const sound = {
-            id: id,
-            name: soundData.name || 'Unnamed Sound',
-            type: soundData.type || 'unknown',
-            category: soundData.category || 'uncategorized',
-            frequency: soundData.frequency || null,
-            source: soundData.source || 'internal',
-            startTime: Date.now(),
-            duration: soundData.duration || null,
-            volume: soundData.volume || 1.0,
-            metadata: soundData.metadata || {},
-            isPlaying: true,
-            oscillators: soundData.oscillators || [],
-            gainNodes: soundData.gainNodes || []
-        };
-        
-        this.soundRegistry.set(id, sound);
-        this.emit('soundRegistered', sound);
-        return id;
-    }
-    
-    unregisterSound(id) {
-        const sound = this.soundRegistry.get(id);
-        if (sound) {
-            this.soundRegistry.delete(id);
-            this.emit('soundUnregistered', sound);
-        }
-    }
-    
-    updateSound(id, updates) {
-        const sound = this.soundRegistry.get(id);
-        if (sound) {
-            Object.assign(sound, updates);
-            this.emit('soundUpdated', sound);
-        }
-    }
-    
-    getActiveSound(id) {
-        return this.soundRegistry.get(id);
-    }
-    
-    getAllActiveSounds() {
-        return Array.from(this.soundRegistry.values());
-    }
-    
-    getActiveSoundsByCategory(category) {
-        return Array.from(this.soundRegistry.values())
-            .filter(sound => sound.category === category);
-    }
-    
-    getActiveSoundsBySource(source) {
-        return Array.from(this.soundRegistry.values())
-            .filter(sound => sound.source === source);
     }
     
     // Create sub-mixer gain nodes
@@ -315,26 +204,6 @@ class BreakawaySound {
         // Store references
         this.oscillators.set(id, [oscillator, harmonic2, harmonic3]);
         this.gainNodes.set(id, gainNode);
-        
-        // Register in sound registry
-        this.registerSound({
-            id: id,
-            name: `Sacred Frequency: ${frequencyName}`,
-            type: 'sacred',
-            category: 'sacred',
-            frequency: frequency,
-            source: 'sound-system',
-            duration: duration,
-            volume: 1.0,
-            metadata: {
-                frequencyName: frequencyName,
-                harmonics: [frequency * 2, frequency * 3],
-                fadeIn: fadeIn,
-                fadeOut: fadeOut
-            },
-            oscillators: [oscillator, harmonic2, harmonic3],
-            gainNodes: [gainNode]
-        });
         
         // Schedule stop if duration specified
         if (duration) {
@@ -974,9 +843,6 @@ class BreakawaySound {
     
     // Stop a specific sound
     stopSound(id) {
-        // Update registry
-        this.updateSound(id, { isPlaying: false });
-        
         // Stop oscillators
         const oscillators = this.oscillators.get(id);
         if (oscillators) {
@@ -999,12 +865,6 @@ class BreakawaySound {
             });
             this.gainNodes.delete(id);
         }
-        
-        // Emit stop event
-        const sound = this.getActiveSound(id);
-        if (sound) {
-            this.emit('soundStopped', sound);
-        }
     }
     
     // Clean up stopped sounds
@@ -1012,7 +872,6 @@ class BreakawaySound {
         this.oscillators.delete(id);
         this.gainNodes.delete(id);
         this.filters.delete(id);
-        this.unregisterSound(id);
     }
     
     // Stop all sounds
