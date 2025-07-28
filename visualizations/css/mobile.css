@@ -1,5 +1,21 @@
 /* Mobile Optimizations for Breakaway Civilization Dashboard */
 
+/* Fix iOS scrolling issues */
+html {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+
+/* Prevent body scroll lock */
+body {
+    position: relative !important;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    min-height: 100vh;
+    /* Fix iOS bounce scrolling */
+    -webkit-overflow-scrolling: touch;
+}
+
 /* Base mobile styles */
 @media (max-width: 768px) {
     /* Header adjustments */
@@ -34,6 +50,8 @@
         white-space: nowrap;
         padding: 10px 5px;
         margin: 0 -10px;
+        /* Prevent menu from blocking body scroll */
+        touch-action: pan-y;
     }
     
     .nav-btn {
@@ -242,8 +260,36 @@
     }
 }
 
+/* Fix viewport issues on mobile */
+@supports (-webkit-touch-callout: none) {
+    /* iOS specific fixes */
+    main {
+        min-height: -webkit-fill-available;
+    }
+    
+    /* Prevent fixed elements from causing scroll issues */
+    #loading-screen {
+        position: absolute;
+        height: 100vh;
+        height: -webkit-fill-available;
+    }
+}
+
 /* Performance optimizations for mobile */
 @media (max-width: 768px) {
+    /* Ensure main content is scrollable */
+    main {
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix visualization containers */
+    .viz-section {
+        overflow: visible;
+        position: relative;
+    }
+    
     /* Reduce animation complexity */
     * {
         animation-duration: 0s !important;

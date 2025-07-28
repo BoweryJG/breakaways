@@ -26,8 +26,10 @@ body {
     font-family: 'Courier New', monospace;
     background-color: var(--primary-bg);
     color: var(--text-primary);
-    overflow-x: hidden;
     position: relative;
+    /* Fix mobile scrolling issues */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
 }
 
 /* Loading Screen */
@@ -1322,4 +1324,19 @@ footer p {
     z-index: 1000;
     box-shadow: 0 0 30px rgba(0, 255, 204, 0.5);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Prevent panel from blocking body scroll on mobile */
+    pointer-events: auto;
+}
+
+/* Ensure body can scroll on mobile when panel is open */
+@media (max-width: 768px) {
+    .sound-control-panel.floating {
+        position: absolute;
+        width: calc(100% - 40px);
+        right: 10px;
+        left: 10px;
+        top: 60px;
+        max-height: 70vh;
+    }
 }
