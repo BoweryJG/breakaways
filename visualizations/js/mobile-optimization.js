@@ -115,27 +115,11 @@ function initMobileOptimizations() {
     // Optimize navigation menu
     const navMenu = document.querySelector('.visualization-menu');
     if (navMenu) {
-        // Add touch scrolling hint
-        const scrollHint = document.createElement('div');
-        scrollHint.className = 'scroll-hint';
-        scrollHint.textContent = '← Swipe for more →';
-        scrollHint.style.cssText = `
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8em;
-            color: var(--accent-color);
-            opacity: 0.7;
-            pointer-events: none;
-        `;
-        navMenu.style.position = 'relative';
-        navMenu.appendChild(scrollHint);
-        
-        // Hide hint after first scroll
-        navMenu.addEventListener('scroll', () => {
-            scrollHint.style.display = 'none';
-        }, { once: true });
+        // Remove any scroll hints since we're using grid layout
+        const existingHint = navMenu.querySelector('.scroll-hint');
+        if (existingHint) {
+            existingHint.remove();
+        }
     }
     
     // Optimize status updates
