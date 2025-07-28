@@ -2289,7 +2289,9 @@ function cleanupMasterConvergence() {
     }
     
     if (emcComposer) {
-        emcComposer.dispose();
+        // EffectComposer doesn't have dispose, but we can clear its passes
+        emcComposer.passes = [];
+        emcComposer = null;
     }
     
     // Clear arrays

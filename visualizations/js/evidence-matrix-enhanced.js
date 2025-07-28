@@ -1257,10 +1257,9 @@ function cleanupEvidenceMatrix() {
 }
 
 // Handle resize
-let emResizeTimeout;
 window.addEventListener('resize', () => {
-    clearTimeout(emResizeTimeout);
-    emResizeTimeout = setTimeout(() => {
+    if (window.evidenceMatrixResizeTimeout) clearTimeout(window.evidenceMatrixResizeTimeout);
+    window.evidenceMatrixResizeTimeout = setTimeout(() => {
         const container = document.getElementById('evidence-container');
         if (container && emCamera && emRenderer) {
             const isMobile = window.mobileUtils && window.mobileUtils.isMobile();

@@ -328,6 +328,11 @@ class LiveTracker {
         this.simulateWebSocketMessages();
     }
     
+    startDataFeeds() {
+        // Start the simulated data feeds
+        this.simulateWebSocketMessages();
+    }
+    
     simulateWebSocketMessages() {
         // Generate random events at intervals (slower on mobile)
         const eventInterval = this.isMobile ? 4000 : 2000;
