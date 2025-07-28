@@ -56,7 +56,7 @@ function initElectromagnetic() {
     });
     
     // Set up canvases
-    setupCanvases();
+    setupCanvases(isMobile);
     
     // Initialize Web Audio API
     initializeAudio();
@@ -75,8 +75,11 @@ function initElectromagnetic() {
     startDataSimulation();
 }
 
-function setupCanvases() {
+function setupCanvases(isMobile) {
     const container = document.getElementById('electromagnetic');
+    const canvasWidth = isMobile ? 300 : 600;
+    const canvasHeight = isMobile ? 150 : 200;
+    const waterfallHeight = isMobile ? 200 : 300;
     
     // Clear existing content except the header and sound control
     const header = container.querySelector('h2');
@@ -110,7 +113,7 @@ function setupCanvases() {
         <div class="visualization-grid">
             <div class="viz-panel oscilloscope">
                 <h3>Live Oscilloscope</h3>
-                <canvas id="oscilloscope-canvas" width="600" height="200"></canvas>
+                <canvas id="oscilloscope-canvas" width="${canvasWidth}" height="${canvasHeight}"></canvas>
                 <div class="freq-display">
                     <span class="freq-label">Primary: </span>
                     <span id="primary-freq">7.83 Hz</span>
@@ -119,7 +122,7 @@ function setupCanvases() {
             
             <div class="viz-panel spectrum">
                 <h3>Frequency Spectrum</h3>
-                <canvas id="spectrum-canvas" width="600" height="200"></canvas>
+                <canvas id="spectrum-canvas" width="${canvasWidth}" height="${canvasHeight}"></canvas>
                 <div class="spectrum-legend">
                     <span class="legend-item schumann">Schumann</span>
                     <span class="legend-item alpha">Alpha</span>
@@ -130,7 +133,7 @@ function setupCanvases() {
             
             <div class="viz-panel waterfall">
                 <h3>Frequency Waterfall</h3>
-                <canvas id="waterfall-canvas" width="600" height="300"></canvas>
+                <canvas id="waterfall-canvas" width="${canvasWidth}" height="${waterfallHeight}"></canvas>
                 <div class="time-scale">
                     <span>-60s</span>
                     <span>-30s</span>
@@ -140,7 +143,7 @@ function setupCanvases() {
             
             <div class="viz-panel historical">
                 <h3>Historical Frequency Data</h3>
-                <canvas id="historical-canvas" width="600" height="300"></canvas>
+                <canvas id="historical-canvas" width="${canvasWidth}" height="${waterfallHeight}"></canvas>
                 <div class="historical-controls">
                     <select id="time-range">
                         <option value="hour">Last Hour</option>
@@ -179,7 +182,7 @@ function setupCanvases() {
                         <span id="proton-flux" class="value">0.5</span>
                     </div>
                 </div>
-                <canvas id="solar-correlation" width="300" height="150"></canvas>
+                <canvas id="solar-correlation" width="${isMobile ? 200 : 300}" height="${isMobile ? 100 : 150}"></canvas>
             </div>
             
             <div class="info-panel harmonics-panel">
@@ -224,9 +227,15 @@ function setupCanvases() {
         solar: document.getElementById('solar-correlation')
     };
     
-    // Get contexts
+    // Get contexts and apply mobile optimization
     Object.keys(emSymphonyState.canvases).forEach(key => {
-        emSymphonyState.contexts[key] = emSymphonyState.canvases[key].getContext('2d');
+        const canvas = emSymphonyState.canvases[key];
+        emSymphonyState.contexts[key] = canvas.getContext('2d');
+        
+        // Apply mobile optimizations
+        if (window.mobileUtils) {
+            window.mobileUtils.optimizeCanvas(canvas);
+        }
     });
 }
 
@@ -1198,6 +1207,27 @@ window.cleanupEmSymphony = function() {
         animationFrames: {}
     };
 };
+
+// Handle window resize
+function handleEMResize() {
+    const container = document.getElementById('electromagnetic');
+    if (container && emSymphonyState.canvases.oscilloscope) {
+        // Reinitialize with new dimensions
+        initElectromagnetic();
+    }
+}
+
+// Add resize listener with debouncing
+let emResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(emResizeTimeout);
+    emResizeTimeout = setTimeout(() => {
+        const container = document.getElementById('electromagnetic');
+        if (container && container.querySelector('canvas')) {
+            handleEMResize();
+        }
+    }, 250);
+});
 
 // Export for use in main.js
 window.initElectromagnetic = initElectromagnetic;

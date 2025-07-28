@@ -2,8 +2,9 @@
 
 function initTimeline() {
     const container = document.getElementById('spiral-timeline-container');
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const width = container.clientWidth;
-    const height = 600;
+    const height = isMobile ? 400 : 600;
     const centerX = width / 2;
     const centerY = height / 2;
     
@@ -43,11 +44,16 @@ function initTimeline() {
     
     // Start animation
     animateSpiral(g);
+    
+    // Add mobile touch support
+    addMobileTouchSupport();
 }
 
 function createGalacticBackground(g, width, height) {
-    // Create starfield
-    const stars = d3.range(500).map(() => ({
+    // Create starfield with mobile optimization
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    const starCount = isMobile ? 200 : 500;
+    const stars = d3.range(starCount).map(() => ({
         x: (Math.random() - 0.5) * width,
         y: (Math.random() - 0.5) * height,
         r: Math.random() * 2,
@@ -475,6 +481,35 @@ function getEventDescription(event) {
     
     return descriptions[event.event] || '';
 }
+
+// Add mobile touch support to event markers
+function addMobileTouchSupport() {
+    if (window.mobileUtils) {
+        const eventMarkers = d3.selectAll('.cycle-event');
+        window.mobileUtils.addTouchToD3Selection(eventMarkers);
+    }
+}
+
+// Handle window resize
+function handleTimelineResize() {
+    const container = document.getElementById('spiral-timeline-container');
+    if (container) {
+        // Reinitialize the entire timeline on resize
+        initTimeline();
+    }
+}
+
+// Add resize listener with debouncing
+let timelineResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(timelineResizeTimeout);
+    timelineResizeTimeout = setTimeout(() => {
+        const container = document.getElementById('spiral-timeline-container');
+        if (container && container.querySelector('svg')) {
+            handleTimelineResize();
+        }
+    }, 250);
+});
 
 // Export for use
 window.initTimeline = initTimeline;

@@ -93,9 +93,10 @@ function initPopulationGenetics() {
     container.innerHTML = '';
     
     // Create main visualization container
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const vizContainer = document.createElement('div');
     vizContainer.id = 'pg-viz-container';
-    vizContainer.style.cssText = 'width: 100%; height: 600px; position: relative;';
+    vizContainer.style.cssText = `width: 100%; height: ${isMobile ? '400px' : '600px'}; position: relative;`;
     container.appendChild(vizContainer);
     
     // Create control panel
@@ -119,6 +120,7 @@ function initPopulationGenetics() {
 function setupPGScene(container) {
     const width = container.clientWidth;
     const height = container.clientHeight;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     
     // Scene
     pgScene = new THREE.Scene();
@@ -126,22 +128,37 @@ function setupPGScene(container) {
     
     // Camera
     pgCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-    pgCamera.position.set(0, 0, 300);
+    pgCamera.position.set(0, 0, isMobile ? 350 : 300);
     
-    // Renderer
-    pgRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // Renderer with mobile optimization
+    pgRenderer = new THREE.WebGLRenderer({ 
+        antialias: !isMobile, 
+        alpha: true,
+        powerPreference: isMobile ? "low-power" : "high-performance"
+    });
     pgRenderer.setSize(width, height);
-    pgRenderer.setPixelRatio(window.devicePixelRatio);
+    pgRenderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 2) : window.devicePixelRatio);
+    
+    // Mobile optimizations
+    if (isMobile && window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(pgRenderer);
+    }
+    
     container.appendChild(pgRenderer.domElement);
     
-    // Controls
+    // Controls with mobile support
     pgControls = new THREE.OrbitControls(pgCamera, pgRenderer.domElement);
     pgControls.enableDamping = true;
     pgControls.dampingFactor = 0.05;
-    pgControls.minDistance = 150;
-    pgControls.maxDistance = 500;
-    pgControls.autoRotate = true;
+    pgControls.minDistance = isMobile ? 200 : 150;
+    pgControls.maxDistance = isMobile ? 600 : 500;
+    pgControls.autoRotate = !isMobile; // Disable auto-rotate on mobile
     pgControls.autoRotateSpeed = 0.2;
+    
+    // Add touch controls for mobile
+    if (isMobile && window.mobileUtils) {
+        window.mobileUtils.addTouchControls(pgControls);
+    }
     
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x222244, 0.5);
@@ -156,8 +173,9 @@ function setupPGScene(container) {
 }
 
 function createGeneticGlobe() {
-    // Create textured globe
-    const globeGeometry = new THREE.SphereGeometry(100, 64, 64);
+    // Create textured globe (lower poly on mobile)
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    const globeGeometry = new THREE.SphereGeometry(100, isMobile ? 32 : 64, isMobile ? 32 : 64);
     
     // Custom shader for genetic visualization
     const globeMaterial = new THREE.ShaderMaterial({
@@ -223,8 +241,8 @@ function createGeneticGlobe() {
     geneticGlobe = new THREE.Mesh(globeGeometry, globeMaterial);
     pgScene.add(geneticGlobe);
     
-    // Add atmosphere
-    const atmosGeometry = new THREE.SphereGeometry(110, 32, 32);
+    // Add atmosphere (lower poly on mobile)
+    const atmosGeometry = new THREE.SphereGeometry(110, isMobile ? 16 : 32, isMobile ? 16 : 32);
     const atmosMaterial = new THREE.ShaderMaterial({
         uniforms: {
             uTime: { value: 0 }
@@ -294,12 +312,14 @@ function createRhTexture() {
 }
 
 function createMigrationFlows() {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    
     geneticData.ancientMigrations.forEach(migration => {
         migration.routes.forEach(route => {
             const curve = createMigrationCurve(route.from, route.to);
             
-            // Create flowing particles
-            const particleCount = 100;
+            // Create flowing particles (fewer on mobile)
+            const particleCount = isMobile ? 30 : 100;
             const geometry = new THREE.BufferGeometry();
             const positions = new Float32Array(particleCount * 3);
             const colors = new Float32Array(particleCount * 3);
@@ -326,7 +346,7 @@ function createMigrationFlows() {
             geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
             
             const material = new THREE.PointsMaterial({
-                size: 2,
+                size: isMobile ? 3 : 2,
                 vertexColors: true,
                 transparent: true,
                 opacity: 0.6,
@@ -360,14 +380,16 @@ function createMigrationCurve(from, to) {
 }
 
 function createGeneticHotspots() {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    
     geneticData.rhNegativeHotspots.forEach(hotspot => {
         const position = latLonToVector3(hotspot.coords[0], hotspot.coords[1], 102);
         
         // Create pulsing node
         const nodeGroup = new THREE.Group();
         
-        // Core
-        const coreGeometry = new THREE.SphereGeometry(2, 16, 16);
+        // Core (lower poly on mobile)
+        const coreGeometry = new THREE.SphereGeometry(2, isMobile ? 8 : 16, isMobile ? 8 : 16);
         const coreMaterial = new THREE.MeshPhysicalMaterial({
             color: 0xff00ff,
             emissive: 0xff00ff,
@@ -380,8 +402,8 @@ function createGeneticHotspots() {
         const core = new THREE.Mesh(coreGeometry, coreMaterial);
         nodeGroup.add(core);
         
-        // Outer glow
-        const glowGeometry = new THREE.SphereGeometry(5, 16, 16);
+        // Outer glow (lower poly on mobile)
+        const glowGeometry = new THREE.SphereGeometry(5, isMobile ? 8 : 16, isMobile ? 8 : 16);
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: 0xff00ff,
             transparent: true,
@@ -391,26 +413,32 @@ function createGeneticHotspots() {
         const glow = new THREE.Mesh(glowGeometry, glowMaterial);
         nodeGroup.add(glow);
         
-        // Create label
+        // Create label (smaller on mobile)
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 64;
+        canvas.width = isMobile ? 128 : 256;
+        canvas.height = isMobile ? 32 : 64;
         
         context.fillStyle = 'rgba(0, 0, 0, 0.7)';
         context.fillRect(0, 0, 256, 64);
         
-        context.font = '20px Arial';
+        const fontSize = isMobile ? 12 : 20;
+        const subFontSize = isMobile ? 10 : 16;
+        const centerX = canvas.width / 2;
+        const line1Y = isMobile ? 15 : 25;
+        const line2Y = isMobile ? 25 : 45;
+        
+        context.font = `${fontSize}px Arial`;
         context.fillStyle = '#ffffff';
         context.textAlign = 'center';
-        context.fillText(hotspot.name, 128, 25);
-        context.font = '16px Arial';
-        context.fillText(`RH-: ${hotspot.concentration}%`, 128, 45);
+        context.fillText(hotspot.name, centerX, line1Y);
+        context.font = `${subFontSize}px Arial`;
+        context.fillText(`RH-: ${hotspot.concentration}%`, centerX, line2Y);
         
         const texture = new THREE.CanvasTexture(canvas);
         const labelMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(20, 5, 1);
+        label.scale.set(isMobile ? 15 : 20, isMobile ? 3.75 : 5, 1);
         label.position.y = 10;
         nodeGroup.add(label);
         
@@ -442,8 +470,8 @@ function createAnomalyMarkers() {
         const marker = new THREE.Mesh(geometry, material);
         markerGroup.add(marker);
         
-        // Rotating ring
-        const ringGeometry = new THREE.TorusGeometry(5, 0.5, 8, 32);
+        // Rotating ring (lower poly on mobile)
+        const ringGeometry = new THREE.TorusGeometry(5, 0.5, isMobile ? 6 : 8, isMobile ? 16 : 32);
         const ringMaterial = new THREE.MeshBasicMaterial({
             color: getAnomalyColor(anomaly.type),
             transparent: true,
@@ -471,17 +499,19 @@ function getAnomalyColor(type) {
 }
 
 function createTimelineControl() {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const timelineDiv = document.createElement('div');
     timelineDiv.style.cssText = `
         position: absolute;
-        bottom: 20px;
+        bottom: ${isMobile ? '10px' : '20px'};
         left: 50%;
         transform: translateX(-50%);
-        width: 80%;
+        width: ${isMobile ? '90%' : '80%'};
         background: rgba(0, 0, 0, 0.8);
-        padding: 20px;
+        padding: ${isMobile ? '10px' : '20px'};
         border: 1px solid #00ffcc;
         border-radius: 10px;
+        font-size: ${isMobile ? '12px' : '14px'};
     `;
     
     timelineDiv.innerHTML = `
@@ -550,10 +580,11 @@ function updateVisualizationForTime(time) {
 }
 
 function createGeneticHeatmap() {
-    // Create overlay canvas for heatmap
+    // Create overlay canvas for heatmap (lower res on mobile)
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 256;
+    canvas.width = isMobile ? 256 : 512;
+    canvas.height = isMobile ? 128 : 256;
     const context = canvas.getContext('2d');
     
     // Generate heatmap data
@@ -592,8 +623,8 @@ function createGeneticHeatmap() {
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
     
-    // Apply to globe as overlay
-    const overlayGeometry = new THREE.SphereGeometry(101, 64, 64);
+    // Apply to globe as overlay (lower poly on mobile)
+    const overlayGeometry = new THREE.SphereGeometry(101, isMobile ? 32 : 64, isMobile ? 32 : 64);
     const overlayMaterial = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
@@ -722,8 +753,9 @@ function latLonToVector3(lat, lon, radius) {
 }
 
 function createStarfield() {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 5000;
+    const starCount = isMobile ? 1000 : 5000;
     const positions = new Float32Array(starCount * 3);
     
     for (let i = 0; i < starCount * 3; i += 3) {
@@ -840,6 +872,31 @@ function cleanupPopulationGenetics() {
     anomalyMarkers = [];
     particleSystems = [];
 }
+
+// Handle window resize
+function handlePGResize() {
+    if (pgCamera && pgRenderer) {
+        const container = document.getElementById('pg-viz-container');
+        if (container) {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            pgCamera.aspect = width / height;
+            pgCamera.updateProjectionMatrix();
+            
+            pgRenderer.setSize(width, height);
+        }
+    }
+}
+
+// Add resize listener with debouncing
+let pgResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(pgResizeTimeout);
+    pgResizeTimeout = setTimeout(() => {
+        handlePGResize();
+    }, 250);
+});
 
 // Export
 window.initPopulationGenetics = initPopulationGenetics;

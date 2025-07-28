@@ -76,6 +76,7 @@ function initMoonControl() {
 }
 
 function setupMoonScene(container) {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const width = container.clientWidth;
     const height = container.clientHeight;
     
@@ -87,25 +88,36 @@ function setupMoonScene(container) {
     moonCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
     moonCamera.position.set(500, 200, 500);
     
-    // Renderer
+    // Renderer with mobile optimization
     moonRenderer = new THREE.WebGLRenderer({ 
-        antialias: true,
-        logarithmicDepthBuffer: true 
+        antialias: !isMobile,
+        logarithmicDepthBuffer: true,
+        powerPreference: isMobile ? "low-power" : "high-performance"
     });
     moonRenderer.setSize(width, height);
-    moonRenderer.setPixelRatio(window.devicePixelRatio);
-    moonRenderer.shadowMap.enabled = true;
-    moonRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    moonRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    moonRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    moonRenderer.shadowMap.enabled = !isMobile;
+    moonRenderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    moonRenderer.toneMapping = isMobile ? THREE.LinearToneMapping : THREE.ACESFilmicToneMapping;
     moonRenderer.toneMappingExposure = 0.5;
+    
+    // Apply mobile optimizations
+    if (window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(moonRenderer);
+    }
     container.appendChild(moonRenderer.domElement);
     
-    // Controls
+    // Controls with mobile support
     moonControls = new THREE.OrbitControls(moonCamera, moonRenderer.domElement);
     moonControls.enableDamping = true;
     moonControls.dampingFactor = 0.05;
-    moonControls.minDistance = 100;
-    moonControls.maxDistance = 2000;
+    moonControls.minDistance = isMobile ? 200 : 100;
+    moonControls.maxDistance = isMobile ? 1500 : 2000;
+    
+    // Add mobile touch controls
+    if (window.mobileUtils) {
+        window.mobileUtils.addTouchControls(moonControls);
+    }
     
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x111122, 0.3);
@@ -509,8 +521,12 @@ function createEnergyConnections() {
         energyBeams.push(beam);
         moonScene.add(beam);
         
-        // Add particle flow
-        const particleCount = 50;
+        // Add particle flow with mobile optimization
+        const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+        let particleCount = 50;
+        if (window.mobileUtils) {
+            particleCount = window.mobileUtils.optimizeParticles(particleCount);
+        }
         const particleGeometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         
@@ -988,6 +1004,35 @@ function cleanupMoonControl() {
     lagrangePoints = [];
     anomalyIndicators = [];
 }
+
+// Handle window resize
+function handleMoonResize() {
+    const container = document.getElementById('moon-control-container');
+    if (!container || !moonRenderer || !moonCamera) return;
+    
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    moonCamera.aspect = width / height;
+    moonCamera.updateProjectionMatrix();
+    moonRenderer.setSize(width, height);
+}
+
+// Add resize listener with debouncing
+let moonResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(moonResizeTimeout);
+    moonResizeTimeout = setTimeout(() => {
+        const container = document.getElementById('moon-control-container');
+        if (container && moonRenderer) {
+            if (window.mobileUtils && window.mobileUtils.isMobile()) {
+                window.mobileUtils.handleResize(handleMoonResize);
+            } else {
+                handleMoonResize();
+            }
+        }
+    }, 250);
+});
 
 // Export
 window.initMoonControl = initMoonControl;

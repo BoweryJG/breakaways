@@ -80,8 +80,9 @@ function initEvidence() {
 }
 
 function setupEvidenceScene(container) {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const width = container.clientWidth;
-    const height = container.clientHeight || 800;
+    const height = container.clientHeight || (isMobile ? 400 : 800);
     
     // Scene setup
     emScene = new THREE.Scene();
@@ -92,29 +93,41 @@ function setupEvidenceScene(container) {
     emCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 2000);
     emCamera.position.set(0, 200, 400);
     
-    // Renderer
+    // Renderer with mobile optimization
     emRenderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: !isMobile,
         alpha: true,
-        powerPreference: "high-performance"
+        powerPreference: isMobile ? "low-power" : "high-performance"
     });
     emRenderer.setSize(width, height);
-    emRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    emRenderer.shadowMap.enabled = true;
-    emRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    emRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    emRenderer.shadowMap.enabled = !isMobile;
+    emRenderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    
+    // Apply mobile optimizations
+    if (window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(emRenderer);
+    }
     container.appendChild(emRenderer.domElement);
     
-    // Post-processing
-    setupPostProcessing();
+    // Post-processing (disable on mobile for performance)
+    if (!isMobile) {
+        setupPostProcessing();
+    }
     
-    // Controls
+    // Controls with mobile support
     emControls = new THREE.OrbitControls(emCamera, emRenderer.domElement);
     emControls.enableDamping = true;
     emControls.dampingFactor = 0.05;
-    emControls.minDistance = 100;
-    emControls.maxDistance = 1000;
-    emControls.autoRotate = true;
+    emControls.minDistance = isMobile ? 150 : 100;
+    emControls.maxDistance = isMobile ? 800 : 1000;
+    emControls.autoRotate = !isMobile;
     emControls.autoRotateSpeed = 0.2;
+    
+    // Add mobile touch controls
+    if (window.mobileUtils) {
+        window.mobileUtils.addTouchControls(emControls);
+    }
     
     // Raycaster
     emRaycaster = new THREE.Raycaster();
@@ -172,8 +185,12 @@ function createEnvironment() {
     gridHelper.position.y = -100;
     emScene.add(gridHelper);
     
-    // Particle field
-    const particleCount = 5000;
+    // Particle field with mobile optimization
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    let particleCount = 5000;
+    if (window.mobileUtils) {
+        particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    }
     const particleGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     
@@ -413,6 +430,10 @@ function createDataStreams() {
 }
 
 function createDataStream(curve, particleCount) {
+    // Apply mobile optimization to particle count
+    if (window.mobileUtils && window.mobileUtils.isMobile()) {
+        particleCount = Math.floor(particleCount * 0.3);
+    }
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
@@ -1236,17 +1257,25 @@ function cleanupEvidenceMatrix() {
 }
 
 // Handle resize
+let emResizeTimeout;
 window.addEventListener('resize', () => {
-    const container = document.getElementById('evidence-container');
-    if (container && emCamera && emRenderer) {
-        const width = container.clientWidth;
-        const height = container.clientHeight || 800;
+    clearTimeout(emResizeTimeout);
+    emResizeTimeout = setTimeout(() => {
+        const container = document.getElementById('evidence-container');
+        if (container && emCamera && emRenderer) {
+            const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+            const width = container.clientWidth;
+            const height = container.clientHeight || (isMobile ? 400 : 800);
         
         emCamera.aspect = width / height;
         emCamera.updateProjectionMatrix();
         
-        emRenderer.setSize(width, height);
-    }
+            emRenderer.setSize(width, height);
+            if (emComposer) {
+                emComposer.setSize(width, height);
+            }
+        }
+    }, 250);
 });
 
 // Export

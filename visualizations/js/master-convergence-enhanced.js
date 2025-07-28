@@ -154,8 +154,9 @@ function initMasterConvergence() {
 }
 
 function setupEnhancedScene(container) {
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const width = container.clientWidth;
-    const height = container.clientHeight || 800;
+    const height = container.clientHeight || (isMobile ? 400 : 800);
     
     // Scene with quantum field background
     emcScene = new THREE.Scene();
@@ -166,33 +167,45 @@ function setupEnhancedScene(container) {
     emcCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
     emcCamera.position.set(0, 150, 400);
     
-    // Quantum-enhanced renderer
+    // Quantum-enhanced renderer with mobile optimization
     emcRenderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: !isMobile,
         alpha: true,
-        powerPreference: "high-performance",
+        powerPreference: isMobile ? "low-power" : "high-performance",
         logarithmicDepthBuffer: true,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: !isMobile
     });
     emcRenderer.setSize(width, height);
-    emcRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    emcRenderer.shadowMap.enabled = true;
-    emcRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    emcRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    emcRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    emcRenderer.shadowMap.enabled = !isMobile;
+    emcRenderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    emcRenderer.toneMapping = isMobile ? THREE.LinearToneMapping : THREE.ACESFilmicToneMapping;
     emcRenderer.toneMappingExposure = 1.2;
+    
+    // Apply mobile optimizations
+    if (window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(emcRenderer);
+    }
     container.appendChild(emcRenderer.domElement);
     
-    // Advanced post-processing
-    setupQuantumPostProcessing();
+    // Advanced post-processing (disable on mobile for performance)
+    if (!isMobile) {
+        setupQuantumPostProcessing();
+    }
     
-    // Controls
+    // Controls with mobile support
     emcControls = new THREE.OrbitControls(emcCamera, emcRenderer.domElement);
     emcControls.enableDamping = true;
     emcControls.dampingFactor = 0.05;
-    emcControls.minDistance = 100;
-    emcControls.maxDistance = 2000;
-    emcControls.autoRotate = true;
+    emcControls.minDistance = isMobile ? 150 : 100;
+    emcControls.maxDistance = isMobile ? 1500 : 2000;
+    emcControls.autoRotate = !isMobile;
     emcControls.autoRotateSpeed = 0.1;
+    
+    // Add mobile touch controls
+    if (window.mobileUtils) {
+        window.mobileUtils.addTouchControls(emcControls);
+    }
     
     // Raycaster for interactions
     emcRaycaster = new THREE.Raycaster();
@@ -678,7 +691,11 @@ function createConsciousnessNodes(parent) {
         }
         
         // Particle field
-        const particleCount = 100 * node.power;
+        const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+        let particleCount = 100 * node.power;
+        if (window.mobileUtils) {
+            particleCount = window.mobileUtils.optimizeParticles(particleCount);
+        }
         const particleGeometry = new THREE.BufferGeometry();
         const particlePositions = new Float32Array(particleCount * 3);
         
@@ -875,7 +892,11 @@ function createPortal(index, position) {
     portalGroup.add(portalCenter);
     
     // Particle system for portal energy
-    const particleCount = 500;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    let particleCount = 500;
+    if (window.mobileUtils) {
+        particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    }
     const particleGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     const particleVelocities = new Float32Array(particleCount * 3);
@@ -1084,7 +1105,11 @@ function createGlitchZone(zone, index) {
     glitchGroup.add(distortionField);
     
     // Glitch particles
-    const particleCount = 200;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    let particleCount = 200;
+    if (window.mobileUtils) {
+        particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    }
     const particleGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     
@@ -2275,18 +2300,25 @@ function cleanupMasterConvergence() {
 }
 
 // Handle window resize
+let emcResizeTimeout;
 window.addEventListener('resize', () => {
-    const container = document.getElementById('master-convergence-container');
-    if (container && emcCamera && emcRenderer && emcComposer) {
-        const width = container.clientWidth;
-        const height = container.clientHeight || 800;
+    clearTimeout(emcResizeTimeout);
+    emcResizeTimeout = setTimeout(() => {
+        const container = document.getElementById('master-convergence-container');
+        if (container && emcCamera && emcRenderer) {
+            const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+            const width = container.clientWidth;
+            const height = container.clientHeight || (isMobile ? 400 : 800);
         
         emcCamera.aspect = width / height;
         emcCamera.updateProjectionMatrix();
         
-        emcRenderer.setSize(width, height);
-        emcComposer.setSize(width, height);
-    }
+            emcRenderer.setSize(width, height);
+            if (emcComposer) {
+                emcComposer.setSize(width, height);
+            }
+        }
+    }, 250);
 });
 
 // Export for global access

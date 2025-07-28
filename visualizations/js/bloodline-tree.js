@@ -135,7 +135,8 @@ function initBloodlineTree() {
 
 function setupBloodlineScene() {
     const width = bloodlineContainer.clientWidth;
-    const height = 600;
+    const height = window.innerWidth <= 768 ? 400 : 600;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     
     // Scene
     bloodlineScene = new THREE.Scene();
@@ -147,29 +148,39 @@ function setupBloodlineScene() {
     bloodlineCamera.position.set(0, 100, 400);
     bloodlineCamera.lookAt(0, 100, 0);
     
-    // Renderer with ultra-high quality
+    // Renderer with mobile optimization
     bloodlineRenderer = new THREE.WebGLRenderer({ 
-        antialias: true,
+        antialias: !isMobile,
         alpha: true,
-        powerPreference: "high-performance"
+        powerPreference: isMobile ? "low-power" : "high-performance"
     });
     bloodlineRenderer.setSize(width, height);
-    bloodlineRenderer.setPixelRatio(window.devicePixelRatio * 1.5); // Higher resolution
-    bloodlineRenderer.shadowMap.enabled = true;
-    bloodlineRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    bloodlineRenderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    bloodlineRenderer.shadowMap.enabled = !isMobile;
+    bloodlineRenderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    
+    // Apply mobile optimizations
+    if (window.mobileUtils) {
+        window.mobileUtils.optimizeRenderer(bloodlineRenderer);
+    }
     bloodlineContainer.appendChild(bloodlineRenderer.domElement);
     
     // Post-processing for glow effects
     bloodlineRenderer.toneMapping = THREE.ACESFilmicToneMapping;
     bloodlineRenderer.toneMappingExposure = 1.5;
     
-    // Controls
+    // Controls with mobile support
     bloodlineControls = new THREE.OrbitControls(bloodlineCamera, bloodlineRenderer.domElement);
     bloodlineControls.enableDamping = true;
     bloodlineControls.dampingFactor = 0.05;
     bloodlineControls.maxPolarAngle = Math.PI * 0.85;
-    bloodlineControls.minDistance = 100;
-    bloodlineControls.maxDistance = 600;
+    bloodlineControls.minDistance = isMobile ? 150 : 100;
+    bloodlineControls.maxDistance = isMobile ? 500 : 600;
+    
+    // Add mobile touch controls
+    if (window.mobileUtils) {
+        window.mobileUtils.addTouchControls(bloodlineControls);
+    }
     
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x0a0a0a);
@@ -362,7 +373,11 @@ function createConnection(start, end, rhLevel) {
 }
 
 function createFlowingParticles(curve, rhLevel) {
-    const particleCount = 20;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    let particleCount = 20;
+    if (window.mobileUtils) {
+        particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    }
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);
@@ -395,7 +410,11 @@ function createFlowingParticles(curve, rhLevel) {
 }
 
 function createNodeParticles(nodeGroup) {
-    const particleCount = 30;
+    const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    let particleCount = 30;
+    if (window.mobileUtils) {
+        particleCount = window.mobileUtils.optimizeParticles(particleCount);
+    }
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     
@@ -967,6 +986,33 @@ function cleanupBloodlineTree() {
     glowEffects = [];
     selectedNode = null;
 }
+
+// Handle window resize
+function handleBloodlineResize() {
+    if (!bloodlineContainer || !bloodlineRenderer || !bloodlineCamera) return;
+    
+    const width = bloodlineContainer.clientWidth;
+    const height = window.innerWidth <= 768 ? 400 : 600;
+    
+    bloodlineCamera.aspect = width / height;
+    bloodlineCamera.updateProjectionMatrix();
+    bloodlineRenderer.setSize(width, height);
+}
+
+// Add resize listener with debouncing
+let bloodlineResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(bloodlineResizeTimeout);
+    bloodlineResizeTimeout = setTimeout(() => {
+        if (bloodlineContainer && bloodlineRenderer) {
+            if (window.mobileUtils && window.mobileUtils.isMobile()) {
+                window.mobileUtils.handleResize(handleBloodlineResize);
+            } else {
+                handleBloodlineResize();
+            }
+        }
+    }, 250);
+});
 
 // Export functions
 window.initBloodlineTree = initBloodlineTree;

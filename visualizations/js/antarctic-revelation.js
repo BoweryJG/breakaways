@@ -72,11 +72,13 @@ function initializeMap() {
         maxBounds: [[-90, -360], [-30, 360]]
     });
     
-    // Add dark tile layer
+    // Add dark tile layer with mobile optimization
+    const isMobileLayer = window.mobileUtils && window.mobileUtils.isMobile();
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: 'Hidden Truth Revealed',
         subdomains: 'abcd',
-        maxZoom: 19
+        maxZoom: isMobileLayer ? 15 : 19,
+        detectRetina: !isMobileLayer // Disable retina on mobile for performance
     }).addTo(antarcticMap);
     
     // Add custom CSS for cyberpunk styling
@@ -885,6 +887,28 @@ function cleanupAntarcticRevelation() {
         antarcticMap = null;
     }
 }
+
+// Handle window resize
+function handleAntarcticResize() {
+    if (antarcticMap) {
+        antarcticMap.invalidateSize();
+        
+        // Adjust map container height on mobile
+        const container = document.getElementById('antarctic-map');
+        if (container && window.mobileUtils && window.mobileUtils.isMobile()) {
+            container.style.height = '400px';
+        }
+    }
+}
+
+// Add resize listener with debouncing
+let antarcticResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(antarcticResizeTimeout);
+    antarcticResizeTimeout = setTimeout(() => {
+        handleAntarcticResize();
+    }, 250);
+});
 
 // Make functions available globally
 window.initAntarcticRevelation = initAntarcticRevelation;

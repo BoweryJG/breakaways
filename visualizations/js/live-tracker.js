@@ -10,6 +10,7 @@ class LiveTracker {
         this.correlations = new Map();
         this.websocket = null;
         this.isActive = false;
+        this.isMobile = window.mobileUtils && window.mobileUtils.isMobile();
         
         // Event type configurations
         this.eventTypes = {
@@ -228,10 +229,11 @@ class LiveTracker {
     }
     
     initializeMap() {
-        // Create world map using D3
+        // Create world map using D3 with mobile optimization
+        const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
         const mapContainer = d3.select('#live-map');
         const width = mapContainer.node().getBoundingClientRect().width;
-        const height = 500;
+        const height = isMobile ? 300 : 500;
         
         const svg = mapContainer.append('svg')
             .attr('width', width)
@@ -239,7 +241,7 @@ class LiveTracker {
             .style('background', '#0a0a0a');
         
         const projection = d3.geoNaturalEarth1()
-            .scale(width / 7)
+            .scale(width / (isMobile ? 8 : 7))
             .translate([width / 2, height / 2]);
         
         const path = d3.geoPath().projection(projection);
@@ -327,34 +329,39 @@ class LiveTracker {
     }
     
     simulateWebSocketMessages() {
-        // Generate random events at intervals
+        // Generate random events at intervals (slower on mobile)
+        const eventInterval = this.isMobile ? 4000 : 2000;
         this.dataInterval = setInterval(() => {
             if (!this.isActive) return;
             
-            // Generate 1-3 random events
-            const numEvents = Math.floor(Math.random() * 3) + 1;
+            // Generate 1-3 random events (fewer on mobile)
+            const maxEvents = this.isMobile ? 2 : 3;
+            const numEvents = Math.floor(Math.random() * maxEvents) + 1;
             for (let i = 0; i < numEvents; i++) {
                 this.generateRandomEvent();
             }
-        }, 2000);
+        }, eventInterval);
         
-        // Update correlations
+        // Update correlations (slower on mobile)
+        const correlationInterval = this.isMobile ? 10000 : 5000;
         this.correlationInterval = setInterval(() => {
             if (!this.isActive) return;
             this.updateCorrelations();
-        }, 5000);
+        }, correlationInterval);
         
-        // Update consciousness levels
+        // Update consciousness levels (slower on mobile)
+        const consciousnessInterval = this.isMobile ? 20000 : 10000;
         this.consciousnessInterval = setInterval(() => {
             if (!this.isActive) return;
             this.updateConsciousnessLevels();
-        }, 10000);
+        }, consciousnessInterval);
         
-        // Generate predictions
+        // Generate predictions (slower on mobile)
+        const predictiveInterval = this.isMobile ? 30000 : 15000;
         this.predictiveInterval = setInterval(() => {
             if (!this.isActive) return;
             this.generatePredictions();
-        }, 15000);
+        }, predictiveInterval);
     }
     
     generateRandomEvent() {
@@ -525,37 +532,66 @@ class LiveTracker {
             .duration(300)
             .style('opacity', 1);
         
-        // Tooltip
-        marker.on('mouseover', () => {
-            const tooltip = d3.select('body').append('div')
-                .attr('class', 'live-tooltip')
-                .style('opacity', 0);
-            
-            tooltip.transition()
-                .duration(200)
-                .style('opacity', 0.9);
-            
-            tooltip.html(`
-                <strong>${eventConfig.name}</strong><br/>
-                Location: ${event.location.name}<br/>
-                Time: ${event.timestamp.toLocaleTimeString()}<br/>
-                Magnitude: ${event.magnitude.toFixed(1)}<br/>
-                ${event.description}
-            `)
-            .style('left', (d3.event.pageX + 10) + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
-        })
-        .on('mouseout', () => {
-            d3.selectAll('.live-tooltip').remove();
-        });
+        // Tooltip (with touch support)
+        if (this.isMobile) {
+            marker.on('touchstart', (event) => {
+                event.preventDefault();
+                const tooltip = d3.select('body').append('div')
+                    .attr('class', 'live-tooltip')
+                    .style('opacity', 0);
+                
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0.9);
+                
+                tooltip.html(`
+                    <strong>${eventConfig.name}</strong><br/>
+                    Location: ${event.location.name}<br/>
+                    Time: ${event.timestamp.toLocaleTimeString()}<br/>
+                    Magnitude: ${event.magnitude.toFixed(1)}<br/>
+                    ${event.description}
+                `)
+                .style('left', (event.touches[0].pageX + 10) + 'px')
+                .style('top', (event.touches[0].pageY - 28) + 'px');
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    tooltip.remove();
+                }, 3000);
+            });
+        } else {
+            marker.on('mouseover', () => {
+                const tooltip = d3.select('body').append('div')
+                    .attr('class', 'live-tooltip')
+                    .style('opacity', 0);
+                
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0.9);
+                
+                tooltip.html(`
+                    <strong>${eventConfig.name}</strong><br/>
+                    Location: ${event.location.name}<br/>
+                    Time: ${event.timestamp.toLocaleTimeString()}<br/>
+                    Magnitude: ${event.magnitude.toFixed(1)}<br/>
+                    ${event.description}
+                `)
+                .style('left', (d3.event.pageX + 10) + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on('mouseout', () => {
+                d3.selectAll('.live-tooltip').remove();
+            });
+        }
         
-        // Fade out after 30 seconds
+        // Fade out after shorter time on mobile to prevent overcrowding
+        const fadeOutTime = this.isMobile ? 15000 : 30000;
         setTimeout(() => {
             icon.transition()
                 .duration(1000)
                 .style('opacity', 0)
                 .remove();
-        }, 30000);
+        }, fadeOutTime);
     }
     
     updateHeatMap(event) {
@@ -1105,6 +1141,20 @@ window.cleanupLiveTracker = function() {
     }
 };
 
+// Handle window resize
+let liveTrackerResizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(liveTrackerResizeTimeout);
+    liveTrackerResizeTimeout = setTimeout(() => {
+        if (window.liveTracker && window.liveTracker.isActive) {
+            // Reinitialize map with new dimensions
+            window.liveTracker.cleanup();
+            window.liveTracker = new LiveTracker();
+            window.liveTracker.init();
+        }
+    }, 250);
+});
+
 // Add CSS for live tracker
 const style = document.createElement('style');
 style.textContent = `
@@ -1466,6 +1516,85 @@ style.textContent = `
 .predictive-panel h3 {
     color: var(--warning-color);
     margin-bottom: 15px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .tracker-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .map-section {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    
+    #live-map {
+        height: 300px;
+    }
+    
+    .alert-panel {
+        grid-column: 1;
+        grid-row: auto;
+        max-height: 250px;
+    }
+    
+    .event-timeline {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    
+    .stats-dashboard {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .consciousness-monitor {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    
+    .sentiment-analysis {
+        grid-column: 1;
+    }
+    
+    .predictive-panel {
+        grid-column: 1;
+    }
+    
+    .map-overlays {
+        position: static;
+        margin-top: 10px;
+        background: rgba(0, 0, 0, 0.9);
+    }
+    
+    .event-filters {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+    
+    .stat-value {
+        font-size: 1.5em;
+    }
+    
+    .tracker-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .tracker-status {
+        font-size: 0.8em;
+    }
 }
 
 .prediction {
