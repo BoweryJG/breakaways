@@ -50,11 +50,21 @@ function initMoonControl() {
     
     container.innerHTML = '';
     
+    // Create description panel first
+    createLunarDescriptionPanel(container);
+    
     // Create visualization container
     const vizContainer = document.createElement('div');
     vizContainer.id = 'moon-viz-container';
-    vizContainer.style.cssText = 'width: 100%; height: 600px; position: relative;';
+    vizContainer.style.cssText = 'width: 100%; height: 600px; position: relative; background: #000511; border: 1px solid #00ffcc; border-radius: 5px; margin: 20px 0;';
     container.appendChild(vizContainer);
+    
+    // Add loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'moon-loading';
+    loadingDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #00ffcc; font-size: 18px; text-align: center;';
+    loadingDiv.innerHTML = '<div>Initializing Lunar Control System...</div><div style="margin-top: 10px; font-size: 14px;">Loading 3D visualization</div>';
+    vizContainer.appendChild(loadingDiv);
     
     // Create control panel
     createLunarControls(container);
@@ -73,12 +83,32 @@ function initMoonControl() {
     
     // Start animation
     animateMoon();
+    
+    // Remove loading indicator after a short delay
+    setTimeout(() => {
+        const loadingDiv = document.getElementById('moon-loading');
+        if (loadingDiv) {
+            loadingDiv.style.opacity = '0';
+            setTimeout(() => loadingDiv.remove(), 500);
+        }
+    }, 1000);
 }
 
 function setupMoonScene(container) {
     const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
     const width = container.clientWidth;
     const height = container.clientHeight;
+    
+    // Check for WebGL support
+    if (!window.WebGLRenderingContext) {
+        container.innerHTML = `
+            <div style="color: #ff0000; text-align: center; padding: 50px;">
+                <h3>WebGL Not Supported</h3>
+                <p>This visualization requires WebGL support. Please use a modern browser.</p>
+            </div>
+        `;
+        return;
+    }
     
     // Scene
     moonScene = new THREE.Scene();
@@ -721,6 +751,58 @@ function createStarfieldSkybox() {
     
     skyboxMesh = new THREE.Mesh(geometry, material);
     moonScene.add(skyboxMesh);
+}
+
+function createLunarDescriptionPanel(container) {
+    const descPanel = document.createElement('div');
+    descPanel.style.cssText = `
+        background: rgba(10, 25, 41, 0.95);
+        border: 1px solid #00ffcc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    `;
+    
+    descPanel.innerHTML = `
+        <h3 style="color: #00ffcc; margin-top: 0;">What You're Seeing in the 3D Visualization</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; color: #ffffff; margin-bottom: 20px;">
+            <div>
+                <h4 style="color: #ff00ff;">The System</h4>
+                <ul style="font-size: 14px; line-height: 1.6;">
+                    <li><strong style="color: #00aaff;">Blue Sphere (Large):</strong> Earth</li>
+                    <li><strong style="color: #cccccc;">Gray Sphere (Small):</strong> Moon (to scale - 27% of Earth)</li>
+                    <li><strong style="color: #ffcc00;">Yellow Dashed Line:</strong> Distance measurement (384,400 km)</li>
+                    <li><strong style="color: #9370db;">Purple Grid:</strong> Gravitational field lines</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 style="color: #ff00ff;">Interactive Elements</h4>
+                <ul style="font-size: 14px; line-height: 1.6;">
+                    <li><strong style="color: #ff0000;">Red Markers:</strong> Lunar base locations</li>
+                    <li><strong style="color: #00ffcc;">Cyan Beams:</strong> Energy connections to Earth sites</li>
+                    <li><strong style="color: #ff00ff;">Purple Pulses:</strong> Tidal force visualization</li>
+                    <li><strong style="color: #ffffff;">White Points:</strong> Lagrange points (L1-L5)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="background: rgba(255, 0, 255, 0.1); padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+            <h4 style="color: #ff00ff; margin-top: 0;">Navigation Instructions</h4>
+            <p style="margin: 0; color: #ffffff; font-size: 14px;">
+                <strong>Mouse/Touch:</strong> Click and drag to rotate view | Scroll/Pinch to zoom<br>
+                <strong>Right-click drag:</strong> Pan the camera view<br>
+                <strong>View Buttons:</strong> Switch between Earth and Moon perspectives
+            </p>
+        </div>
+        
+        <div style="color: #ffcc00; font-size: 13px; text-align: center;">
+            If the 3D visualization doesn't appear, try refreshing the page or checking WebGL support in your browser.
+        </div>
+    `;
+    
+    container.appendChild(descPanel);
 }
 
 function createScaleIndicator() {
