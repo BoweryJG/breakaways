@@ -807,6 +807,61 @@ function drawEnergyFlow(g, projection) {
 
 // Draw enhanced northeastern US detail
 function drawNortheastDetail(g, projection) {
+    // Add scale legend for this region
+    const scaleLegend = g.append('g')
+        .attr('class', 'ne-scale-legend')
+        .attr('transform', 'translate(20, 20)');
+    
+    // Scale legend background
+    scaleLegend.append('rect')
+        .attr('x', -10)
+        .attr('y', -10)
+        .attr('width', 180)
+        .attr('height', 120)
+        .attr('fill', 'rgba(10, 25, 41, 0.9)')
+        .attr('stroke', '#00ffcc')
+        .attr('stroke-width', 1);
+    
+    // Title
+    scaleLegend.append('text')
+        .attr('x', 5)
+        .attr('y', 5)
+        .text('Northeast Energy Grid')
+        .style('fill', '#00ffcc')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold');
+    
+    // Power scale explanation
+    scaleLegend.append('text')
+        .attr('x', 5)
+        .attr('y', 25)
+        .text('Power Levels (1-10):')
+        .style('fill', '#ffffff')
+        .style('font-size', '12px');
+    
+    const powerScaleData = [
+        { level: '1-3', desc: 'Minimal', color: '#4a5568' },
+        { level: '4-6', desc: 'Moderate', color: '#00aaff' },
+        { level: '7-8', desc: 'High', color: '#ffcc00' },
+        { level: '9-10', desc: 'Critical', color: '#ff00ff' }
+    ];
+    
+    powerScaleData.forEach((item, i) => {
+        const y = 40 + (i * 15);
+        scaleLegend.append('circle')
+            .attr('cx', 10)
+            .attr('cy', y)
+            .attr('r', 4)
+            .attr('fill', item.color);
+        
+        scaleLegend.append('text')
+            .attr('x', 20)
+            .attr('y', y + 4)
+            .text(`${item.level}: ${item.desc}`)
+            .style('fill', '#cccccc')
+            .style('font-size', '10px');
+    });
+    
     // Major northeastern US locations
     const neLocations = [
         // Major cities
@@ -871,21 +926,30 @@ function drawNortheastDetail(g, projection) {
 
         // Different markers for different types
         if (loc.type === 'city') {
-            // City marker
+            // City marker - size based on power level
+            const baseSize = 4;
+            const powerScale = d3.scaleLinear()
+                .domain([1, 10])
+                .range([baseSize, baseSize * 3]);
+            
             locGroup.append('circle')
-                .attr('r', Math.sqrt(loc.power) * 2)
-                .attr('fill', '#00aaff')
+                .attr('r', powerScale(loc.power))
+                .attr('fill', loc.power >= 9 ? '#ff00ff' : 
+                           loc.power >= 7 ? '#ffcc00' : 
+                           loc.power >= 4 ? '#00aaff' : '#4a5568')
                 .attr('stroke', '#00ffcc')
                 .attr('stroke-width', 1)
                 .attr('opacity', 0.8);
                 
-            // Add population indicator
-            locGroup.append('circle')
-                .attr('r', Math.sqrt(loc.population / 100000))
-                .attr('fill', 'none')
-                .attr('stroke', '#00aaff')
-                .attr('stroke-width', 0.5)
-                .attr('opacity', 0.5);
+            // Add outer ring for population (optional, subtle)
+            if (loc.population > 1000000) {
+                locGroup.append('circle')
+                    .attr('r', powerScale(loc.power) + 3)
+                    .attr('fill', 'none')
+                    .attr('stroke', '#00aaff')
+                    .attr('stroke-width', 0.5)
+                    .attr('opacity', 0.3);
+            }
                 
         } else if (loc.type === 'vortex') {
             // Vortex marker - spiral pattern
@@ -1021,6 +1085,45 @@ function drawNortheastDetail(g, projection) {
         .style('filter', 'drop-shadow(0 0 3px #228b22)')
         .attr('class', 'appalachian-spine');
 
+    // Add info box for Northeast region
+    const infoBox = g.append('g')
+        .attr('class', 'ne-info-box')
+        .attr('transform', `translate(${projection([-70, 44])[0]}, ${projection([-70, 44])[1]})`);
+    
+    infoBox.append('rect')
+        .attr('x', -80)
+        .attr('y', -40)
+        .attr('width', 160)
+        .attr('height', 80)
+        .attr('fill', 'rgba(10, 25, 41, 0.9)')
+        .attr('stroke', '#9370db')
+        .attr('stroke-width', 1);
+    
+    infoBox.append('text')
+        .attr('x', -70)
+        .attr('y', -20)
+        .text('Northeast Anomaly Zone')
+        .style('fill', '#ff00ff')
+        .style('font-size', '12px')
+        .style('font-weight', 'bold');
+    
+    const infoText = [
+        'High concentration of:',
+        '• Missing 411 cases',
+        '• Underground facilities',
+        '• Energy vortexes',
+        '• Ancient stone sites'
+    ];
+    
+    infoText.forEach((text, i) => {
+        infoBox.append('text')
+            .attr('x', -70)
+            .attr('y', -5 + (i * 12))
+            .text(text)
+            .style('fill', '#cccccc')
+            .style('font-size', '10px');
+    });
+    
     // Add regional ley lines
     const regionalLeyLines = [
         {start: [-71.0589, 42.3601], end: [-74.0060, 40.7128], name: "Boston-NYC Line", frequency: 8.3},

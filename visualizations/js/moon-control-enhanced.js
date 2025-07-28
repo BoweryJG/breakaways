@@ -135,6 +135,12 @@ function setupMoonScene(container) {
 }
 
 function createEarthMoonSystem() {
+    // Add scale indicator
+    createScaleIndicator();
+    
+    // Add distance measurement
+    createDistanceMeasurement();
+    
     // Create Earth
     const earthGeometry = new THREE.SphereGeometry(100, 64, 64);
     const earthMaterial = new THREE.ShaderMaterial({
@@ -717,6 +723,81 @@ function createStarfieldSkybox() {
     moonScene.add(skyboxMesh);
 }
 
+function createScaleIndicator() {
+    // Create scale legend
+    const scaleLegend = document.createElement('div');
+    scaleLegend.style.cssText = `
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(10, 25, 41, 0.9);
+        border: 1px solid #00ffcc;
+        padding: 15px;
+        color: #ffffff;
+        font-family: monospace;
+        font-size: 12px;
+        border-radius: 5px;
+    `;
+    
+    scaleLegend.innerHTML = `
+        <h4 style="color: #00ffcc; margin: 0 0 10px 0;">Scale Reference</h4>
+        <div style="margin-bottom: 5px;">
+            <span style="color: #00aaff;">Earth Diameter:</span> 12,742 km
+        </div>
+        <div style="margin-bottom: 5px;">
+            <span style="color: #cccccc;">Moon Diameter:</span> 3,475 km (27% of Earth)
+        </div>
+        <div style="margin-bottom: 5px;">
+            <span style="color: #ffcc00;">Distance:</span> 384,400 km avg
+        </div>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #444;">
+            <span style="color: #ff00ff;">Current View:</span> 1:1000 scale
+        </div>
+    `;
+    
+    document.getElementById('moon-viz-container').appendChild(scaleLegend);
+}
+
+function createDistanceMeasurement() {
+    // Create distance line between Earth and Moon
+    const points = [
+        new THREE.Vector3(-200, 0, 0), // Earth position
+        new THREE.Vector3(184, 0, 0)   // Moon position (to scale)
+    ];
+    
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    const lineMaterial = new THREE.LineDashedMaterial({
+        color: 0xffcc00,
+        dashSize: 5,
+        gapSize: 5,
+        opacity: 0.5,
+        transparent: true
+    });
+    
+    const distanceLine = new THREE.Line(lineGeometry, lineMaterial);
+    distanceLine.computeLineDistances();
+    moonScene.add(distanceLine);
+    
+    // Add distance label
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 64;
+    
+    context.font = '20px Arial';
+    context.fillStyle = '#ffcc00';
+    context.textAlign = 'center';
+    context.fillText('384,400 km', 128, 32);
+    context.fillText('(30 Earth diameters)', 128, 52);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(100, 25, 1);
+    sprite.position.set(-8, 20, 0);
+    moonScene.add(sprite);
+}
+
 function createLunarControls(container) {
     const controlsDiv = document.createElement('div');
     controlsDiv.style.cssText = `
@@ -729,13 +810,26 @@ function createLunarControls(container) {
     
     controlsDiv.innerHTML = `
         <h3 style="color: #00ffcc; margin-top: 0;">Lunar Control Matrix</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+        
+        <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 0, 255, 0.1); border-radius: 5px;">
+            <p style="margin: 0; color: #ffffff; font-size: 14px;">
+                The Moon's position and properties are impossibly precise for natural formation. 
+                View controls allow exploration of gravitational anomalies and energy connections.
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
             <button class="lunar-control" onclick="toggleGravField()">Toggle Gravitational Field</button>
             <button class="lunar-control" onclick="toggleTidalForces()">Toggle Tidal Forces</button>
             <button class="lunar-control" onclick="toggleEnergyBeams()">Toggle Energy Beams</button>
             <button class="lunar-control" onclick="focusOnBase()">Focus on Lunar Bases</button>
             <button class="lunar-control" onclick="showLagrangeInfo()">Lagrange Point Analysis</button>
             <button class="lunar-control" onclick="toggleLibration()">Toggle Libration</button>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            <button class="lunar-control special" onclick="viewFromEarth()">View from Earth</button>
+            <button class="lunar-control special" onclick="viewFromMoon()">View from Moon</button>
         </div>
         <div id="lunar-info" style="margin-top: 20px; color: #ccc;">
             <h4>Tidal Influence Metrics</h4>
@@ -778,6 +872,16 @@ function createLunarControls(container) {
             color: #0a0a0a;
             box-shadow: 0 0 20px #00ffcc;
         }
+        .lunar-control.special {
+            background: rgba(255, 0, 255, 0.1);
+            border-color: #ff00ff;
+            color: #ff00ff;
+        }
+        .lunar-control.special:hover {
+            background: #ff00ff;
+            color: #0a0a0a;
+            box-shadow: 0 0 20px #ff00ff;
+        }
     `;
     document.head.appendChild(style);
 }
@@ -813,6 +917,60 @@ window.focusOnBase = function() {
     
     moonCamera.position.lerp(targetPosition, 0.1);
     moonControls.target.copy(moonSphere.position);
+};
+
+window.viewFromEarth = function() {
+    // Animate camera to Earth perspective
+    const targetPosition = new THREE.Vector3(-350, 50, 200);
+    const targetLookAt = moonSphere.position.clone();
+    
+    const startPosition = moonCamera.position.clone();
+    const startTime = Date.now();
+    const duration = 2000;
+    
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+        
+        moonCamera.position.lerpVectors(startPosition, targetPosition, eased);
+        moonControls.target.copy(targetLookAt);
+        moonControls.update();
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+    animate();
+};
+
+window.viewFromMoon = function() {
+    // Animate camera to Moon perspective
+    const targetPosition = moonSphere.position.clone();
+    targetPosition.x += 100;
+    targetPosition.y += 50;
+    targetPosition.z += 50;
+    
+    const targetLookAt = earthSphere.position.clone();
+    
+    const startPosition = moonCamera.position.clone();
+    const startTime = Date.now();
+    const duration = 2000;
+    
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        
+        moonCamera.position.lerpVectors(startPosition, targetPosition, eased);
+        moonControls.target.copy(targetLookAt);
+        moonControls.update();
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+    animate();
 };
 
 window.showLagrangeInfo = function() {

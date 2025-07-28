@@ -69,7 +69,7 @@ function debugVisualization(containerId, vizName) {
 }
 
 // Override init functions with debug versions
-window.debugMode = true;
+window.debugMode = false;
 
 window.initPopulationGeneticsDebug = function() {
     debugVisualization('population-genetics-container', 'Population Genetics');

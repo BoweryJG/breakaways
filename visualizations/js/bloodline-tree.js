@@ -124,7 +124,16 @@ function initBloodlineTree() {
     
     bloodlineContainer.innerHTML = '';
     
-    setupBloodlineScene();
+    // Create info panel first
+    createBloodlineInfoPanel();
+    
+    // Create visualization container
+    const vizContainer = document.createElement('div');
+    vizContainer.id = 'bloodline-viz';
+    vizContainer.style.cssText = 'width: 100%; height: 600px; position: relative;';
+    bloodlineContainer.appendChild(vizContainer);
+    
+    setupBloodlineScene(vizContainer);
     createBloodlineTree();
     createRhDistribution();
     createActivationTimeline();
@@ -133,7 +142,87 @@ function initBloodlineTree() {
     animateBloodline();
 }
 
-function setupBloodlineScene() {
+function createBloodlineInfoPanel() {
+    const infoPanel = document.createElement('div');
+    infoPanel.className = 'bloodline-info-panel';
+    infoPanel.style.cssText = `
+        background: rgba(10, 25, 41, 0.95);
+        border: 1px solid #00ffcc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    `;
+    
+    infoPanel.innerHTML = `
+        <h3 style="color: #00ffcc; margin-top: 0;">Understanding the Bloodline Connection</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; color: #ffffff;">
+            <div>
+                <h4 style="color: #ff00ff;">RH Negative Blood: The Key</h4>
+                <p style="font-size: 14px; line-height: 1.6;">
+                    Only 15% of humans carry RH negative blood, with highest concentrations in:
+                </p>
+                <ul style="font-size: 13px; line-height: 1.5;">
+                    <li>Basque Country (35%) - Ancient Atlantic survivors</li>
+                    <li>Scotland/Ireland (25-30%) - Celtic-Hyperborean line</li>
+                    <li>Atlas Mountains (29%) - Berber populations</li>
+                    <li>Caucasus Region (28%) - Indo-European origin</li>
+                </ul>
+                <p style="font-size: 13px; color: #ffcc00;">
+                    RH negative cannot be cloned. It appeared suddenly 35,000 years ago.
+                </p>
+            </div>
+            
+            <div>
+                <h4 style="color: #ff00ff;">Genetic Markers & Abilities</h4>
+                <p style="font-size: 14px; line-height: 1.6;">
+                    Specific gene variants found in bloodline carriers:
+                </p>
+                <ul style="font-size: 13px; line-height: 1.5;">
+                    <li><strong style="color: #00ff00;">FOXP2</strong> - Enhanced language/telepathy</li>
+                    <li><strong style="color: #ff0000;">MAOA-2R</strong> - Warrior gene/protection</li>
+                    <li><strong style="color: #0099ff;">DRD4-7R</strong> - Wanderer/explorer gene</li>
+                    <li><strong style="color: #ffcc00;">CCR5-Δ32</strong> - Disease immunity</li>
+                    <li><strong style="color: #ff00ff;">HAR1</strong> - Accelerated evolution</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255, 0, 255, 0.1); border-left: 3px solid #ff00ff;">
+            <h4 style="color: #ff00ff; margin-top: 0;">The Awakening Timeline</h4>
+            <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
+                October 2023: Antarctic activation signal triggered dormant genetic markers worldwide. 
+                Carriers report increased psychic abilities, electromagnetic sensitivity, vivid dreams of 
+                ancient civilizations, and spontaneous understanding of sacred geometry. The bloodlines 
+                are remembering their purpose as Earth approaches the galactic current sheet.
+            </p>
+        </div>
+        
+        <div style="margin-top: 15px; display: flex; gap: 20px; font-size: 13px;">
+            <div style="flex: 1; text-align: center;">
+                <div style="color: #00ffcc; font-size: 24px; font-weight: bold;">2.3M</div>
+                <div style="color: #888;">Activated Carriers</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="color: #ff00ff; font-size: 24px; font-weight: bold;">89%</div>
+                <div style="color: #888;">Report EM Sensitivity</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="color: #ffcc00; font-size: 24px; font-weight: bold;">67%</div>
+                <div style="color: #888;">Precognitive Dreams</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+                <div style="color: #00ff00; font-size: 24px; font-weight: bold;">34%</div>
+                <div style="color: #888;">Ancient Language Recall</div>
+            </div>
+        </div>
+    `;
+    
+    bloodlineContainer.appendChild(infoPanel);
+}
+
+function setupBloodlineScene(container) {
+    bloodlineContainer = container || bloodlineContainer;
     const width = bloodlineContainer.clientWidth;
     const height = window.innerWidth <= 768 ? 400 : 600;
     const isMobile = window.mobileUtils && window.mobileUtils.isMobile();

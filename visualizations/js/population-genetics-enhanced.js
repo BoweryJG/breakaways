@@ -87,7 +87,7 @@ const geneticData = {
 };
 
 function initPopulationGenetics() {
-    const container = document.getElementById('population-container');
+    const container = document.getElementById('population-genetics-container');
     if (!container) return;
     
     container.innerHTML = '';

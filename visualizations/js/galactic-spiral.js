@@ -39,6 +39,9 @@ function initTimeline() {
     // Add catastrophe zones
     addCatastropheZones(g);
     
+    // Add explanatory legend
+    addTimelineLegend(svg, width, height);
+    
     // Add interactive controls
     setupTimelineControls(g, spiral, timelineData, currentIndicator);
     
@@ -300,6 +303,85 @@ function addCurrentPosition(g, data) {
     return indicator;
 }
 
+function addTimelineLegend(svg, width, height) {
+    const legend = svg.append('g')
+        .attr('class', 'timeline-legend')
+        .attr('transform', `translate(${width - 220}, 20)`);
+    
+    // Legend background
+    legend.append('rect')
+        .attr('x', -10)
+        .attr('y', -10)
+        .attr('width', 210)
+        .attr('height', 240)
+        .attr('fill', 'rgba(10, 25, 41, 0.9)')
+        .attr('stroke', '#00ffcc')
+        .attr('stroke-width', 1);
+    
+    // Title
+    legend.append('text')
+        .attr('x', 5)
+        .attr('y', 5)
+        .text('Galactic Cycle Guide')
+        .style('fill', '#00ffcc')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold');
+    
+    // Explanation text
+    const explanations = [
+        'Reading the Spiral:',
+        '• Time flows outward',
+        '• Each ring = 12,000 years',
+        '• Purple rings = danger zones',
+        '',
+        'Event Types:'
+    ];
+    
+    explanations.forEach((text, i) => {
+        legend.append('text')
+            .attr('x', 5)
+            .attr('y', 25 + (i * 15))
+            .text(text)
+            .style('fill', '#ffffff')
+            .style('font-size', '11px')
+            .style('font-weight', text.includes(':') ? 'bold' : 'normal');
+    });
+    
+    // Event type legend
+    const eventTypes = [
+        { type: 'catastrophe', color: '#ff0000', label: 'Catastrophe' },
+        { type: 'achievement', color: '#9900ff', label: 'Achievement' },
+        { type: 'activation', color: '#00ffcc', label: 'Activation' },
+        { type: 'current', color: '#ff0000', label: 'Current Position' }
+    ];
+    
+    eventTypes.forEach((item, i) => {
+        const y = 120 + (i * 20);
+        legend.append('circle')
+            .attr('cx', 10)
+            .attr('cy', y)
+            .attr('r', 5)
+            .attr('fill', item.color)
+            .attr('opacity', 0.8);
+        
+        legend.append('text')
+            .attr('x', 20)
+            .attr('y', y + 4)
+            .text(item.label)
+            .style('fill', '#cccccc')
+            .style('font-size', '10px');
+    });
+    
+    // Current cycle info
+    legend.append('text')
+        .attr('x', 5)
+        .attr('y', 210)
+        .text('Cycle Progress: 97%')
+        .style('fill', '#ff00ff')
+        .style('font-size', '12px')
+        .style('font-weight', 'bold');
+}
+
 function addCatastropheZones(g) {
     // Mark the catastrophe crossing zones
     const catastropheYears = [-24000, -12800, 0, 12000, 24000];
@@ -344,8 +426,27 @@ function setupTimelineControls(g, spiral, data, indicator) {
     const yearDisplay = document.getElementById('timeline-year');
     const playButton = document.getElementById('play-timeline');
     
+    // Add speed control
+    const controlContainer = document.querySelector('.timeline-controls');
+    const speedControl = document.createElement('div');
+    speedControl.innerHTML = `
+        <label style="color: #00ffcc; margin-left: 20px;">
+            Speed: <select id="timeline-speed" style="background: #1a2332; color: #00ffcc; border: 1px solid #00ffcc;">
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+            </select>
+        </label>
+        <button id="step-timeline" style="margin-left: 10px; padding: 5px 10px; background: #1a2332; color: #00ffcc; border: 1px solid #00ffcc; cursor: pointer;">Step →</button>
+    `;
+    speedControl.style.display = 'inline-block';
+    controlContainer.appendChild(speedControl);
+    
     let playing = false;
     let currentYearIndex = data.findIndex(d => d.year === 2025);
+    let playSpeed = 1;
     
     // Update slider
     slider.min = 0;
@@ -356,6 +457,21 @@ function setupTimelineControls(g, spiral, data, indicator) {
         const index = parseInt(e.target.value);
         const yearData = data[index];
         updateTimelinePosition(yearData, indicator, yearDisplay);
+    });
+    
+    // Speed control
+    const speedSelect = document.getElementById('timeline-speed');
+    speedSelect.addEventListener('change', (e) => {
+        playSpeed = parseFloat(e.target.value);
+    });
+    
+    // Step button
+    const stepButton = document.getElementById('step-timeline');
+    stepButton.addEventListener('click', () => {
+        currentYearIndex = (currentYearIndex + 1) % data.length;
+        slider.value = currentYearIndex;
+        updateTimelinePosition(data[currentYearIndex], indicator, yearDisplay);
+        highlightCurrentEvent(data[currentYearIndex]);
     });
     
     playButton.addEventListener('click', () => {
@@ -373,8 +489,27 @@ function setupTimelineControls(g, spiral, data, indicator) {
         currentYearIndex = (currentYearIndex + 1) % data.length;
         slider.value = currentYearIndex;
         updateTimelinePosition(data[currentYearIndex], indicator, yearDisplay);
+        highlightCurrentEvent(data[currentYearIndex]);
         
-        setTimeout(animateTimeline, 100);
+        // Slower base speed (500ms) modified by speed control
+        setTimeout(animateTimeline, 500 / playSpeed);
+    }
+    
+    function highlightCurrentEvent(yearData) {
+        // Remove previous highlights
+        d3.selectAll('.timeline-marker').classed('highlighted', false);
+        
+        // Highlight current event
+        d3.selectAll('.timeline-marker')
+            .filter(d => d.year === yearData.year)
+            .classed('highlighted', true)
+            .select('circle')
+            .transition()
+            .duration(300)
+            .attr('r', d => d.importance)
+            .transition()
+            .duration(300)
+            .attr('r', d => d.importance / 2);
     }
 }
 
