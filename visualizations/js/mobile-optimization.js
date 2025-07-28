@@ -143,9 +143,18 @@ function initMobileOptimizations() {
         lastTouchEnd = now;
     }, { passive: false });
     
-    // Add pull-to-refresh prevention
+    // Add pull-to-refresh prevention only at the very top
+    let startY = 0;
+    document.body.addEventListener('touchstart', (event) => {
+        startY = event.touches[0].clientY;
+    }, { passive: true });
+    
     document.body.addEventListener('touchmove', (event) => {
-        if (event.touches[0].clientY > 0) {
+        // Only prevent pull-to-refresh when at the very top and pulling down
+        const currentY = event.touches[0].clientY;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop === 0 && currentY > startY) {
             event.preventDefault();
         }
     }, { passive: false });
