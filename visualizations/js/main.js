@@ -102,27 +102,6 @@ function switchView(viewName) {
     // Debug: List all available init functions
     console.log('Available functions:', Object.keys(window).filter(key => key.startsWith('init')));
     
-    if (initFunc && typeof window[initFunc] === 'function') {
-        console.log(`Calling ${initFunc}...`);
-        
-        // Check if Three.js is required and loaded for 3D visualizations
-        const requires3D = ['bloodlines', 'population-genetics', 'underground', 'moon', 'convergence', 'evidence'].includes(viewName);
-        if (requires3D && typeof THREE === 'undefined') {
-            console.log('Waiting for Three.js to load...');
-            // Wait for Three.js to load
-            const checkThree = setInterval(() => {
-                if (typeof THREE !== 'undefined') {
-                    clearInterval(checkThree);
-                    console.log('Three.js loaded, initializing visualization...');
-                    executeVisualization();
-                }
-            }, 100);
-            return;
-        }
-        
-        executeVisualization();
-    }
-    
     function executeVisualization() {
         // Clean up previous 3D scenes if needed
         if (viewName === 'underground' && typeof window.cleanupEarth3d === 'function') {
@@ -153,6 +132,27 @@ function switchView(viewName) {
                 window[debugFunc]();
             }
         }
+    }
+    
+    if (initFunc && typeof window[initFunc] === 'function') {
+        console.log(`Calling ${initFunc}...`);
+        
+        // Check if Three.js is required and loaded for 3D visualizations
+        const requires3D = ['bloodlines', 'population-genetics', 'underground', 'moon', 'convergence', 'evidence'].includes(viewName);
+        if (requires3D && typeof THREE === 'undefined') {
+            console.log('Waiting for Three.js to load...');
+            // Wait for Three.js to load
+            const checkThree = setInterval(() => {
+                if (typeof THREE !== 'undefined') {
+                    clearInterval(checkThree);
+                    console.log('Three.js loaded, initializing visualization...');
+                    executeVisualization();
+                }
+            }, 100);
+            return;
+        }
+        
+        executeVisualization();
     } else {
         console.warn(`No init function found for view: ${viewName}`);
         
