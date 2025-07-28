@@ -232,9 +232,6 @@ function switchView(viewName) {
             window.cleanupLiveTracker();
         }
     }
-    } // End of executeVisualization function
-    }
-}
 
 function hideLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
