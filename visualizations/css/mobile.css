@@ -24,19 +24,19 @@ body {
     }
     
     h1 {
-        font-size: 1.5em;
+        font-size: calc(var(--fs-display) * 0.7);
         margin-bottom: 5px;
     }
     
     .subtitle {
-        font-size: 0.9em;
+        font-size: var(--fs-base);
     }
     
     /* Status bar */
     .status-bar {
         flex-direction: column;
         gap: 5px;
-        font-size: 0.8em;
+        font-size: var(--fs-xs);
     }
     
     .status-item {
@@ -55,7 +55,7 @@ body {
     }
     
     .nav-btn {
-        font-size: 0.75em;
+        font-size: var(--fs-xs);
         padding: 6px 10px;
         margin: 0 3px;
         display: inline-block;
@@ -93,7 +93,7 @@ body {
     }
     
     .controls label {
-        font-size: 0.8em;
+        font-size: var(--fs-xs);
         margin: 3px;
     }
     
@@ -118,7 +118,7 @@ body {
     .tidal-effects,
     .discovery-timeline {
         padding: 10px;
-        font-size: 0.85em;
+        font-size: var(--fs-sm);
     }
     
     /* Genetics info grid */
@@ -172,11 +172,11 @@ body {
 /* Very small screens */
 @media (max-width: 480px) {
     h1 {
-        font-size: 1.2em;
+        font-size: calc(var(--fs-display) * 0.6);
     }
     
     .nav-btn {
-        font-size: 0.7em;
+        font-size: calc(var(--fs-xs) * 0.9);
         padding: 5px 8px;
     }
     
@@ -190,7 +190,7 @@ body {
     }
     
     .stat-number {
-        font-size: 1.5em;
+        font-size: calc(var(--fs-2xl) * 0.8);
     }
     
     /* Hide less critical elements */
@@ -237,7 +237,7 @@ body {
     }
     
     h1 {
-        font-size: 1.3em;
+        font-size: calc(var(--fs-display) * 0.65);
         margin: 0;
     }
     
@@ -247,7 +247,7 @@ body {
     
     .status-bar {
         flex-direction: row;
-        font-size: 0.7em;
+        font-size: calc(var(--fs-xs) * 0.9);
     }
     
     #world-map-container,
