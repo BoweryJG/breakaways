@@ -3,8 +3,23 @@
 function initTimeline() {
     const container = document.getElementById('spiral-timeline-container');
     const isMobile = window.mobileUtils && window.mobileUtils.isMobile();
+    const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
+    
+    // Better responsive sizing
     const width = container.clientWidth;
-    const height = isMobile ? 400 : 600;
+    let height;
+    
+    if (window.innerWidth < 768) {
+        // Phone
+        height = Math.min(400, window.innerHeight * 0.6);
+    } else if (isTablet) {
+        // iPad/Tablet - use more vertical space
+        height = Math.min(window.innerHeight * 0.7, 800);
+    } else {
+        // Desktop
+        height = 600;
+    }
+    
     const centerX = width / 2;
     const centerY = height / 2;
     
@@ -160,10 +175,17 @@ function generateTimelineData() {
         {year: 2040, event: "New Earth Configuration", type: "future_achievement", importance: 10}
     ];
     
+    // Scale radius based on viewport
+    const maxRadius = Math.min(
+        document.getElementById('spiral-timeline-container').clientWidth / 2 - 50,
+        document.getElementById('spiral-timeline-container').clientHeight / 2 - 50,
+        250
+    );
+    
     return events.map(e => ({
         ...e,
         angle: (e.year + 50000) / 50000 * Math.PI * 20, // 20 rotations for 50,000 years
-        radius: Math.sqrt((e.year + 50000) / 50000) * 250 // Sqrt for tighter inner spiral
+        radius: Math.sqrt((e.year + 50000) / 50000) * maxRadius // Sqrt for tighter inner spiral
     }));
 }
 
@@ -191,6 +213,9 @@ function createSpiral(g, data) {
         radius: Math.sqrt((year + 50000) / 50000) * 250
     }));
     
+    // Get max radius from data for consistent scaling
+    const maxRadius = data[data.length - 1].radius;
+    
     g.selectAll('.cycle-ring')
         .data(cycleData)
         .enter()
@@ -198,7 +223,7 @@ function createSpiral(g, data) {
         .attr('class', 'cycle-ring')
         .attr('cx', 0)
         .attr('cy', 0)
-        .attr('r', d => d.radius)
+        .attr('r', d => Math.sqrt((d.year + 50000) / 50000) * maxRadius)
         .attr('fill', 'none')
         .attr('stroke', '#ff00ff')
         .attr('stroke-width', 1)
@@ -304,9 +329,25 @@ function addCurrentPosition(g, data) {
 }
 
 function addTimelineLegend(svg, width, height) {
+    // Position legend better for tablets
+    const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
+    const isMobile = window.innerWidth < 768;
+    
+    let legendX, legendY;
+    if (isMobile) {
+        legendX = 10;
+        legendY = height - 250;
+    } else if (isTablet) {
+        legendX = width - 220;
+        legendY = 10;
+    } else {
+        legendX = width - 220;
+        legendY = 20;
+    }
+    
     const legend = svg.append('g')
         .attr('class', 'timeline-legend')
-        .attr('transform', `translate(${width - 220}, 20)`);
+        .attr('transform', `translate(${legendX}, ${legendY})`);
     
     // Legend background
     legend.append('rect')
@@ -386,11 +427,15 @@ function addCatastropheZones(g) {
     // Mark the catastrophe crossing zones
     const catastropheYears = [-24000, -12800, 0, 12000, 24000];
     
+    // Get max radius from parent group's data
+    const maxRadius = g.selectAll('.timeline-marker').data()[0] ? 
+        g.selectAll('.timeline-marker').data()[g.selectAll('.timeline-marker').data().length - 1].radius : 250;
+    
     catastropheYears.forEach(year => {
         if (year > 2040) return; // Don't show beyond our timeline
         
         const angle = (year + 50000) / 50000 * Math.PI * 20;
-        const radius = Math.sqrt((year + 50000) / 50000) * 250;
+        const radius = Math.sqrt((year + 50000) / 50000) * maxRadius;
         
         // Create danger zone arc
         const arcGenerator = d3.arc()
