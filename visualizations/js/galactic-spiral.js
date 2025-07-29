@@ -131,48 +131,48 @@ function createGalacticBackground(g, width, height) {
 function generateTimelineData() {
     const events = [
         // Major cycles and events
-        {year: -50000, event: "Elder Race Emergence", type: "origin", importance: 10},
-        {year: -48000, event: "First Global Infrastructure", type: "construction", importance: 7},
-        {year: -38000, event: "Galactic Alignment - Minor Crossing", type: "crossing", importance: 5},
-        {year: -36000, event: "Technological Peak", type: "achievement", importance: 8},
-        {year: -26000, event: "Previous Major Crossing", type: "catastrophe", importance: 9},
+        {year: -50000, event: "Homo sapiens in Africa", type: "origin", importance: 10},
+        {year: -48000, event: "Upper Paleolithic Tools", type: "achievement", importance: 7},
+        {year: -40000, event: "Cave Art Begins", type: "achievement", importance: 8},
+        {year: -35000, event: "RH Negative Appears", type: "genetics", importance: 8},
+        {year: -26000, event: "Last Glacial Maximum", type: "catastrophe", importance: 9},
         {year: -24000, event: "Mass Extinction Event", type: "catastrophe", importance: 10},
-        {year: -20000, event: "Reconstruction Begins", type: "recovery", importance: 6},
-        {year: -15000, event: "Monument Building Resumes", type: "construction", importance: 7},
-        {year: -12800, event: "YOUNGER DRYAS IMPACT", type: "catastrophe", importance: 10},
-        {year: -12000, event: "Antarctica Flash Freezes", type: "catastrophe", importance: 9},
+        {year: -20000, event: "Ice Age Peak", type: "climate", importance: 7},
+        {year: -15000, event: "First Settlements", type: "construction", importance: 7},
+        {year: -12800, event: "Younger Dryas Period", type: "climate", importance: 10},
+        {year: -12000, event: "Agriculture Begins", type: "achievement", importance: 9},
         {year: -11600, event: "Climate Stabilizes", type: "recovery", importance: 7},
-        {year: -10500, event: "Survivors Emerge", type: "emergence", importance: 8},
-        {year: -10000, event: "Hybridization Program", type: "genetics", importance: 9},
+        {year: -10500, event: "Jericho Founded", type: "construction", importance: 8},
+        {year: -10000, event: "Neolithic Revolution", type: "achievement", importance: 9},
         {year: -9000, event: "Göbekli Tepe Built", type: "construction", importance: 8},
         {year: -8000, event: "Agricultural Revolution", type: "achievement", importance: 7},
         {year: -7000, event: "Megalithic Explosion", type: "construction", importance: 8},
         {year: -5000, event: "Pyramid Construction", type: "construction", importance: 9},
         {year: -4000, event: "Writing Systems Emerge", type: "achievement", importance: 7},
         {year: -3000, event: "Bronze Age Begins", type: "achievement", importance: 6},
-        {year: -2000, event: "Mystery Schools Peak", type: "knowledge", importance: 7},
+        {year: -2000, event: "Iron Age Begins", type: "achievement", importance: 7},
         {year: -1200, event: "Bronze Age Collapse", type: "catastrophe", importance: 8},
         {year: -500, event: "Classical Period", type: "achievement", importance: 6},
         {year: 0, event: "Calendar Reset", type: "marker", importance: 5},
         {year: 500, event: "Dark Ages Begin", type: "decline", importance: 6},
         {year: 1000, event: "Medieval Warming", type: "recovery", importance: 5},
-        {year: 1500, event: "FINAL RETREAT UNDERGROUND", type: "retreat", importance: 9},
+        {year: 1492, event: "Columbus Americas", type: "discovery", importance: 9},
         {year: 1600, event: "Little Ice Age", type: "warning", importance: 6},
         {year: 1859, event: "Carrington Event", type: "warning", importance: 7},
         {year: 1908, event: "Tunguska Event", type: "warning", importance: 7},
         {year: 1938, event: "Nazi Antarctic Expedition", type: "discovery", importance: 8},
         {year: 1947, event: "OPERATION HIGHJUMP", type: "contact", importance: 9},
         {year: 1959, event: "Antarctic Treaty", type: "treaty", importance: 8},
-        {year: 1969, event: "Moon Landing (?)", type: "achievement", importance: 7},
-        {year: 2001, event: "Arecibo Reply", type: "contact", importance: 8},
-        {year: 2012, event: "Galactic Plane Entry", type: "crossing", importance: 9},
-        {year: 2020, event: "Pandemic/Reset Attempt", type: "control", importance: 8},
-        {year: 2023, event: "ANTARCTIC ACTIVATION", type: "activation", importance: 10},
-        {year: 2024, event: "Drone Emergence", type: "revelation", importance: 9},
-        {year: 2025, event: "NOW - Acceleration Phase", type: "current", importance: 10},
-        {year: 2030, event: "Projected Disclosure", type: "future", importance: 9},
-        {year: 2035, event: "Peak Crossing Window", type: "future_catastrophe", importance: 10},
-        {year: 2040, event: "New Earth Configuration", type: "future_achievement", importance: 10}
+        {year: 1969, event: "Moon Landing", type: "achievement", importance: 9},
+        {year: 2001, event: "Human Genome Mapped", type: "achievement", importance: 8},
+        {year: 2012, event: "Higgs Boson Discovered", type: "achievement", importance: 8},
+        {year: 2020, event: "COVID-19 Pandemic", type: "catastrophe", importance: 9},
+        {year: 2023, event: "AI Revolution Begins", type: "achievement", importance: 9},
+        {year: 2024, event: "UAP Congressional Hearings", type: "discovery", importance: 8},
+        {year: 2025, event: "Current Year", type: "current", importance: 10},
+        {year: 2030, event: "Climate Goals Target", type: "future", importance: 8},
+        {year: 2035, event: "Predicted Solar Maximum", type: "future", importance: 7},
+        {year: 2040, event: "Mars Colony Target", type: "future", importance: 8}
     ];
     
     // Scale radius based on viewport
@@ -652,11 +652,11 @@ function hideEventTooltip() {
 
 function getEventDescription(event) {
     const descriptions = {
-        "Elder Race Emergence": "The beginning of the advanced civilization that would shape Earth's destiny.",
-        "YOUNGER DRYAS IMPACT": "Comet fragments destroy global civilization. Antarctica flash-freezes.",
-        "ANTARCTIC ACTIVATION": "October 2023 - The frozen city awakens, triggering global changes.",
-        "NOW - Acceleration Phase": "All systems activating. The crossing approaches.",
-        "Peak Crossing Window": "2035-2040: Earth passes through galactic current sheet. Massive changes expected."
+        "Homo sapiens in Africa": "Modern humans emerge in Africa, beginning their journey across the globe.",
+        "Younger Dryas Period": "Abrupt climate cooling lasting ~1,200 years, ending the last Ice Age.",
+        "AI Revolution Begins": "Large language models and AI systems reach human-level capabilities.",
+        "Current Year": "You are here in the timeline of human history.",
+        "Predicted Solar Maximum": "Peak of Solar Cycle 26, increased solar activity expected."
     };
     
     return descriptions[event.event] || '';

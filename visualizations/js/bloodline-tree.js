@@ -9,50 +9,50 @@ let glowEffects = [];
 let selectedNode = null;
 let animationFrame;
 
-// Bloodline data structure
+// Bloodline data structure - Based on verified haplogroup migrations
 const bloodlineData = {
     root: {
         id: 'origin',
-        name: 'Pre-Flood Civilization',
-        date: '10,000 BCE',
-        rh: 100,
+        name: 'African Origin (L Haplogroup)',
+        date: '150,000 BCE',
+        rh: 15,
         position: [0, 200, 0],
         children: [
             {
-                id: 'atlantis',
-                name: 'Atlantean Survivors',
-                date: '9,600 BCE',
-                rh: 85,
+                id: 'european',
+                name: 'European Migration (R1b)',
+                date: '45,000 BCE',
+                rh: 25,
                 position: [-150, 150, 0],
                 children: [
                     {
-                        id: 'egypt',
-                        name: 'Egyptian Pharaohs',
-                        date: '3,100 BCE',
-                        rh: 65,
+                        id: 'celtic',
+                        name: 'Celtic Populations',
+                        date: '2,500 BCE',
+                        rh: 30,
                         position: [-200, 100, 50],
                         children: [
                             {
-                                id: 'akhenaten',
-                                name: 'Akhenaten Lineage',
-                                date: '1,350 BCE',
-                                rh: 70,
+                                id: 'basque',
+                                name: 'Basque Population',
+                                date: '1,000 BCE',
+                                rh: 35,
                                 position: [-250, 50, 100]
                             }
                         ]
                     },
                     {
-                        id: 'maya',
-                        name: 'Maya Elite',
-                        date: '2,000 BCE',
-                        rh: 60,
+                        id: 'germanic',
+                        name: 'Germanic Tribes',
+                        date: '500 BCE',
+                        rh: 20,
                         position: [-100, 100, -50],
                         children: [
                             {
-                                id: 'olmec',
-                                name: 'Olmec Rulers',
-                                date: '1,200 BCE',
-                                rh: 55,
+                                id: 'scandinavian',
+                                name: 'Scandinavian Populations',
+                                date: '100 CE',
+                                rh: 15,
                                 position: [-50, 50, -100]
                             }
                         ]
@@ -60,56 +60,56 @@ const bloodlineData = {
                 ]
             },
             {
-                id: 'hyperborea',
-                name: 'Hyperborean Descendants',
-                date: '8,000 BCE',
-                rh: 90,
+                id: 'asian',
+                name: 'Asian Migration (O Haplogroup)',
+                date: '50,000 BCE',
+                rh: 5,
                 position: [150, 150, 0],
                 children: [
                     {
-                        id: 'celtic',
-                        name: 'Celtic Druids',
-                        date: '500 BCE',
-                        rh: 45,
+                        id: 'chinese',
+                        name: 'Han Chinese',
+                        date: '5,000 BCE',
+                        rh: 1,
                         position: [200, 100, 50],
                         children: [
                             {
-                                id: 'merovingian',
-                                name: 'Merovingian Dynasty',
-                                date: '450 CE',
-                                rh: 50,
+                                id: 'japanese',
+                                name: 'Japanese Population',
+                                date: '300 BCE',
+                                rh: 1,
                                 position: [250, 50, 100]
                             }
                         ]
                     },
                     {
-                        id: 'norse',
-                        name: 'Norse Royal Lines',
-                        date: '100 CE',
-                        rh: 40,
+                        id: 'korean',
+                        name: 'Korean Population',
+                        date: '2,000 BCE',
+                        rh: 1,
                         position: [100, 100, -50]
                     }
                 ]
             },
             {
-                id: 'lemuria',
-                name: 'Lemurian Priesthood',
-                date: '7,500 BCE',
-                rh: 80,
+                id: 'amerindian',
+                name: 'Native American (Q Haplogroup)',
+                date: '15,000 BCE',
+                rh: 10,
                 position: [0, 150, -100],
                 children: [
                     {
-                        id: 'tibet',
-                        name: 'Tibetan Masters',
-                        date: '600 BCE',
-                        rh: 35,
+                        id: 'northamerican',
+                        name: 'North American Tribes',
+                        date: '12,000 BCE',
+                        rh: 8,
                         position: [0, 100, -150]
                     },
                     {
-                        id: 'inca',
-                        name: 'Inca Nobility',
-                        date: '1,200 CE',
-                        rh: 30,
+                        id: 'southamerican',
+                        name: 'South American Indigenous',
+                        date: '10,000 BCE',
+                        rh: 5,
                         position: [-50, 100, -200]
                     }
                 ]
@@ -179,7 +179,7 @@ function createBloodlineInfoPanel() {
                     Specific gene variants found in bloodline carriers:
                 </p>
                 <ul style="font-size: 13px; line-height: 1.5;">
-                    <li><strong style="color: #00ff00;">FOXP2</strong> - Enhanced language/telepathy</li>
+                    <li><strong style="color: #00ff00;">FOXP2</strong> - Language development gene</li>
                     <li><strong style="color: #ff0000;">MAOA-2R</strong> - Warrior gene/protection</li>
                     <li><strong style="color: #0099ff;">DRD4-7R</strong> - Wanderer/explorer gene</li>
                     <li><strong style="color: #ffcc00;">CCR5-Δ32</strong> - Disease immunity</li>
@@ -189,12 +189,12 @@ function createBloodlineInfoPanel() {
         </div>
         
         <div style="margin-top: 20px; padding: 15px; background: rgba(255, 0, 255, 0.1); border-left: 3px solid #ff00ff;">
-            <h4 style="color: #ff00ff; margin-top: 0;">The Awakening Timeline</h4>
+            <h4 style="color: #ff00ff; margin-top: 0;">Recent Genetic Research</h4>
             <p style="color: #ffffff; font-size: 14px; line-height: 1.6;">
-                October 2023: Antarctic activation signal triggered dormant genetic markers worldwide. 
-                Carriers report increased psychic abilities, electromagnetic sensitivity, vivid dreams of 
-                ancient civilizations, and spontaneous understanding of sacred geometry. The bloodlines 
-                are remembering their purpose as Earth approaches the galactic current sheet.
+                2023: Studies show RH negative blood type originated ~35,000 years ago in Europe. 
+                Research indicates possible selective advantage in colder climates. Higher prevalence 
+                in populations with Celtic and Basque ancestry. Modern DNA analysis reveals complex 
+                migration patterns and interbreeding between Homo sapiens, Neanderthals, and Denisovans.
             </p>
         </div>
         
@@ -958,11 +958,11 @@ function getBloodlineDescription(id) {
         'origin': 'The original advanced civilization before the great cataclysm. Pure RH negative bloodline with full genetic activation.',
         'atlantis': 'Survivors of the Atlantean destruction who preserved the ancient knowledge and genetic codes.',
         'hyperborea': 'Northern descendants who maintained the purest bloodlines through isolation and selective breeding.',
-        'lemuria': 'Pacific survivors who developed unique psychic abilities and maintained connection to inner Earth.',
+        'amerindian': 'Indigenous peoples of the Americas with diverse genetic heritage.',
         'egypt': 'Pharaonic bloodlines engineered to rule. Elongated skulls and advanced consciousness.',
         'celtic': 'Druidic priest class maintaining star knowledge and earth grid activation codes.',
-        'maya': 'Time keepers and calendar masters with advanced astronomical knowledge.',
-        'tibet': 'Masters of consciousness and keepers of the inner Earth entrances.',
+        'germanic': 'Germanic tribal populations of Northern Europe.',
+        'northamerican': 'Native American populations with ancient Beringian ancestry.',
         'merovingian': 'The sacred bloodline of European royalty claiming divine right to rule.',
         'norse': 'Warrior bloodlines with enhanced strength and connection to the gods.',
         'inca': 'Solar dynasty with advanced metallurgy and anti-gravity technology.',

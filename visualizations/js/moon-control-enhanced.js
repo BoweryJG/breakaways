@@ -16,31 +16,31 @@ let librationAngle = 0;
 // Lunar data
 const lunarData = {
     bases: [
-        { name: 'Mare Crisium Complex', coords: [17.0, 59.1], type: 'ancient', active: true },
-        { name: 'Tycho Installation', coords: [-43.3, -11.4], type: 'modern', active: true },
-        { name: 'Sinus Medii Hub', coords: [0.0, 0.0], type: 'relay', active: true },
-        { name: 'Mare Orientale Array', coords: [-19.4, -92.8], type: 'energy', active: false },
-        { name: 'South Pole Station', coords: [-89.9, 0.0], type: 'research', active: true }
+        { name: 'Apollo 11 Site', coords: [0.67, 23.47], type: 'landing', active: false },
+        { name: 'Apollo 15 Site', coords: [26.13, 3.63], type: 'landing', active: false },
+        { name: 'Luna 2 Impact', coords: [29.1, 0.0], type: 'impact', active: false },
+        { name: 'Chang\'e 4 Landing', coords: [-45.5, -177.6], type: 'landing', active: true },
+        { name: 'Lunar South Pole', coords: [-89.9, 0.0], type: 'research_target', active: false }
     ],
     
-    anomalies: [
-        { name: 'Tower Structure', coords: [20.0, 30.0], height: 5, type: 'artificial' },
-        { name: 'Bridge Formation', coords: [-10.0, -45.0], length: 12, type: 'unknown' },
-        { name: 'Dome Complex', coords: [35.0, -20.0], radius: 8, type: 'artificial' },
-        { name: 'Geometric Patterns', coords: [-25.0, 60.0], size: 15, type: 'surface' }
+    craters: [
+        { name: 'Tycho Crater', coords: [-43.3, -11.4], diameter: 85, type: 'impact' },
+        { name: 'Copernicus Crater', coords: [9.62, -20.08], diameter: 93, type: 'impact' },
+        { name: 'Mare Crisium', coords: [17.0, 59.1], diameter: 555, type: 'mare' },
+        { name: 'Mare Tranquillitatis', coords: [8.5, 31.4], diameter: 421, type: 'mare' }
     ],
     
     earthConnections: [
-        { from: 'Mare Crisium Complex', to: [29.9792, 31.1342], name: 'Giza', active: true },
-        { from: 'Tycho Installation', to: [51.1789, -1.8262], name: 'Stonehenge', active: true },
-        { from: 'Sinus Medii Hub', to: [-13.1631, -72.5450], name: 'Machu Picchu', active: false },
-        { from: 'South Pole Station', to: [-71.9475, 23.3467], name: 'Antarctica', active: true }
+        { from: 'Apollo 11 Site', to: [28.5245, -80.6509], name: 'Kennedy Space Center', active: true },
+        { from: 'Chang\'e 4 Landing', to: [28.2480, 102.8329], name: 'Xichang Launch Center', active: true },
+        { from: 'Luna 2 Impact', to: [45.9200, 63.3420], name: 'Baikonur Cosmodrome', active: false },
+        { from: 'Lunar South Pole', to: [-77.8500, 166.6667], name: 'McMurdo Station', active: false }
     ],
     
     tidalInfluence: {
         physical: { ocean: 0.7, land: 0.3 },
         biological: { circadian: 0.8, fertility: 0.6, behavior: 0.5 },
-        consciousness: { dreams: 0.9, psychic: 0.7, emotional: 0.8 }
+        biological_rhythms: { sleep: 0.8, hormonal: 0.7, mood: 0.6 }
     }
 };
 
