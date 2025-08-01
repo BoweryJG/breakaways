@@ -55,6 +55,10 @@ function initElectromagnetic() {
         cancelAnimationFrame(frame);
     });
     
+    // Check if mobile
+    const isMobile = window.mobileUtils ? window.mobileUtils.isMobile() : 
+                     (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    
     // Set up canvases
     setupCanvases(isMobile);
     
@@ -215,6 +219,79 @@ function setupCanvases(isMobile) {
     
     container.appendChild(mainViz);
     
+    // Add debug panel
+    const debugPanel = document.createElement('div');
+    debugPanel.id = 'em-debug-panel';
+    debugPanel.className = 'em-debug-panel';
+    debugPanel.innerHTML = `
+        <div class="debug-header">
+            <h4>🔧 Debug Panel</h4>
+            <button id="debug-toggle" class="debug-toggle">▼</button>
+        </div>
+        <div class="debug-content">
+            <div class="debug-section">
+                <h5>System Status</h5>
+                <div class="debug-info">
+                    <span class="debug-label">Sound System:</span>
+                    <span id="debug-sound-status" class="debug-value">Not Initialized</span>
+                </div>
+                <div class="debug-info">
+                    <span class="debug-label">Playing:</span>
+                    <span id="debug-playing-status" class="debug-value">No</span>
+                </div>
+                <div class="debug-info">
+                    <span class="debug-label">Active Sounds:</span>
+                    <span id="debug-active-sounds" class="debug-value">0</span>
+                </div>
+                <div class="debug-info">
+                    <span class="debug-label">Device Type:</span>
+                    <span id="debug-device-type" class="debug-value">${isMobile ? 'Mobile' : 'Desktop'}</span>
+                </div>
+            </div>
+            
+            <div class="debug-section">
+                <h5>Frequencies</h5>
+                <div class="debug-frequencies">
+                    <div class="debug-freq">
+                        <span class="freq-name">Schumann:</span>
+                        <span id="debug-freq-schumann" class="freq-value">7.83 Hz</span>
+                    </div>
+                    <div class="debug-freq">
+                        <span class="freq-name">Alpha:</span>
+                        <span id="debug-freq-alpha" class="freq-value">10.5 Hz</span>
+                    </div>
+                    <div class="debug-freq">
+                        <span class="freq-name">Beta:</span>
+                        <span id="debug-freq-beta" class="freq-value">20 Hz</span>
+                    </div>
+                    <div class="debug-freq">
+                        <span class="freq-name">Gamma:</span>
+                        <span id="debug-freq-gamma" class="freq-value">40 Hz</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="debug-section">
+                <h5>Quick Actions</h5>
+                <div class="debug-actions">
+                    <button id="debug-start-schumann" class="debug-btn">Start Schumann</button>
+                    <button id="debug-stop-all" class="debug-btn">Stop All</button>
+                    <button id="debug-test-sound" class="debug-btn">Test Beep</button>
+                    <button id="debug-refresh" class="debug-btn">Refresh</button>
+                </div>
+            </div>
+            
+            <div class="debug-section">
+                <h5>Console</h5>
+                <div id="debug-console" class="debug-console">
+                    <div class="console-entry">System ready...</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(debugPanel);
+    
     // Add custom CSS
     addCustomStyles();
     
@@ -237,6 +314,48 @@ function setupCanvases(isMobile) {
             window.mobileUtils.optimizeCanvas(canvas);
         }
     });
+    
+    // Add touch event support for mobile
+    if (isMobile) {
+        addMobileTouchSupport();
+    }
+}
+
+// Add mobile touch support
+function addMobileTouchSupport() {
+    // Only prevent touch on canvases to avoid scroll issues
+    const canvases = document.querySelectorAll('.viz-panel canvas');
+    canvases.forEach(canvas => {
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+    });
+    
+    // Make buttons more touch-friendly
+    const buttons = document.querySelectorAll('.control-btn, .debug-btn, .preset-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+            this.classList.add('touched');
+        });
+        
+        btn.addEventListener('touchend', function(e) {
+            e.stopPropagation();
+            this.classList.remove('touched');
+            this.click();
+        });
+    });
+    
+    // Improve debug panel touch handling
+    const debugHeader = document.querySelector('.debug-header');
+    if (debugHeader) {
+        debugHeader.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Console log for debugging
+    console.log('Mobile touch support enabled');
 }
 
 function addCustomStyles() {
@@ -491,6 +610,309 @@ function addCustomStyles() {
             border-radius: 3px;
             font-family: 'Courier New', monospace;
         }
+        
+        /* Debug Panel Styles */
+        .em-debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+            z-index: 1000;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        
+        /* Mobile-specific styles for EM Symphony */
+        @media (max-width: 768px) {
+            .em-symphony-container {
+                padding: 10px;
+            }
+            
+            .em-controls {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .control-btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+            
+            .frequency-info {
+                margin-top: 10px;
+                text-align: center;
+            }
+            
+            .visualization-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .viz-panel {
+                padding: 15px;
+            }
+            
+            .viz-panel h3 {
+                font-size: 1em;
+            }
+            
+            .info-panels {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .info-panel {
+                padding: 15px;
+            }
+            
+            .solar-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            #harmonic-bars {
+                height: 120px;
+            }
+            
+            .harmonic-bar {
+                width: 40px;
+            }
+            
+            .em-debug-panel {
+                width: calc(100% - 20px);
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: none;
+            }
+            
+            .debug-frequencies {
+                grid-template-columns: 1fr;
+            }
+            
+            .debug-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .debug-btn {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .viz-panel canvas {
+                max-height: 150px;
+            }
+            
+            .debug-console {
+                height: 80px;
+            }
+            
+            .debug-section h5 {
+                font-size: 0.8em;
+            }
+            
+            .debug-info {
+                font-size: 0.8em;
+            }
+        }
+        
+        .em-debug-panel.collapsed .debug-content {
+            display: none;
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0, 255, 204, 0.1);
+            border-bottom: 1px solid var(--accent-color);
+            cursor: pointer;
+        }
+        
+        .debug-header h4 {
+            margin: 0;
+            color: var(--accent-color);
+            font-size: 1em;
+        }
+        
+        .debug-toggle {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        
+        .debug-toggle:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+        
+        .em-debug-panel.collapsed .debug-toggle {
+            transform: rotate(-90deg);
+        }
+        
+        .debug-content {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .debug-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .debug-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .debug-section h5 {
+            margin: 0 0 10px 0;
+            color: var(--accent-color);
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+        
+        .debug-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 0.85em;
+        }
+        
+        .debug-label {
+            color: #999;
+        }
+        
+        .debug-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .debug-value.active {
+            color: var(--accent-color);
+        }
+        
+        .debug-value.error {
+            color: #ff0066;
+        }
+        
+        .debug-frequencies {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .debug-freq {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        
+        .freq-name {
+            color: #999;
+        }
+        
+        .freq-value {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .debug-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .debug-btn {
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.8em;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .debug-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+        
+        .debug-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .debug-console {
+            height: 120px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 0.75em;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .console-entry {
+            margin-bottom: 5px;
+            color: #0f0;
+            opacity: 0.8;
+        }
+        
+        .console-entry.error {
+            color: #ff0066;
+        }
+        
+        .console-entry.warning {
+            color: #ffaa00;
+        }
+        
+        .console-entry:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Scrollbar styling for debug panel */
+        .debug-content::-webkit-scrollbar,
+        .debug-console::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .debug-content::-webkit-scrollbar-track,
+        .debug-console::-webkit-scrollbar-track {
+            background: #111;
+        }
+        
+        .debug-content::-webkit-scrollbar-thumb,
+        .debug-console::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
     `;
     document.head.appendChild(style);
 }
@@ -540,6 +962,153 @@ function setupControls() {
     if (timeRange) {
         timeRange.addEventListener('change', updateHistoricalGraph);
     }
+    
+    // Debug panel controls
+    setupDebugPanel();
+}
+
+// Setup debug panel functionality
+function setupDebugPanel() {
+    const debugPanel = document.getElementById('em-debug-panel');
+    const debugToggle = document.getElementById('debug-toggle');
+    const debugConsole = document.getElementById('debug-console');
+    
+    // Toggle collapse/expand
+    if (debugToggle) {
+        debugToggle.addEventListener('click', () => {
+            debugPanel.classList.toggle('collapsed');
+        });
+    }
+    
+    // Debug actions
+    const startSchumannBtn = document.getElementById('debug-start-schumann');
+    if (startSchumannBtn) {
+        startSchumannBtn.addEventListener('click', () => {
+            debugLog('Starting Schumann resonance...');
+            if (window.breakawaySound && window.breakawaySound.isInitialized) {
+                window.breakawaySound.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+                debugLog('Schumann resonance started', 'success');
+                updateDebugStatus();
+            } else {
+                debugLog('Sound system not initialized!', 'error');
+            }
+        });
+    }
+    
+    const stopAllBtn = document.getElementById('debug-stop-all');
+    if (stopAllBtn) {
+        stopAllBtn.addEventListener('click', () => {
+            debugLog('Stopping all sounds...');
+            if (window.breakawaySound) {
+                window.breakawaySound.stopAll();
+                emSymphonyState.isPlaying = false;
+                debugLog('All sounds stopped', 'success');
+                updateDebugStatus();
+                
+                // Update play/pause button
+                const playPauseBtn = document.getElementById('em-play-pause');
+                if (playPauseBtn) {
+                    playPauseBtn.querySelector('.play-icon').style.display = 'inline';
+                    playPauseBtn.querySelector('.pause-icon').style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    const testSoundBtn = document.getElementById('debug-test-sound');
+    if (testSoundBtn) {
+        testSoundBtn.addEventListener('click', () => {
+            debugLog('Playing test beep...');
+            if (window.breakawaySound && window.breakawaySound.isInitialized) {
+                window.breakawaySound.playEventSound('activation');
+                debugLog('Test beep played', 'success');
+            } else {
+                debugLog('Sound system not initialized!', 'error');
+            }
+        });
+    }
+    
+    const refreshBtn = document.getElementById('debug-refresh');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            debugLog('Refreshing EM Symphony...');
+            cleanupEmSymphony();
+            setTimeout(() => {
+                initElectromagnetic();
+                debugLog('EM Symphony refreshed', 'success');
+            }, 100);
+        });
+    }
+    
+    // Update debug panel status
+    updateDebugStatus();
+    
+    // Update status every second
+    setInterval(updateDebugStatus, 1000);
+}
+
+// Log to debug console
+function debugLog(message, type = 'info') {
+    const debugConsole = document.getElementById('debug-console');
+    if (!debugConsole) return;
+    
+    const entry = document.createElement('div');
+    entry.className = 'console-entry';
+    if (type === 'error') entry.classList.add('error');
+    if (type === 'warning') entry.classList.add('warning');
+    
+    const timestamp = new Date().toLocaleTimeString();
+    entry.textContent = `[${timestamp}] ${message}`;
+    
+    debugConsole.appendChild(entry);
+    
+    // Keep only last 20 entries
+    while (debugConsole.children.length > 20) {
+        debugConsole.removeChild(debugConsole.firstChild);
+    }
+    
+    // Scroll to bottom
+    debugConsole.scrollTop = debugConsole.scrollHeight;
+}
+
+// Update debug panel status
+function updateDebugStatus() {
+    const soundSystem = window.breakawaySound;
+    
+    // Sound system status
+    const soundStatus = document.getElementById('debug-sound-status');
+    if (soundStatus) {
+        if (soundSystem && soundSystem.isInitialized) {
+            soundStatus.textContent = 'Initialized';
+            soundStatus.className = 'debug-value active';
+        } else {
+            soundStatus.textContent = 'Not Initialized';
+            soundStatus.className = 'debug-value error';
+        }
+    }
+    
+    // Playing status
+    const playingStatus = document.getElementById('debug-playing-status');
+    if (playingStatus) {
+        playingStatus.textContent = emSymphonyState.isPlaying ? 'Yes' : 'No';
+        playingStatus.className = emSymphonyState.isPlaying ? 'debug-value active' : 'debug-value';
+    }
+    
+    // Active sounds count
+    const activeSounds = document.getElementById('debug-active-sounds');
+    if (activeSounds && soundSystem) {
+        const count = soundSystem.getAllActiveSounds().length;
+        activeSounds.textContent = count;
+        activeSounds.className = count > 0 ? 'debug-value active' : 'debug-value';
+    }
+    
+    // Update frequencies
+    Object.keys(emSymphonyState.frequencies).forEach(band => {
+        const elem = document.getElementById(`debug-freq-${band}`);
+        if (elem) {
+            elem.textContent = `${emSymphonyState.frequencies[band].current.toFixed(2)} Hz`;
+        }
+    });
 }
 
 function togglePlayPause() {
@@ -1143,7 +1712,7 @@ function updateHistoricalGraph() {
 }
 
 // Clean up function
-window.cleanupEmSymphony = function() {
+function cleanupEmSymphony() {
     // Stop all animations
     Object.values(emSymphonyState.animationFrames).forEach(frame => {
         cancelAnimationFrame(frame);
@@ -1206,7 +1775,10 @@ window.cleanupEmSymphony = function() {
         contexts: {},
         animationFrames: {}
     };
-};
+}
+
+// Export cleanup function for main.js
+window.cleanupEmSymphony = cleanupEmSymphony;
 
 // Handle window resize
 function handleEMResize() {
