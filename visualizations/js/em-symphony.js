@@ -103,14 +103,379 @@ function setupCanvases(isMobile) {
     const mainViz = document.createElement('div');
     mainViz.className = 'em-symphony-container';
     mainViz.innerHTML = `
-        <div class="em-controls">
-            <button id="em-play-pause" class="control-btn">
-                <span class="play-icon">▶</span>
-                <span class="pause-icon" style="display: none;">⏸</span>
-            </button>
-            <button id="em-reset" class="control-btn">Reset</button>
-            <div class="frequency-info">
-                <span style="color: var(--accent-color);">📍 Use the Sound Control Center to manage frequencies</span>
+        <div class="mixing-board-header">
+            <h2 class="board-title">INTERSTELLAR FREQUENCY MIXER</h2>
+            <div class="master-controls-top">
+                <button id="em-play-pause" class="master-power-btn">
+                    <span class="power-led"></span>
+                    <span class="play-icon">POWER</span>
+                    <span class="pause-icon" style="display: none;">ACTIVE</span>
+                </button>
+                <div class="tempo-display">
+                    <span class="tempo-label">BPM</span>
+                    <span class="tempo-value">120.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mixing-board-main">
+            <div class="channel-strips-container">
+                <!-- Earth Frequency Channel -->
+                <div class="channel-strip" data-channel="schumann">
+                    <div class="channel-header">
+                        <h4>EARTH</h4>
+                        <span class="channel-freq">7.83 Hz</span>
+                    </div>
+                    
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="schumann">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="eq-section">
+                        <div class="eq-knob high-eq">
+                            <div class="knob" data-param="high" data-value="0">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>HIGH</label>
+                        </div>
+                        <div class="eq-knob mid-eq">
+                            <div class="knob" data-param="mid" data-value="0">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>MID</label>
+                        </div>
+                        <div class="eq-knob low-eq">
+                            <div class="knob" data-param="low" data-value="0">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>LOW</label>
+                        </div>
+                    </div>
+                    
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="frequency" data-value="7.83" data-min="7.0" data-max="8.5">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>FREQ</label>
+                        </div>
+                        <div class="freq-display">7.83</div>
+                    </div>
+                    
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    
+                    <div class="pan-control">
+                        <div class="knob small" data-param="pan" data-value="0">
+                            <div class="knob-indicator"></div>
+                        </div>
+                        <label>PAN</label>
+                    </div>
+                    
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="75" orient="vertical">
+                        <div class="fader-scale">
+                            <span>+10</span>
+                            <span>0</span>
+                            <span>-10</span>
+                            <span>-20</span>
+                            <span>-∞</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Binaural Channels -->
+                <div class="channel-strip" data-channel="delta">
+                    <div class="channel-header">
+                        <h4>DELTA</h4>
+                        <span class="channel-freq">0.5-4 Hz</span>
+                    </div>
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="delta">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="binaural-info">Deep Sleep</div>
+                    <!-- Simplified controls for binaural -->
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="beat-freq" data-value="2" data-min="0.5" data-max="4">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>BEAT</label>
+                        </div>
+                        <div class="freq-display">2.0</div>
+                    </div>
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="50" orient="vertical">
+                    </div>
+                </div>
+                
+                <!-- Theta Channel -->
+                <div class="channel-strip" data-channel="theta">
+                    <div class="channel-header">
+                        <h4>THETA</h4>
+                        <span class="channel-freq">4-8 Hz</span>
+                    </div>
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="theta">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="binaural-info">Meditation</div>
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="beat-freq" data-value="6" data-min="4" data-max="8">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>BEAT</label>
+                        </div>
+                        <div class="freq-display">6.0</div>
+                    </div>
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="50" orient="vertical">
+                    </div>
+                </div>
+                
+                <!-- Alpha Channel -->
+                <div class="channel-strip" data-channel="alpha">
+                    <div class="channel-header">
+                        <h4>ALPHA</h4>
+                        <span class="channel-freq">8-14 Hz</span>
+                    </div>
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="alpha">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="binaural-info">Relaxation</div>
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="beat-freq" data-value="10" data-min="8" data-max="14">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>BEAT</label>
+                        </div>
+                        <div class="freq-display">10.0</div>
+                    </div>
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="50" orient="vertical">
+                    </div>
+                </div>
+                
+                <!-- Beta Channel -->
+                <div class="channel-strip" data-channel="beta">
+                    <div class="channel-header">
+                        <h4>BETA</h4>
+                        <span class="channel-freq">14-30 Hz</span>
+                    </div>
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="beta">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="binaural-info">Focus</div>
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="beat-freq" data-value="20" data-min="14" data-max="30">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>BEAT</label>
+                        </div>
+                        <div class="freq-display">20.0</div>
+                    </div>
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="50" orient="vertical">
+                    </div>
+                </div>
+                
+                <!-- Gamma Channel -->
+                <div class="channel-strip" data-channel="gamma">
+                    <div class="channel-header">
+                        <h4>GAMMA</h4>
+                        <span class="channel-freq">30-100 Hz</span>
+                    </div>
+                    <div class="channel-power">
+                        <button class="channel-toggle" data-channel="gamma">
+                            <span class="power-indicator"></span>
+                        </button>
+                    </div>
+                    <div class="binaural-info">Higher Mind</div>
+                    <div class="freq-control">
+                        <div class="freq-knob">
+                            <div class="knob large" data-param="beat-freq" data-value="40" data-min="30" data-max="100">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>BEAT</label>
+                        </div>
+                        <div class="freq-display">40.0</div>
+                    </div>
+                    <div class="vu-meter-container">
+                        <canvas class="vu-meter" width="60" height="200"></canvas>
+                        <div class="peak-led"></div>
+                    </div>
+                    <div class="channel-buttons">
+                        <button class="solo-btn">S</button>
+                        <button class="mute-btn">M</button>
+                    </div>
+                    <div class="fader-container">
+                        <input type="range" class="channel-fader" min="0" max="100" value="50" orient="vertical">
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Master Section -->
+            <div class="master-section">
+                <h3>MASTER</h3>
+                <div class="master-meters">
+                    <canvas class="vu-meter master-vu-left" data-channel="master-left" width="40" height="250"></canvas>
+                    <canvas class="vu-meter master-vu-right" data-channel="master-right" width="40" height="250"></canvas>
+                    <div class="peak-indicators">
+                        <div class="peak-display left">L: -∞</div>
+                        <div class="peak-display right">R: -∞</div>
+                    </div>
+                </div>
+                
+                <div class="master-eq-section">
+                    <h4>MASTER EQ</h4>
+                    <div class="master-eq-controls">
+                        <div class="eq-band">
+                            <div class="knob small eq-knob" data-param="low-shelf" data-value="50">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>LOW</label>
+                            <span class="knob-value">0dB</span>
+                        </div>
+                        <div class="eq-band">
+                            <div class="knob small eq-knob" data-param="mid" data-value="50">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>MID</label>
+                            <span class="knob-value">0dB</span>
+                        </div>
+                        <div class="eq-band">
+                            <div class="knob small eq-knob" data-param="high-shelf" data-value="50">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>HIGH</label>
+                            <span class="knob-value">0dB</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="master-fader-container">
+                    <input type="range" class="master-fader" min="0" max="100" value="85" orient="vertical">
+                    <div class="fader-scale">
+                        <span>+10</span>
+                        <span>0</span>
+                        <span>-10</span>
+                        <span>-20</span>
+                        <span>-∞</span>
+                    </div>
+                    <label>MASTER</label>
+                </div>
+                
+                <div class="master-controls">
+                    <div class="compressor-section">
+                        <h4>DYNAMICS</h4>
+                        <div class="comp-meter">
+                            <canvas id="gain-reduction-meter" width="200" height="20"></canvas>
+                            <label>GAIN REDUCTION</label>
+                        </div>
+                        <div class="comp-controls">
+                            <div class="comp-knob-group">
+                                <div class="knob small comp-knob" data-param="threshold" data-value="75" data-min="-60" data-max="0">
+                                    <div class="knob-indicator"></div>
+                                </div>
+                                <label>THRESH</label>
+                                <span class="knob-value">-15dB</span>
+                            </div>
+                            <div class="comp-knob-group">
+                                <div class="knob small comp-knob" data-param="ratio" data-value="25" data-min="1" data-max="20">
+                                    <div class="knob-indicator"></div>
+                                </div>
+                                <label>RATIO</label>
+                                <span class="knob-value">4:1</span>
+                            </div>
+                            <div class="comp-knob-group">
+                                <div class="knob small comp-knob" data-param="attack" data-value="10" data-min="0" data-max="100">
+                                    <div class="knob-indicator"></div>
+                                </div>
+                                <label>ATTACK</label>
+                                <span class="knob-value">10ms</span>
+                            </div>
+                            <div class="comp-knob-group">
+                                <div class="knob small comp-knob" data-param="release" data-value="30" data-min="0" data-max="100">
+                                    <div class="knob-indicator"></div>
+                                </div>
+                                <label>RELEASE</label>
+                                <span class="knob-value">300ms</span>
+                            </div>
+                        </div>
+                        <button class="comp-bypass-btn">BYPASS</button>
+                    </div>
+                    
+                    <div class="limiter-section">
+                        <h4>LIMITER</h4>
+                        <div class="limiter-controls">
+                            <div class="knob small limiter-knob" data-param="ceiling" data-value="95" data-min="-20" data-max="0">
+                                <div class="knob-indicator"></div>
+                            </div>
+                            <label>CEILING</label>
+                            <span class="knob-value">-0.5dB</span>
+                        </div>
+                        <div class="limiter-led">LIMIT</div>
+                    </div>
+                    
+                    <div class="monitoring-section">
+                        <h4>MONITORING</h4>
+                        <button class="monitor-btn mono-btn">MONO</button>
+                        <button class="monitor-btn dim-btn">DIM -20dB</button>
+                        <button class="monitor-btn mute-all-btn">MUTE ALL</button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -362,34 +727,606 @@ function addCustomStyles() {
     const style = document.createElement('style');
     style.textContent = `
         .em-symphony-container {
-            padding: 20px;
+            padding: 0;
+            background: #0a0a0a;
+            min-height: 100vh;
         }
         
-        .em-controls {
+        /* Mixing Board Header */
+        .mixing-board-header {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+            padding: 20px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .board-title {
+            font-size: 2em;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            margin: 0;
+        }
+        
+        .master-controls-top {
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            padding: 15px;
-            background: rgba(0, 255, 204, 0.1);
-            border: 1px solid var(--accent-color);
-            border-radius: 5px;
+            gap: 30px;
         }
         
-        .control-btn {
-            padding: 10px 20px;
-            background: var(--secondary-bg);
-            color: var(--accent-color);
-            border: 1px solid var(--accent-color);
-            border-radius: 3px;
+        .master-power-btn {
+            position: relative;
+            padding: 15px 30px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 5px;
+            color: #999;
+            font-weight: bold;
+            font-size: 1.1em;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.5);
+        }
+        
+        .master-power-btn:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,0.5);
+        }
+        
+        .master-power-btn.active {
+            background: #1a1a1a;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .power-led {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
             transition: all 0.3s;
         }
         
-        .control-btn:hover {
+        .master-power-btn.active .power-led {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        .tempo-display {
+            background: #000;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .tempo-label {
+            color: #666;
+            margin-right: 10px;
+        }
+        
+        .tempo-value {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        /* Mixing Board Main */
+        .mixing-board-main {
+            display: flex;
+            padding: 20px;
+            gap: 30px;
+            overflow-x: auto;
+            min-height: 800px;
+            background: #0f0f0f;
+        }
+        
+        /* Channel Strips */
+        .channel-strips-container {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .channel-strip {
+            width: 120px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .channel-header {
+            text-align: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .channel-header h4 {
+            margin: 0;
+            color: var(--accent-color);
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+        
+        .channel-freq {
+            display: block;
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        /* Power Toggle */
+        .channel-power {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .channel-toggle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #222;
+            border: 3px solid #444;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.5);
+        }
+        
+        .channel-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        .channel-toggle.active {
+            background: #1a1a1a;
+            border-color: var(--accent-color);
+        }
+        
+        .power-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .channel-toggle.active .power-indicator {
             background: var(--accent-color);
-            color: var(--primary-bg);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+        
+        /* EQ Section */
+        .eq-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+        
+        /* Knobs */
+        .knob {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 0 auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .knob.large {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .knob.small {
+            width: 35px;
+            height: 35px;
+        }
+        
+        .knob-indicator {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 35%;
+            background: var(--accent-color);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+        
+        .eq-knob label,
+        .freq-control label,
+        .pan-control label {
+            display: block;
+            text-align: center;
+            font-size: 0.7em;
+            color: #999;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+        
+        /* Frequency Control */
+        .freq-control {
+            text-align: center;
+        }
+        
+        .freq-display {
+            background: #000;
+            border: 1px solid #333;
+            padding: 5px;
+            margin-top: 5px;
+            color: var(--accent-color);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border-radius: 3px;
+        }
+        
+        /* VU Meter */
+        .vu-meter-container {
+            position: relative;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 5px;
+        }
+        
+        .vu-meter {
+            display: block;
+            width: 100%;
+        }
+        
+        .peak-led {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #330000;
+            border-radius: 50%;
+            border: 1px solid #660000;
+        }
+        
+        .peak-led.active {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        /* Channel Buttons */
+        .channel-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .solo-btn,
+        .mute-btn {
+            width: 40px;
+            height: 30px;
+            background: #222;
+            border: 1px solid #444;
+            color: #666;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 3px;
+        }
+        
+        .solo-btn:hover {
+            border-color: #ff0;
+            color: #ff0;
+        }
+        
+        .solo-btn.active {
+            background: #ff0;
+            color: #000;
+            border-color: #ff0;
+            box-shadow: 0 0 10px #ff0;
+        }
+        
+        .mute-btn:hover {
+            border-color: #f00;
+            color: #f00;
+        }
+        
+        .mute-btn.active {
+            background: #f00;
+            color: #fff;
+            border-color: #f00;
+            box-shadow: 0 0 10px #f00;
+        }
+        
+        /* Fader */
+        .fader-container {
+            position: relative;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .channel-fader,
+        .master-fader {
+            width: 200px;
+            height: 40px;
+            -webkit-appearance: none;
+            background: transparent;
+            transform: rotate(-90deg);
+            cursor: pointer;
+        }
+        
+        .channel-fader::-webkit-slider-track,
+        .master-fader::-webkit-slider-track {
+            width: 100%;
+            height: 8px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+        
+        .channel-fader::-webkit-slider-thumb,
+        .master-fader::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(180deg, #666 0%, #333 100%);
+            border: 1px solid #444;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        .fader-scale {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.7em;
+            color: #666;
+        }
+        
+        /* Binaural Info */
+        .binaural-info {
+            text-align: center;
+            font-size: 0.8em;
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* Master Section */
+        .master-section {
+            width: 300px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+        }
+        
+        .master-section h3 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            letter-spacing: 2px;
+        }
+        
+        .master-section h4 {
+            color: #ccc;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .master-meters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .master-vu-left,
+        .master-vu-right {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 3px;
+        }
+        
+        .peak-indicators {
+            position: absolute;
+            bottom: -20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.8em;
+            color: #999;
+        }
+        
+        .peak-display {
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Master EQ Section */
+        .master-eq-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        
+        .master-eq-controls {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .eq-band {
+            text-align: center;
+        }
+        
+        /* Master Fader */
+        .master-fader-container {
+            position: relative;
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .fader-scale {
+            position: absolute;
+            right: -40px;
+            top: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.7em;
+            color: #666;
+        }
+        
+        /* Compressor Section */
+        .compressor-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        
+        .comp-meter {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        #gain-reduction-meter {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 3px;
+            width: 100%;
+            height: 20px;
+        }
+        
+        .comp-meter label {
+            display: block;
+            font-size: 0.7em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .comp-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .comp-knob-group {
+            text-align: center;
+        }
+        
+        .comp-bypass-btn {
+            width: 100%;
+            margin-top: 15px;
+            padding: 8px;
+            background: #333;
+            color: #ccc;
+            border: 1px solid #555;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .comp-bypass-btn:hover {
+            background: #444;
+        }
+        
+        .comp-bypass-btn.active {
+            background: #f44;
+            color: #fff;
+        }
+        
+        /* Limiter Section */
+        .limiter-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .limiter-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .limiter-led {
+            margin-top: 10px;
+            padding: 5px 15px;
+            background: #300;
+            color: #600;
+            border: 1px solid #400;
+            border-radius: 3px;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+        
+        .limiter-led.active {
+            background: #f00;
+            color: #fff;
+            box-shadow: 0 0 10px #f00;
+        }
+        
+        /* Monitoring Section */
+        .monitoring-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        
+        .monitor-btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #222;
+            color: #888;
+            border: 1px solid #444;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .monitor-btn:hover {
+            background: #333;
+            color: #aaa;
+        }
+        
+        .monitor-btn.active {
+            background: var(--accent-color);
+            color: #000;
         }
         
         .frequency-controls {
@@ -941,21 +1878,57 @@ async function initializeAudio() {
 }
 
 function setupControls() {
-    // Play/Pause button
+    // Master power button
     const playPauseBtn = document.getElementById('em-play-pause');
     playPauseBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent event bubbling
+        e.stopPropagation();
         togglePlayPause();
     });
     
-    // Reset button
-    const resetBtn = document.getElementById('em-reset');
-    resetBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent event bubbling
-        resetFrequencies();
+    // Channel toggles
+    document.querySelectorAll('.channel-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const channel = this.dataset.channel;
+            this.classList.toggle('active');
+            toggleChannelSound(channel, this.classList.contains('active'));
+        });
     });
     
-    // Frequency toggles removed - sound control handled by Sound Control Center
+    // Knob controls
+    setupKnobControls();
+    
+    // Fader controls
+    document.querySelectorAll('.channel-fader').forEach(fader => {
+        fader.addEventListener('input', function() {
+            const channel = this.closest('.channel-strip').dataset.channel;
+            updateChannelVolume(channel, this.value / 100);
+        });
+    });
+    
+    // Master fader
+    const masterFader = document.querySelector('.master-fader');
+    if (masterFader) {
+        masterFader.addEventListener('input', function() {
+            if (window.breakawaySound) {
+                window.breakawaySound.setMasterVolume(this.value / 100);
+            }
+        });
+    }
+    
+    // Solo/Mute buttons
+    document.querySelectorAll('.solo-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            handleSolo(this.closest('.channel-strip').dataset.channel, this.classList.contains('active'));
+        });
+    });
+    
+    document.querySelectorAll('.mute-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            handleMute(this.closest('.channel-strip').dataset.channel, this.classList.contains('active'));
+        });
+    });
     
     // Time range selector
     const timeRange = document.getElementById('time-range');
@@ -965,6 +1938,620 @@ function setupControls() {
     
     // Debug panel controls
     setupDebugPanel();
+    
+    // Start VU meter animations
+    startVUMeters();
+    
+    // Set up master controls
+    setupMasterControls();
+    
+    // Start gain reduction meter
+    startGainReductionMeter();
+}
+
+// VU Meter animation function
+function startVUMeters() {
+    const vuCanvases = document.querySelectorAll('.vu-meter');
+    const vuContexts = [];
+    
+    // Initialize all VU meter canvases
+    vuCanvases.forEach((canvas, index) => {
+        const ctx = canvas.getContext('2d');
+        canvas.width = 30;
+        canvas.height = 200;
+        vuContexts.push({
+            canvas: canvas,
+            ctx: ctx,
+            channel: canvas.closest('.channel-strip')?.dataset.channel || 'master',
+            levels: new Array(20).fill(0),
+            peak: 0,
+            peakHold: 0,
+            peakHoldCounter: 0
+        });
+    });
+    
+    // Animation loop
+    function animateVU() {
+        vuContexts.forEach(vu => {
+            const { ctx, canvas, channel, levels } = vu;
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Get current audio level
+            let level = 0;
+            if (emSymphonyState.analyser && emSymphonyState.isPlaying) {
+                const dataArray = new Uint8Array(emSymphonyState.analyser.frequencyBinCount);
+                emSymphonyState.analyser.getByteFrequencyData(dataArray);
+                
+                // Calculate level based on channel
+                if (channel === 'master') {
+                    // Master channel - average all frequencies
+                    level = dataArray.reduce((sum, val) => sum + val, 0) / dataArray.length / 255;
+                } else {
+                    // Individual channels - use specific frequency ranges
+                    const freqRanges = {
+                        'schumann': [0, 10],      // 7.83 Hz range
+                        'delta': [1, 4],          // 1-4 Hz
+                        'theta': [4, 8],          // 4-8 Hz
+                        'alpha': [8, 13],         // 8-13 Hz
+                        'beta': [13, 30],         // 13-30 Hz
+                        'gamma': [30, 100]        // 30-100 Hz
+                    };
+                    
+                    const range = freqRanges[channel] || [0, 100];
+                    const startBin = Math.floor(range[0] * dataArray.length / (emSymphonyState.audioContext.sampleRate / 2));
+                    const endBin = Math.floor(range[1] * dataArray.length / (emSymphonyState.audioContext.sampleRate / 2));
+                    
+                    let sum = 0;
+                    for (let i = startBin; i <= endBin && i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    level = sum / (endBin - startBin + 1) / 255;
+                }
+                
+                // Apply channel volume if muted or soloed
+                const strip = document.querySelector(`.channel-strip[data-channel="${channel}"]`);
+                if (strip) {
+                    const muteBtn = strip.querySelector('.mute-btn');
+                    const soloBtn = strip.querySelector('.solo-btn');
+                    const fader = strip.querySelector('.channel-fader');
+                    
+                    if (muteBtn && muteBtn.classList.contains('active')) {
+                        level = 0;
+                    } else if (fader) {
+                        level *= (fader.value / 100);
+                    }
+                }
+            }
+            
+            // Update peak hold
+            if (level > vu.peak) {
+                vu.peak = level;
+                vu.peakHold = level;
+                vu.peakHoldCounter = 60; // Hold for 1 second at 60fps
+            } else {
+                vu.peak *= 0.95; // Smooth decay
+                if (vu.peakHoldCounter > 0) {
+                    vu.peakHoldCounter--;
+                } else {
+                    vu.peakHold *= 0.98; // Slower peak hold decay
+                }
+            }
+            
+            // Draw VU meter segments
+            const segmentHeight = canvas.height / 20;
+            const segmentGap = 1;
+            
+            for (let i = 0; i < 20; i++) {
+                const y = canvas.height - (i + 1) * segmentHeight;
+                const threshold = i / 20;
+                
+                // Determine color based on level
+                let color;
+                if (i < 12) {
+                    color = '#00ff00'; // Green
+                } else if (i < 16) {
+                    color = '#ffff00'; // Yellow
+                } else {
+                    color = '#ff0000'; // Red
+                }
+                
+                // Draw segment
+                if (vu.peak > threshold) {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(2, y + segmentGap, canvas.width - 4, segmentHeight - segmentGap);
+                } else {
+                    // Dim segment
+                    ctx.fillStyle = color + '33'; // 20% opacity
+                    ctx.fillRect(2, y + segmentGap, canvas.width - 4, segmentHeight - segmentGap);
+                }
+                
+                // Draw peak hold line
+                if (Math.abs(vu.peakHold - threshold) < 0.05 && vu.peakHoldCounter > 0) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, y, canvas.width, 2);
+                }
+            }
+            
+            // Draw border
+            ctx.strokeStyle = '#333';
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        });
+        
+        requestAnimationFrame(animateVU);
+    }
+    
+    // Start animation
+    animateVU();
+}
+
+// Setup master control functionality
+function setupMasterControls() {
+    // Master EQ knobs
+    document.querySelectorAll('.master-eq-controls .knob').forEach(knob => {
+        setupKnobControl(knob, (value, param) => {
+            const dbValue = (value - 50) / 2; // -25 to +25 dB
+            const display = knob.parentElement.querySelector('.knob-value');
+            if (display) {
+                display.textContent = `${dbValue >= 0 ? '+' : ''}${dbValue.toFixed(1)}dB`;
+            }
+            applyMasterEQ(param, dbValue);
+        });
+    });
+    
+    // Compressor controls
+    document.querySelectorAll('.comp-knob').forEach(knob => {
+        setupKnobControl(knob, (value, param) => {
+            const display = knob.parentElement.querySelector('.knob-value');
+            const min = parseFloat(knob.dataset.min) || 0;
+            const max = parseFloat(knob.dataset.max) || 100;
+            const actualValue = min + (value / 100) * (max - min);
+            
+            if (display) {
+                switch(param) {
+                    case 'threshold':
+                        display.textContent = `${actualValue.toFixed(0)}dB`;
+                        break;
+                    case 'ratio':
+                        display.textContent = `${actualValue.toFixed(0)}:1`;
+                        break;
+                    case 'attack':
+                        display.textContent = `${actualValue.toFixed(0)}ms`;
+                        break;
+                    case 'release':
+                        display.textContent = `${actualValue * 10}ms`;
+                        break;
+                }
+            }
+            updateCompressor(param, actualValue);
+        });
+    });
+    
+    // Limiter control
+    const limiterKnob = document.querySelector('.limiter-knob');
+    if (limiterKnob) {
+        setupKnobControl(limiterKnob, (value, param) => {
+            const dbValue = (value - 100) / 5; // -20 to 0 dB
+            const display = limiterKnob.parentElement.querySelector('.knob-value');
+            if (display) {
+                display.textContent = `${dbValue.toFixed(1)}dB`;
+            }
+            updateLimiter(dbValue);
+        });
+    }
+    
+    // Compressor bypass
+    const bypassBtn = document.querySelector('.comp-bypass-btn');
+    if (bypassBtn) {
+        bypassBtn.addEventListener('click', () => {
+            bypassBtn.classList.toggle('active');
+            emSymphonyState.compressorBypassed = bypassBtn.classList.contains('active');
+        });
+    }
+    
+    // Monitoring buttons
+    document.querySelector('.mono-btn')?.addEventListener('click', function() {
+        this.classList.toggle('active');
+        setMonoMode(this.classList.contains('active'));
+    });
+    
+    document.querySelector('.dim-btn')?.addEventListener('click', function() {
+        this.classList.toggle('active');
+        const dimAmount = this.classList.contains('active') ? -20 : 0;
+        applyDim(dimAmount);
+    });
+    
+    document.querySelector('.mute-all-btn')?.addEventListener('click', function() {
+        this.classList.toggle('active');
+        muteAll(this.classList.contains('active'));
+    });
+}
+
+// Helper function to setup knob controls
+function setupKnobControl(knob, callback) {
+    let isDragging = false;
+    let startY = 0;
+    let startValue = 0;
+    
+    const updateKnob = (value) => {
+        const rotation = (value / 100) * 270 - 135;
+        knob.style.setProperty('--rotation', `${rotation}deg`);
+        const param = knob.dataset.param;
+        if (param && callback) {
+            callback(value, param);
+        }
+    };
+    
+    knob.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        startValue = parseInt(knob.dataset.value || 50);
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const deltaY = startY - e.clientY;
+        const sensitivity = knob.classList.contains('small') ? 1 : 0.5;
+        const newValue = Math.max(0, Math.min(100, startValue + deltaY * sensitivity));
+        knob.dataset.value = newValue;
+        updateKnob(newValue);
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+    
+    // Initialize
+    updateKnob(parseInt(knob.dataset.value || 50));
+}
+
+// Gain reduction meter animation
+function startGainReductionMeter() {
+    const canvas = document.getElementById('gain-reduction-meter');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = 200;
+    canvas.height = 20;
+    
+    function animate() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Calculate gain reduction (simulate for now)
+        if (emSymphonyState.isPlaying && !emSymphonyState.compressorBypassed) {
+            const reduction = Math.random() * 10; // 0-10 dB reduction
+            const width = (reduction / 20) * canvas.width;
+            
+            // Draw reduction meter
+            const gradient = ctx.createLinearGradient(0, 0, width, 0);
+            gradient.addColorStop(0, '#ffaa00');
+            gradient.addColorStop(1, '#ff0000');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, canvas.height);
+            
+            // Update limiter LED if hitting ceiling
+            if (reduction > 18) {
+                document.querySelector('.limiter-led')?.classList.add('active');
+            } else {
+                document.querySelector('.limiter-led')?.classList.remove('active');
+            }
+        }
+        
+        // Draw scale marks
+        ctx.strokeStyle = '#333';
+        for (let i = 0; i <= 4; i++) {
+            const x = (i / 4) * canvas.width;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+}
+
+// Audio processing functions (placeholders for actual Web Audio API implementation)
+function applyMasterEQ(band, gain) {
+    // Would connect to actual EQ nodes
+    debugLog(`Master EQ ${band}: ${gain}dB`);
+}
+
+function updateCompressor(param, value) {
+    // Would update compressor parameters
+    debugLog(`Compressor ${param}: ${value}`);
+}
+
+function updateLimiter(ceiling) {
+    // Would update limiter ceiling
+    debugLog(`Limiter ceiling: ${ceiling}dB`);
+}
+
+function setMonoMode(enabled) {
+    // Would merge stereo to mono
+    debugLog(`Mono mode: ${enabled}`);
+}
+
+function applyDim(amount) {
+    // Would reduce monitoring level
+    debugLog(`Dim: ${amount}dB`);
+}
+
+function muteAll(muted) {
+    // Would mute all channels
+    if (muted) {
+        document.querySelectorAll('.channel-strip').forEach(strip => {
+            const muteBtn = strip.querySelector('.mute-btn');
+            if (muteBtn && !muteBtn.classList.contains('active')) {
+                muteBtn.click();
+            }
+        });
+    } else {
+        document.querySelectorAll('.mute-btn.active').forEach(btn => {
+            btn.click();
+        });
+    }
+}
+
+// Setup knob controls with drag functionality
+function setupKnobControls() {
+    document.querySelectorAll('.knob').forEach(knob => {
+        let isDragging = false;
+        let startY = 0;
+        let startValue = 0;
+        
+        knob.addEventListener('mousedown', startDrag);
+        knob.addEventListener('touchstart', startDrag);
+        
+        function startDrag(e) {
+            isDragging = true;
+            startY = e.clientY || e.touches[0].clientY;
+            startValue = parseFloat(knob.dataset.value) || 0;
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', stopDrag);
+            
+            e.preventDefault();
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const currentY = e.clientY || e.touches[0].clientY;
+            const deltaY = startY - currentY;
+            const sensitivity = knob.classList.contains('large') ? 0.5 : 1;
+            
+            let min = parseFloat(knob.dataset.min) || -15;
+            let max = parseFloat(knob.dataset.max) || 15;
+            let range = max - min;
+            
+            let newValue = startValue + (deltaY * sensitivity * range / 100);
+            newValue = Math.max(min, Math.min(max, newValue));
+            
+            knob.dataset.value = newValue;
+            updateKnobVisual(knob, newValue, min, max);
+            updateKnobValue(knob, newValue);
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+        
+        // Double-click to reset
+        knob.addEventListener('dblclick', function() {
+            const defaultValue = knob.dataset.param === 'pan' ? 0 : 
+                               knob.dataset.param === 'frequency' ? 7.83 : 0;
+            knob.dataset.value = defaultValue;
+            updateKnobVisual(knob, defaultValue, parseFloat(knob.dataset.min) || -15, parseFloat(knob.dataset.max) || 15);
+            updateKnobValue(knob, defaultValue);
+        });
+    });
+}
+
+// Update knob visual rotation
+function updateKnobVisual(knob, value, min, max) {
+    const indicator = knob.querySelector('.knob-indicator');
+    const range = max - min;
+    const normalizedValue = (value - min) / range;
+    const rotation = -135 + (normalizedValue * 270); // -135 to +135 degrees
+    indicator.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+}
+
+// Update knob value and apply changes
+function updateKnobValue(knob, value) {
+    const param = knob.dataset.param;
+    const channelStrip = knob.closest('.channel-strip');
+    const channel = channelStrip ? channelStrip.dataset.channel : null;
+    
+    // Update frequency display if it's a frequency knob
+    if (param === 'frequency' || param === 'beat-freq') {
+        const display = knob.closest('.freq-control').querySelector('.freq-display');
+        if (display) {
+            display.textContent = value.toFixed(1);
+        }
+        
+        // Update actual frequency
+        if (channel && window.breakawaySound) {
+            updateChannelFrequency(channel, value);
+        }
+    }
+}
+
+// Toggle channel sound on/off
+function toggleChannelSound(channel, isActive) {
+    const soundSystem = window.breakawaySound;
+    if (!soundSystem || !soundSystem.isInitialized) return;
+    
+    if (isActive) {
+        if (channel === 'schumann') {
+            soundSystem.playSchumannResonance(true, { rate: 0.05, depth: 0.3 });
+        } else if (['delta', 'theta', 'alpha', 'beta', 'gamma'].includes(channel)) {
+            soundSystem.playBinauralBeat(channel);
+        }
+    } else {
+        if (channel === 'schumann') {
+            soundSystem.stopSchumannResonance();
+        } else if (['delta', 'theta', 'alpha', 'beta', 'gamma'].includes(channel)) {
+            soundSystem.stopBinauralBeat(channel);
+        }
+    }
+}
+
+// Update channel state for various parameters
+function updateChannelState(channel, parameter, value) {
+    if (!emSymphonyState.channelStates) {
+        emSymphonyState.channelStates = {};
+    }
+    
+    if (!emSymphonyState.channelStates[channel]) {
+        emSymphonyState.channelStates[channel] = {
+            active: false,
+            volume: 75,
+            gain: 50,
+            frequency: 50,
+            balance: 50,
+            muted: false,
+            solo: false
+        };
+    }
+    
+    emSymphonyState.channelStates[channel][parameter] = value;
+    
+    // Apply changes to sound system
+    const soundSystem = window.breakawaySound;
+    if (!soundSystem || !soundSystem.isInitialized) return;
+    
+    // Handle specific parameter updates
+    switch(parameter) {
+        case 'active':
+            toggleChannelSound(channel, value);
+            break;
+        case 'volume':
+            updateChannelVolume(channel, value / 100);
+            break;
+        case 'frequency':
+            // Update frequency modulation
+            if (channel === 'schumann' && soundSystem.schumannOscillator) {
+                const baseFreq = 7.83;
+                const modAmount = (value - 50) / 50 * 0.5; // ±0.5 Hz modulation
+                soundSystem.schumannOscillator.frequency.value = baseFreq + (baseFreq * modAmount);
+            }
+            break;
+        case 'gain':
+            // Update gain/EQ
+            if (soundSystem.channelGains && soundSystem.channelGains[channel]) {
+                const dbValue = (value - 50) / 2; // -25 to +25 dB range
+                soundSystem.channelGains[channel].gain.value = Math.pow(10, dbValue / 20);
+            }
+            break;
+    }
+    
+    // Update debug display
+    debugLog(`Channel ${channel} - ${parameter}: ${value}`);
+}
+
+// Update solo state across all channels
+function updateSoloState(channel, isSolo) {
+    const allChannels = document.querySelectorAll('.channel-strip');
+    let anySoloed = false;
+    
+    // Check if any channel is soloed
+    allChannels.forEach(strip => {
+        const soloBtn = strip.querySelector('.solo-btn');
+        if (soloBtn && soloBtn.classList.contains('active')) {
+            anySoloed = true;
+        }
+    });
+    
+    // Update channel states based on solo status
+    allChannels.forEach(strip => {
+        const stripChannel = strip.dataset.channel;
+        const muteBtn = strip.querySelector('.mute-btn');
+        const soloBtn = strip.querySelector('.solo-btn');
+        
+        if (anySoloed) {
+            // If any channel is soloed, mute non-soloed channels
+            if (!soloBtn.classList.contains('active')) {
+                updateChannelState(stripChannel, 'muted', true);
+            } else {
+                updateChannelState(stripChannel, 'muted', false);
+            }
+        } else {
+            // No channels soloed, respect individual mute buttons
+            updateChannelState(stripChannel, 'muted', muteBtn.classList.contains('active'));
+        }
+    });
+}
+
+// Update channel volume
+function updateChannelVolume(channel, volume) {
+    // This would update the specific channel's gain node
+    // For now, we'll use the category volume controls
+    const soundSystem = window.breakawaySound;
+    if (!soundSystem) return;
+    
+    // Map channels to categories
+    if (channel === 'schumann') {
+        soundSystem.setCategoryVolume('sacred', volume);
+    } else if (['delta', 'theta', 'alpha', 'beta', 'gamma'].includes(channel)) {
+        soundSystem.setCategoryVolume('binaural', volume);
+    }
+}
+
+// Update channel frequency
+function updateChannelFrequency(channel, frequency) {
+    if (channel === 'schumann') {
+        // Update Schumann frequency
+        emSymphonyState.frequencies.schumann.current = frequency;
+    }
+    // For binaural beats, we'd update the beat frequency
+    // This would require modifying the sound system to support dynamic frequency updates
+}
+
+// Handle solo functionality
+function handleSolo(channel, isSolo) {
+    if (isSolo) {
+        // Mute all other channels
+        document.querySelectorAll('.channel-strip').forEach(strip => {
+            if (strip.dataset.channel !== channel) {
+                const muteBtn = strip.querySelector('.mute-btn');
+                if (!muteBtn.classList.contains('active')) {
+                    muteBtn.classList.add('temp-mute');
+                    handleMute(strip.dataset.channel, true);
+                }
+            }
+        });
+    } else {
+        // Unmute previously muted channels
+        document.querySelectorAll('.temp-mute').forEach(btn => {
+            btn.classList.remove('temp-mute');
+            const channel = btn.closest('.channel-strip').dataset.channel;
+            handleMute(channel, false);
+        });
+    }
+}
+
+// Handle mute functionality
+function handleMute(channel, isMuted) {
+    const fader = document.querySelector(`.channel-strip[data-channel="${channel}"] .channel-fader`);
+    if (fader) {
+        fader.disabled = isMuted;
+        updateChannelVolume(channel, isMuted ? 0 : fader.value / 100);
+    }
 }
 
 // Setup debug panel functionality
