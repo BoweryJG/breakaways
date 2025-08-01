@@ -1570,6 +1570,194 @@ function addCustomStyles() {
                 padding: 10px;
             }
             
+            /* Mobile Mixing Board Layout */
+            .mixing-board-header {
+                padding: 15px 10px;
+            }
+            
+            .board-title {
+                font-size: 1.2em;
+                letter-spacing: 1px;
+            }
+            
+            .master-controls-top {
+                margin-top: 10px;
+            }
+            
+            .master-power-btn {
+                width: 100px;
+                height: 40px;
+                font-size: 0.9em;
+            }
+            
+            .tempo-display {
+                font-size: 0.8em;
+                margin-left: 10px;
+            }
+            
+            /* Mobile Channel Strips */
+            .mixing-board-main {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .channel-strips-container {
+                display: flex;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                gap: 10px;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+                position: relative;
+            }
+            
+            /* Mobile scroll indicator */
+            .channel-strips-container::after {
+                content: '→ Swipe for more channels →';
+                position: absolute;
+                bottom: -5px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 0.7em;
+                color: #666;
+                white-space: nowrap;
+            }
+            
+            .channel-strip {
+                min-width: 120px;
+                width: 120px;
+                padding: 10px;
+                scroll-snap-align: start;
+            }
+            
+            .channel-header h4 {
+                font-size: 0.9em;
+            }
+            
+            .channel-freq {
+                font-size: 0.7em;
+            }
+            
+            /* Simplify channel controls on mobile */
+            .eq-section {
+                display: none; /* Hide EQ on mobile for space */
+            }
+            
+            .freq-control,
+            .pan-control {
+                margin: 5px 0;
+            }
+            
+            .knob {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .knob.large {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .knob-value {
+                font-size: 0.7em;
+            }
+            
+            .solo-mute-group {
+                margin: 10px 0;
+            }
+            
+            .solo-btn,
+            .mute-btn {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+            
+            .fader-section {
+                margin-top: 10px;
+            }
+            
+            .channel-fader {
+                height: 80px;
+            }
+            
+            .vu-meter {
+                width: 20px;
+                height: 120px;
+            }
+            
+            /* Mobile Master Section */
+            .master-section {
+                width: 100%;
+                padding: 15px;
+                margin-top: 20px;
+            }
+            
+            .master-section h3 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+            
+            .master-eq-section {
+                margin: 15px 0;
+                padding: 10px;
+            }
+            
+            .master-eq-controls {
+                gap: 10px;
+            }
+            
+            .eq-band .knob {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .master-fader-container {
+                margin: 15px auto;
+            }
+            
+            .master-fader {
+                height: 100px;
+            }
+            
+            .fader-scale {
+                font-size: 0.6em;
+                right: -25px;
+            }
+            
+            /* Collapse advanced sections on mobile */
+            .compressor-section,
+            .limiter-section {
+                margin-top: 10px;
+                padding: 10px;
+            }
+            
+            .comp-controls {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .monitoring-section {
+                margin-top: 10px;
+                padding: 10px;
+            }
+            
+            .monitor-btn {
+                padding: 6px;
+                font-size: 0.8em;
+            }
+            
+            /* Mobile touch targets */
+            .channel-toggle,
+            .solo-btn,
+            .mute-btn,
+            .control-btn,
+            .monitor-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Mobile visualization adjustments */
             .em-controls {
                 flex-direction: column;
                 gap: 10px;
@@ -1849,6 +2037,71 @@ function addCustomStyles() {
         .debug-console::-webkit-scrollbar-thumb {
             background: var(--accent-color);
             border-radius: 3px;
+        }
+        
+        /* Very small screens (iPhone SE, etc) */
+        @media (max-width: 375px) {
+            .board-title {
+                font-size: 1em;
+            }
+            
+            .channel-strip {
+                min-width: 100px;
+                width: 100px;
+                padding: 8px;
+            }
+            
+            .channel-header h4 {
+                font-size: 0.8em;
+            }
+            
+            .knob {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .knob.large {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .channel-fader {
+                height: 60px;
+            }
+            
+            .vu-meter {
+                width: 15px;
+                height: 100px;
+            }
+            
+            .master-section {
+                padding: 10px;
+            }
+            
+            .comp-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Landscape orientation for mobile */
+        @media (max-width: 812px) and (orientation: landscape) {
+            .mixing-board-main {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .channel-strips-container {
+                margin-bottom: 10px;
+            }
+            
+            .visualization-grid {
+                display: none; /* Hide visualizations in landscape to focus on mixer */
+            }
+            
+            .master-section {
+                width: auto;
+                flex: 1;
+            }
         }
     `;
     document.head.appendChild(style);
@@ -2184,26 +2437,37 @@ function setupKnobControl(knob, callback) {
         }
     };
     
-    knob.addEventListener('mousedown', (e) => {
+    const handleStart = (e) => {
         isDragging = true;
-        startY = e.clientY;
+        startY = e.clientY || e.touches[0].clientY;
         startValue = parseInt(knob.dataset.value || 50);
         e.preventDefault();
-    });
+    };
     
-    document.addEventListener('mousemove', (e) => {
+    const handleMove = (e) => {
         if (!isDragging) return;
         
-        const deltaY = startY - e.clientY;
+        const currentY = e.clientY || e.touches[0].clientY;
+        const deltaY = startY - currentY;
         const sensitivity = knob.classList.contains('small') ? 1 : 0.5;
         const newValue = Math.max(0, Math.min(100, startValue + deltaY * sensitivity));
         knob.dataset.value = newValue;
         updateKnob(newValue);
-    });
+    };
     
-    document.addEventListener('mouseup', () => {
+    const handleEnd = () => {
         isDragging = false;
-    });
+    };
+    
+    // Mouse events
+    knob.addEventListener('mousedown', handleStart);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+    
+    // Touch events for mobile
+    knob.addEventListener('touchstart', handleStart, { passive: false });
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
     
     // Initialize
     updateKnob(parseInt(knob.dataset.value || 50));
